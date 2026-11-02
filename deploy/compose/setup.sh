@@ -1,5 +1,5 @@
 #!/bin/sh
-# Prepares the combined template mumble-with-ruumble.docker-compose.yml (https://github.com/Skrrytch/ruumble):
+# Prepares the combined template mumble-with-ruumble.docker-compose.yml (https://github.com/Skrrytch/Ruumble):
 # creates the two Ice secrets if they do not exist yet and prints the remaining steps.
 # Run it in the folder of the Compose file; running it again changes nothing.
 set -eu

@@ -6,6 +6,9 @@ All notable changes to Ruumble. The service and the web UI share one version; th
 
 ## [Unreleased]
 
+### Changed
+- The GitHub repository is now `Skrrytch/Ruumble` and the demo is at <https://skrrytch.github.io/Ruumble/>. Old links to `Skrrytch/ruumble` are redirected by GitHub; the image stays `ghcr.io/skrrytch/ruumble` (image names are lowercase).
+
 ## [0.32.0] - 2026-10-28
 
 Plugin 0.5.0 (unchanged). Notices that reach you while Ruumble is in the background: the tab title, the tab icon, the app badge and desktop notifications, set per browser in a new notices dialog, with a do-not-disturb switch.
@@ -223,7 +226,7 @@ Plugin 0.5.0 (unchanged). Easier setup: the Compose templates need no edits.
 ### Added
 - `deploy/compose/mumble-with-ruumble.docker-compose.yml`: Mumble server and Ruumble in one file for a new setup, and `setup.sh`, which creates the Ice secrets and prints the line for the root channel description.
 - The operations guide starts with a four-step quick setup; troubleshooting table with the typical log messages.
-- Demo of the web UI against the mock on GitHub Pages: <https://skrrytch.github.io/ruumble/>.
+- Demo of the web UI against the mock on GitHub Pages: <https://skrrytch.github.io/Ruumble/>.
 - README with a quick start, security policy, contribution guide, issue templates.
 
 ### Changed
@@ -377,17 +380,17 @@ Plugin 0.1.0 to 0.2.0.
 - Real Mumble avatars and presence (quiet, away, recording).
 - Docker image with the plugin bundle served under `/download`.
 
-[0.32.0]: https://github.com/Skrrytch/ruumble/releases/tag/v0.32.0
-[0.31.0]: https://github.com/Skrrytch/ruumble/releases/tag/v0.31.0
-[0.30.0]: https://github.com/Skrrytch/ruumble/releases/tag/v0.30.0
-[0.29.0]: https://github.com/Skrrytch/ruumble/releases/tag/v0.29.0
-[0.28.2]: https://github.com/Skrrytch/ruumble/releases/tag/v0.28.2
-[0.28.1]: https://github.com/Skrrytch/ruumble/releases/tag/v0.28.1
-[0.28.0]: https://github.com/Skrrytch/ruumble/releases/tag/v0.28.0
-[0.27.0]: https://github.com/Skrrytch/ruumble/releases/tag/v0.27.0
-[0.26.0]: https://github.com/Skrrytch/ruumble/releases/tag/v0.26.0
-[0.25.1]: https://github.com/Skrrytch/ruumble/releases/tag/v0.25.1
-[0.25.0]: https://github.com/Skrrytch/ruumble/releases/tag/v0.25.0
-[0.19.0]: https://github.com/Skrrytch/ruumble/releases/tag/v0.19.0
-[0.15.0]: https://github.com/Skrrytch/ruumble/releases/tag/v0.15.0
-[0.14.0]: https://github.com/Skrrytch/ruumble/releases/tag/v0.14.0
+[0.32.0]: https://github.com/Skrrytch/Ruumble/releases/tag/v0.32.0
+[0.31.0]: https://github.com/Skrrytch/Ruumble/releases/tag/v0.31.0
+[0.30.0]: https://github.com/Skrrytch/Ruumble/releases/tag/v0.30.0
+[0.29.0]: https://github.com/Skrrytch/Ruumble/releases/tag/v0.29.0
+[0.28.2]: https://github.com/Skrrytch/Ruumble/releases/tag/v0.28.2
+[0.28.1]: https://github.com/Skrrytch/Ruumble/releases/tag/v0.28.1
+[0.28.0]: https://github.com/Skrrytch/Ruumble/releases/tag/v0.28.0
+[0.27.0]: https://github.com/Skrrytch/Ruumble/releases/tag/v0.27.0
+[0.26.0]: https://github.com/Skrrytch/Ruumble/releases/tag/v0.26.0
+[0.25.1]: https://github.com/Skrrytch/Ruumble/releases/tag/v0.25.1
+[0.25.0]: https://github.com/Skrrytch/Ruumble/releases/tag/v0.25.0
+[0.19.0]: https://github.com/Skrrytch/Ruumble/releases/tag/v0.19.0
+[0.15.0]: https://github.com/Skrrytch/Ruumble/releases/tag/v0.15.0
+[0.14.0]: https://github.com/Skrrytch/Ruumble/releases/tag/v0.14.0

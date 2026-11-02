@@ -85,7 +85,7 @@ In the dev server the web UI runs against the **mock** by default (a simulated M
 
 ### Demo on GitHub Pages
 
-`pnpm -F @ruumble/web build:demo` builds the web UI in the Vite mode `demo` with a relative base into `web/dist-demo`: it always runs against the mock, and the plugin download links to the latest release. `.github/workflows/pages.yml` deploys it to <https://skrrytch.github.io/ruumble/> for every release tag, or when started manually.
+`pnpm -F @ruumble/web build:demo` builds the web UI in the Vite mode `demo` with a relative base into `web/dist-demo`: it always runs against the mock, and the plugin download links to the latest release. `.github/workflows/pages.yml` deploys it to <https://skrrytch.github.io/Ruumble/> for every release tag, or when started manually.
 
 ## Translations
 

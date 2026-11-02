@@ -126,7 +126,7 @@ Feasibility studies S1 (Ice from Node.js) and S2 (minimal plugin) passed: [feasi
 | E19 | Talking indicator | Only what the user's own client hears (ADR-0005). |
 | E20 | Service language | TypeScript/Node.js, fallback Python (ADR-0006). |
 | E21 | Opening the UI | Automatically on first connect via the pairing link (ADR-0004); further browsers by code (ADR-0012). |
-| E22 | Repository | Standalone as `Skrrytch/ruumble` instead of a fork; plugin name "Ruumble" (ADR-0009). |
+| E22 | Repository | Standalone as `Skrrytch/Ruumble` instead of a fork; plugin name "Ruumble" (ADR-0009). |
 | E23 | License | BSD-3-Clause. |
 | E24 | Publication | Public repo; design handover neutralised (no company tokens, internal names or people). |
 | E25 | Deployment | The project owner's home server (existing Docker setup with Mumble); tests locally (ADR-0008). |

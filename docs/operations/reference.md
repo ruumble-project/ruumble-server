@@ -33,7 +33,7 @@ The templates already set these.
 
 ## Compose templates
 
-In [`deploy/compose/`](../../deploy/compose/README.md), also attached to every [release](https://github.com/Skrrytch/ruumble/releases/latest):
+In [`deploy/compose/`](../../deploy/compose/README.md), also attached to every [release](https://github.com/Skrrytch/Ruumble/releases/latest):
 
 | File | For |
 |---|---|

@@ -37,7 +37,7 @@ done
 today="$(date +%Y-%m-%d)"
 awk -v v="$version" -v d="$today" '
   /^## \[Unreleased\]/ { print; print ""; print "## [" v "] - " d; next }
-  /^\[[0-9]+\.[0-9]+\.[0-9]+\]: / && !linked { print "[" v "]: https://github.com/Skrrytch/ruumble/releases/tag/v" v; linked = 1 }
+  /^\[[0-9]+\.[0-9]+\.[0-9]+\]: / && !linked { print "[" v "]: https://github.com/Skrrytch/Ruumble/releases/tag/v" v; linked = 1 }
   { print }
 ' CHANGELOG.md > CHANGELOG.md.tmp && mv CHANGELOG.md.tmp CHANGELOG.md
 

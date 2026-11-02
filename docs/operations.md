@@ -17,8 +17,8 @@ Tested with Mumble server 1.5.735 and 1.6.870, and Mumble clients 1.4 to 1.5 on 
 For a fresh setup, the Mumble server and Ruumble start together from one Compose file that needs no edits. In an empty folder:
 
 ```sh
-curl -fsSLO https://raw.githubusercontent.com/Skrrytch/ruumble/main/deploy/compose/mumble-with-ruumble.docker-compose.yml
-curl -fsSLO https://raw.githubusercontent.com/Skrrytch/ruumble/main/deploy/compose/setup.sh
+curl -fsSLO https://raw.githubusercontent.com/Skrrytch/Ruumble/main/deploy/compose/mumble-with-ruumble.docker-compose.yml
+curl -fsSLO https://raw.githubusercontent.com/Skrrytch/Ruumble/main/deploy/compose/setup.sh
 sh setup.sh && docker compose up -d
 ```
 

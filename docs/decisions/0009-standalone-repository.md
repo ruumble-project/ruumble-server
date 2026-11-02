@@ -6,7 +6,7 @@ Status: accepted (2026-09-28)
 Originally, development was to take place in a fork of Mumble (`Skrrytch/roomble`) in the folder `rooms/`. With the architecture from ADR-0001, however, Ruumble builds neither the Mumble client nor the server. Only two interface files are needed from Mumble.
 
 ## Options
-1. **Standalone repository** (`Skrrytch/ruumble`); the two interface files are pinned under `third_party/mumble/`.
+1. **Standalone repository** (`Skrrytch/Ruumble`); the two interface files are pinned under `third_party/mumble/`.
 2. Fork with `rooms/`, upstream sync and a CI check that ensures nothing changes outside `rooms/`.
 3. Git submodule pointing to Mumble (full checkout at a tag).
 
