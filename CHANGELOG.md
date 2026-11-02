@@ -6,6 +6,8 @@ All notable changes to Ruumble. The service and the web UI share one version; th
 
 ## [Unreleased]
 
+## [0.32.1] - 2026-11-03
+
 Plugin 0.5.0 (unchanged). Security update of a service dependency; the repository is now `Skrrytch/Ruumble`.
 
 ### Changed
@@ -385,6 +387,7 @@ Plugin 0.1.0 to 0.2.0.
 - Real Mumble avatars and presence (quiet, away, recording).
 - Docker image with the plugin bundle served under `/download`.
 
+[0.32.1]: https://github.com/Skrrytch/Ruumble/releases/tag/v0.32.1
 [0.32.0]: https://github.com/Skrrytch/Ruumble/releases/tag/v0.32.0
 [0.31.0]: https://github.com/Skrrytch/Ruumble/releases/tag/v0.31.0
 [0.30.0]: https://github.com/Skrrytch/Ruumble/releases/tag/v0.30.0
