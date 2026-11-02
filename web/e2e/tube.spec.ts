@@ -22,11 +22,14 @@ test.describe("Tube mail", () => {
     await expect(dialog(page)).toContainText("report.pdf");
     await expect(dialog(page)).toContainText("PDF · 1.4 MB");
     await dialog(page).getByRole("textbox", { name: "Note (optional)" }).fill("Page 3 is new");
+    // "receiving · N %" shows only between two pieces (a few hundred ms): watch every frame from the start,
+    // expect() polls too coarsely and can miss it
+    const receiving = page.waitForFunction(() => /receiving · \d+ %/.test(document.body.innerText), null, { polling: "raf", timeout: 10_000 });
     await dialog(page).getByRole("button", { name: "Send to 1 person" }).click();
     await expect(dialog(page)).toHaveCount(0);
     await expect(panel(page)).toContainText("Outgoing");
     await expect(panel(page)).toContainText("Keep this tab open until everyone has the file.");
-    await expect(panel(page).getByText(/^receiving · \d+ %$/)).toBeVisible();
+    await receiving;
     await expect(panel(page)).toContainText("received", { timeout: 10_000 });
     await expect(panel(page)).not.toContainText("Keep this tab open");
     await panel(page).getByRole("button", { name: "Put away" }).click();
