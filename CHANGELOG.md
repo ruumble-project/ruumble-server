@@ -6,6 +6,8 @@ All notable changes to Ruumble. The service and the web UI share one version; th
 
 ## [Unreleased]
 
+Plugin 0.5.0 (unchanged). Security update of a service dependency; the repository is now `Skrrytch/Ruumble`.
+
 ### Changed
 - The GitHub repository is now `Skrrytch/Ruumble` and the demo is at <https://skrrytch.github.io/Ruumble/>. Old links to `Skrrytch/ruumble` are redirected by GitHub; the image stays `ghcr.io/skrrytch/ruumble` (image names are lowercase).
 
