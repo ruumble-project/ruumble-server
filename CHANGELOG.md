@@ -9,6 +9,9 @@ All notable changes to Ruumble. The service and the web UI share one version; th
 ### Changed
 - The GitHub repository is now `Skrrytch/Ruumble` and the demo is at <https://skrrytch.github.io/Ruumble/>. Old links to `Skrrytch/ruumble` are redirected by GitHub; the image stays `ghcr.io/skrrytch/ruumble` (image names are lowercase).
 
+### Security
+- `fast-uri` (used by Fastify's schema validation) updated to 3.1.9 and 4.2.3 (URI scheme spoofing, host confusion).
+
 ## [0.32.0] - 2026-10-28
 
 Plugin 0.5.0 (unchanged). Notices that reach you while Ruumble is in the background: the tab title, the tab icon, the app badge and desktop notifications, set per browser in a new notices dialog, with a do-not-disturb switch.
