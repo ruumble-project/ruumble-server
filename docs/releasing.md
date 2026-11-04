@@ -20,7 +20,7 @@ A release is a git tag `v<version>` on a commit of `main`. Pushing the tag start
 
 1. runs CI again (lint, tests, build, browser tests, plugin),
 2. checks that the versions agree (see [What the workflow checks](#what-the-workflow-checks)),
-3. builds and pushes the Docker image `ghcr.io/skrrytch/ruumble` with the tags `<version>`, `<major>.<minor>` and `latest` (linux/amd64 and linux/arm64),
+3. builds and pushes the Docker image `ghcr.io/kevinwebman/ruumble` with the tags `<version>`, `<major>.<minor>` and `latest` (linux/amd64 and linux/arm64),
 4. creates the GitHub release titled `Ruumble <version>` with these assets: the plugin bundle `ruumble-<plugin version>.mumble_plugin`, both Compose templates, `ruumble-icons.zip`, `THIRD_PARTY_NOTICES.md`, `SHA256SUMS`. The release notes are the version's section of `CHANGELOG.md` plus install notes.
 
 Servers that update automatically (e.g. Watchtower on `latest` or `<major>.<minor>`) only see a new version once step 3 has run. A GitHub release without the image updates nobody.
@@ -104,10 +104,10 @@ A lightweight tag on the release commit, named with a leading `v`. This is the m
 ```sh
 gh run list -w Release -L 1                       # must end with "success"
 gh release view v<version>                        # title "Ruumble <version>", assets listed
-docker buildx imagetools inspect ghcr.io/skrrytch/ruumble:<version>
+docker buildx imagetools inspect ghcr.io/kevinwebman/ruumble:<version>
 ```
 
-Expected: the Release run succeeded (about 5–10 minutes), the release is titled `Ruumble <version>` and has the assets listed above, and the image exists for `linux/amd64` and `linux/arm64`. `ghcr.io/skrrytch/ruumble:latest` now points to the same digest.
+Expected: the Release run succeeded (about 5–10 minutes), the release is titled `Ruumble <version>` and has the assets listed above, and the image exists for `linux/amd64` and `linux/arm64`. `ghcr.io/kevinwebman/ruumble:latest` now points to the same digest.
 
 ## What the workflow checks
 

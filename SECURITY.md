@@ -6,7 +6,7 @@ Security fixes go into the latest release only. Please update to it before repor
 
 ## Reporting a vulnerability
 
-Please **do not open a public issue**. Report it privately through GitHub instead: [Report a vulnerability](https://github.com/Skrrytch/Ruumble/security/advisories/new) (tab *Security* → *Report a vulnerability*).
+Please **do not open a public issue**. Report it privately through GitHub instead: [Report a vulnerability](https://github.com/KevinWebman/Ruumble-Desk/security/advisories/new) (tab *Security* → *Report a vulnerability*).
 
 Please include the affected component (service, web UI or plugin) and its version, and steps to reproduce. You get an answer within a week. Once a fix is released, the advisory is published, and you are credited if you like.
 

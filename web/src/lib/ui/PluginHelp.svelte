@@ -7,7 +7,7 @@
 
   const h = $derived(t().pluginHelp);
   // the demo on GitHub Pages has no service that serves the plugin
-  const downloadUrl = import.meta.env.MODE === "demo" ? "https://github.com/Skrrytch/Ruumble/releases/latest" : "/download";
+  const downloadUrl = import.meta.env.MODE === "demo" ? "https://github.com/KevinWebman/Ruumble-Desk/releases/latest" : "/download";
 </script>
 
 <!-- Quick guide on the notice pages: plugins can show neither buttons nor links in Mumble (ADR-0010). -->

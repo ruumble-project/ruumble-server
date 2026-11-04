@@ -1,4 +1,4 @@
-# Mumble server and Ruumble in one Compose file, for a new setup (https://github.com/Skrrytch/Ruumble).
+# Mumble server and Ruumble in one Compose file, for a new setup (https://github.com/KevinWebman/Ruumble-Desk).
 # Nothing to edit. In this folder: ./setup.sh (creates the Ice secrets), then docker compose up -d.
 # Last step: add a line "ruumble: http://<address of this server>:64080" to the description of the
 # root channel in Mumble. Guide: docs/operations.md
@@ -25,7 +25,7 @@ services:
             - 64738:64738/udp
 
     ruumble:
-        image: ghcr.io/skrrytch/ruumble:0.32.1
+        image: ghcr.io/kevinwebman/ruumble:0.32.1
         container_name: ruumble
         restart: unless-stopped
         depends_on:
