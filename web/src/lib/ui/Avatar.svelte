@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { SESSION_DRAG } from "../desk/admin.ts";
   import HeadphoneOff from "@lucide/svelte/icons/headphone-off";
   import Tag from "@lucide/svelte/icons/tag";
   import MicOff from "@lucide/svelte/icons/mic-off";
@@ -14,6 +15,7 @@
     tooltip = true,
     dropTarget = false,
     action,
+    movable = false,
   }: {
     user: UserView;
     talking?: boolean;
@@ -24,7 +26,15 @@
     dropTarget?: boolean;
     /** a click on the avatar does something (the own one: the status): said in the tooltip, shown by the pointer */
     action?: string;
+    /** inside Ruumble Desk: can be dragged onto another room to move the person (lib/desk/admin.ts) */
+    movable?: boolean;
   } = $props();
+
+  function dragStart(e: DragEvent): void {
+    if (!movable || !e.dataTransfer) return;
+    e.dataTransfer.setData(SESSION_DRAG, String(user.session));
+    e.dataTransfer.effectAllowed = "move";
+  }
 
   // image not loadable → initials (AP9)
   let failedUrl = $state<string | null>(null);
@@ -41,7 +51,8 @@
   const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 </script>
 
-<span class="person" class:action={!!action} title={tooltip ? title : undefined} aria-label={label} role="img" data-session={user.session}>
+<!-- svelte-ignore a11y_no_static_element_interactions -->
+<span class="person" class:action={!!action} class:movable title={tooltip ? title : undefined} aria-label={label} role="img" data-session={user.session} draggable={movable ? "true" : undefined} ondragstart={dragStart}>
   <span class="av {presence}" class:me={user.isSelf} class:talking class:drop={dropTarget} aria-hidden="true">
     {#if imageUrl}
       <img src={imageUrl} alt="" onerror={() => (failedUrl = imageUrl)} />

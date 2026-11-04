@@ -19,20 +19,21 @@
   import UserIcon from "@lucide/svelte/icons/user";
   import Users from "@lucide/svelte/icons/users";
   import ScrollText from "@lucide/svelte/icons/scroll-text";
-  import Settings from "@lucide/svelte/icons/settings";
-  import Menu from "@lucide/svelte/icons/menu";
   import { locale, setLocale, t } from "../i18n/index.svelte.ts";
   import { countText, initials, ownPlace, type Building, type Floor } from "../model/building.ts";
   import type { RuumbleState } from "../state.svelte.ts";
   import { setTheme, theme } from "../theme.svelte.ts";
   import { statusText } from "../status.ts";
   import Avatar from "./Avatar.svelte";
+  import { contextMenu, getDeskAdmin } from "../desk/admin.ts";
   import Key from "./Key.svelte";
 
   // Top bar instead of the elevator column, made of signs: left the floor sign (opens the elevator, which shows
   // the server and everyone online in its status bar), in the middle the sign of the own room, right the status,
   // mute, deafen and the name badge (opens the user menu).
   let { app, building, floor }: { app: RuumbleState; building: Building; floor: Floor | null } = $props();
+  // Ruumble Desk: right click on the floor sign, a floor or the building opens Mumble's menu for that channel
+  const admin = getDeskAdmin();
 
   const reversed = $derived([...building.floors].reverse());
   const me = $derived(app.me);
@@ -104,6 +105,7 @@
         type="button" class="sign floor-sign" bind:this={floorsButton} aria-expanded={open === "floors"} aria-controls="elevator"
         aria-label={floor ? t().core.currentFloor(floor.level, floor.name, floor.population) : t().core.elevator}
         title={t().core.chooseFloor} onclick={() => toggle("floors")}
+        oncontextmenu={(e) => contextMenu(admin, e, floor?.channelId ?? null)}
       >
         <span class="badge" aria-hidden="true">{#if floor}{floor.badge}{:else}<ArrowDownUp size={16} />{/if}</span>
         <span class="plate-text">
@@ -127,6 +129,7 @@
               aria-label={t().core.floorButton(f.level, f.name, f.lock ? lockHint[f.lock] : null)}
               title={f.lock ? lockHint[f.lock] : undefined}
               onclick={() => choose(f)}
+              oncontextmenu={(e) => contextMenu(admin, e, f.channelId)}
             >
               <span class="fbadge">{f.badge}</span>
               <span class="ftext">
@@ -139,7 +142,8 @@
           {#if building.entrance.length > 0}
             <section class="entrance" aria-label={t().common.entrance}>
               <div class="entrance-head">{t().common.entrance} · {countText(building.entrance.length)}</div>
-              <div class="entrance-people">
+              <!-- svelte-ignore a11y_no_static_element_interactions -->
+              <div class="entrance-people" oncontextmenu={(e) => contextMenu(admin, e, null)}>
                 {#each building.entrance as user (user.session)}
                   <Avatar {user} talking={app.talking[user.session] ?? false} showName={false} />
                 {/each}
@@ -149,7 +153,8 @@
           <!-- status bar of the elevator: the whole building -->
           <footer class="status">
             <!-- opens the building overview: cross-section and directory board (ADR-0019) -->
-            <button type="button" class="overview-link" title={`${t().overview.open} (H)`} onclick={() => { open = null; app.openOverview(); }}>
+            <!-- right click in Ruumble Desk: Mumble's menu of the whole building (the root channel: add a floor) -->
+            <button type="button" class="overview-link" title={`${t().overview.open} (H)`} onclick={() => { open = null; app.openOverview(); }} oncontextmenu={(e) => contextMenu(admin, e, 0)}>
               <span class="online"><span class="dot" aria-hidden="true"></span>{t().header.online(building.online)}</span>
               <span class="building">{building.name}</span>
               <Building2 size={15} aria-hidden="true" />
@@ -255,15 +260,6 @@
             <span class="key-icon" aria-hidden="true"><Key size={18} /></span>{t().keys.myKeys}
           </button>
           <!-- language: German or English (browser setting), switchable here and remembered -->
-          <!-- Ruumble Desk (ADR-0024): Mumble's own settings dialog, also with Ctrl+, in the client -->
-          {#if app.desk.available}
-            <button type="button" class="item" onclick={() => { open = null; app.desk.openSettings(); }}>
-              <Settings size={18} aria-hidden="true" />{t().desk.mumbleSettings}<kbd class="key">Ctrl+,</kbd>
-            </button>
-            <button type="button" class="item" onclick={(e) => { const at = e.currentTarget.getBoundingClientRect(); open = null; app.desk.showMenu(at.left, at.top); }}>
-              <Menu size={18} aria-hidden="true" />{t().desk.menu}<kbd class="key">F10</kbd>
-            </button>
-          {/if}
           <button type="button" class="item" onclick={() => setLocale(other)}>
             <Languages size={18} aria-hidden="true" />{t().core.switchLanguage(t().core.languageName[other])}
           </button>

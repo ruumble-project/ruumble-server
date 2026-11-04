@@ -4,6 +4,7 @@
  * Mumble log and channel chat and opens the client's settings and server dialogs, so the client needs no window
  * chrome of its own. In a normal browser nothing of this exists and `available` stays false.
  */
+import type { DeskAdmin } from "./admin.ts";
 import { mergeEntries, outgoing, parseEntry, unreadCount, type DeskEntry } from "./model.ts";
 
 /** the client's object as QWebChannel hands it over: results arrive in callbacks */
@@ -17,6 +18,9 @@ interface DeskObject {
   openAudioWizard(): void;
   disconnectServer(): void;
   showMenu(x: number, y: number): void;
+  showChannelMenu?(channelId: number, x: number, y: number): void;
+  showUserMenu?(session: number, x: number, y: number): void;
+  moveUser?(session: number, channelId: number): void;
   logged: { connect(handler: (entry: unknown) => void): void };
   serverChanged: { connect(handler: () => void): void };
 }
@@ -26,7 +30,7 @@ interface QtWindow {
   QWebChannel?: new (transport: unknown, ready: (channel: { objects: { desk?: DeskObject } }) => void) => unknown;
 }
 
-export class DeskState {
+export class DeskState implements DeskAdmin {
   available = $state(false);
   open = $state(false);
   entries = $state<DeskEntry[]>([]);
@@ -106,6 +110,21 @@ export class DeskState {
   /** Mumble's own menus (server manager, self, configure, help, user list) as a native popup at x/y of the page */
   showMenu(x: number, y: number): void {
     this.desk?.showMenu(Math.round(x), Math.round(y));
+  }
+
+  /** Mumble's context menu for a channel at x/y of the page (lib/desk/admin.ts); clients before it have none */
+  channelMenu(channelId: number, x: number, y: number): void {
+    this.desk?.showChannelMenu?.(channelId, Math.round(x), Math.round(y));
+  }
+
+  /** Mumble's context menu for a user at x/y of the page */
+  userMenu(session: number, x: number, y: number): void {
+    this.desk?.showUserMenu?.(session, Math.round(x), Math.round(y));
+  }
+
+  /** a person dropped onto a room: moved there with the user's own Mumble permissions */
+  moveUser(session: number, channelId: number): void {
+    this.desk?.moveUser?.(session, channelId);
   }
 
   /** the menu below an element, aligned to its left edge */

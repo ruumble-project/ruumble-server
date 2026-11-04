@@ -11,6 +11,9 @@ All notable changes to Ruumble. The service and the web UI share one version; th
 - Ruumble Desk panel: inside the Ruumble Desk client (Mumble fork with Ruumble built in, ADR-0024 draft), a button in the top bar opens the Mumble log and channel chat and the client's server, audio and settings dialogs; in a normal browser nothing changes
 - Ruumble Desk (`desk/`): the Mumble 1.6 client with Ruumble built in now lives in this repo; every release attaches it as an AppImage for Linux x86_64
 
+- Ruumble Desk: administer the building like in Mumble. A right click on a room, corridor, floor sign, a floor in the elevator or a person opens Mumble's own menu for it (add, edit and remove rooms, ACL, links, kick, ban, register, mute, ...), the building line at the foot of the elevator the menu of the whole server (a new floor); the room menu also moves a room to another floor; people are dragged onto another room to move them. All with the user's own Mumble permissions; in a normal browser nothing changes
+- Ruumble Desk: "Mumble settings" and "Mumble menu" left the user menu; they are in the Desk panel (log and chat)
+
 ### Fixed
 
 - Ruumble Desk: person cards and room descriptions no longer show up in the wrong place or stay open, the board has its light background again and its width is right. Desk's engine (Qt WebEngine 6.4, Chromium 102) lacks the popover API, `color-mix()` and container units; the web UI now loads a popover polyfill only where it is missing, has plain fallbacks for the rest, and is built for Chromium 102 as well. Ruumble Desk also brings these fixes itself, so it works with services that still run an older web UI

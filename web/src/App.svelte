@@ -6,6 +6,7 @@
   import { floatSide } from "./lib/model/float.ts";
   import type { RuumbleState } from "./lib/state.svelte.ts";
   import DebugPanel from "./lib/ui/DebugPanel.svelte";
+  import { setDeskAdmin } from "./lib/desk/admin.ts";
   import FloorPlan from "./lib/ui/FloorPlan.svelte";
   import { t } from "./lib/i18n/index.svelte.ts";
   import { unlockAudioOnFirstUse } from "./lib/nudge.ts";
@@ -29,6 +30,9 @@
   import TubeToast from "./lib/ui/tube/TubeToast.svelte";
 
   let { app, mock = null }: { app: RuumbleState; mock?: MockAdapter | null } = $props();
+  // Ruumble Desk: right click and drag and drop administer the building like in Mumble (only inside the client)
+  // (the DeskState of an app never changes: read once)
+  setDeskAdmin(untrack(() => app.desk));
 
   const building = $derived(app.building);
   const floor = $derived(app.floor);

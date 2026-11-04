@@ -4,6 +4,7 @@
   import Users from "@lucide/svelte/icons/users";
   import VolumeX from "@lucide/svelte/icons/volume-x";
   import { onActivateKey } from "./activate.ts";
+  import { carriesPerson, contextMenu, droppedSession, getDeskAdmin } from "../desk/admin.ts";
   import { canNudge, canChat, countText, fitPeople, type Room, type Space, type UserView } from "../model/building.ts";
   import Avatar from "./Avatar.svelte";
   import BoardNotes from "./board/BoardNotes.svelte";
@@ -83,7 +84,18 @@
     const anchor = (e.target as HTMLElement | null)?.closest<HTMLElement>("[data-session]");
     return anchor ? recipients.find((u) => u.session === Number(anchor.dataset.session)) : undefined;
   }
+  // Ruumble Desk: right click opens Mumble's menu for this channel or the person under the pointer; a person dragged
+  // here is moved into this channel (lib/desk/admin.ts)
+  const admin = getDeskAdmin();
+  const movable = $derived(!!admin?.available && !readonly);
+  let movingIn = $state(false);
   function dragOver(e: DragEvent): void {
+    if (movable && carriesPerson(e)) {
+      e.preventDefault();
+      if (e.dataTransfer) e.dataTransfer.dropEffect = "move";
+      movingIn = true;
+      return;
+    }
     if (!recipients.length || !carriesFile(e)) return;
     e.preventDefault();
     if (e.dataTransfer) e.dataTransfer.dropEffect = "copy";
@@ -91,10 +103,18 @@
     dropSession = personAt(e)?.session ?? null;
   }
   function dragLeave(): void {
+    movingIn = false;
     dropping = false;
     dropSession = null;
   }
   function dropFile(e: DragEvent): void {
+    if (movable && carriesPerson(e)) {
+      e.preventDefault();
+      movingIn = false;
+      const session = droppedSession(e);
+      if (session !== null) admin!.moveUser(session, space.channelId);
+      return;
+    }
     const file = e.dataTransfer?.files[0];
     const one = personAt(e);
     dragLeave();
@@ -208,12 +228,13 @@
   class:readonly
   class:pending
   class:slow={pending && slow}
-  class:dropping={dropping && dropSession === null}
+  class:dropping={(dropping && dropSession === null) || movingIn}
   aria-label={ariaLabel}
   aria-disabled={disabled || space.isSelf || undefined}
   aria-busy={pending || undefined}
   data-channel={space.channelId}
   onclick={clickSelf}
+  oncontextmenu={(e) => contextMenu(admin, e, space.channelId)}
   ondblclick={click}
   onkeydown={onActivateKey(click)}
   ondragover={dragOver}
@@ -232,7 +253,7 @@
     <!-- svelte-ignore a11y_no_static_element_interactions -->
     <span class="people" bind:clientWidth={peopleWidth} bind:clientHeight={peopleHeight} onpointerover={overPerson} onpointerout={dropCard}>
       {#each fit.shown as user (user.session)}
-        <Avatar {user} talking={talking[user.session] ?? false} tooltip={!cardable(user)} dropTarget={dropSession === user.session} action={user.isSelf && onself && !readonly ? t().status.clickHint : undefined} />
+        <Avatar {user} {movable} talking={talking[user.session] ?? false} tooltip={!cardable(user)} dropTarget={dropSession === user.session} action={user.isSelf && onself && !readonly ? t().status.clickHint : undefined} />
       {/each}
       {#if fit.hidden.length}
         {@const names = t().space.morePeople(fit.hidden.map((u) => u.name).join(", "))}
@@ -258,7 +279,7 @@
       <!-- svelte-ignore a11y_no_static_element_interactions -->
       <span class="people" onpointerover={overPerson} onpointerout={dropCard}>
         {#each space.users as user (user.session)}
-          <Avatar {user} talking={talking[user.session] ?? false} tooltip={!cardable(user)} dropTarget={dropSession === user.session} action={user.isSelf && onself && !readonly ? t().status.clickHint : undefined} />
+          <Avatar {user} {movable} talking={talking[user.session] ?? false} tooltip={!cardable(user)} dropTarget={dropSession === user.session} action={user.isSelf && onself && !readonly ? t().status.clickHint : undefined} />
         {/each}
       </span>
     {/if}

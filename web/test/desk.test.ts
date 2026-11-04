@@ -2,6 +2,7 @@
 import { describe, expect, it } from "vitest";
 import { DESK_MAX_ENTRIES, mergeEntries, outgoing, parseEntry, timeOf, unreadCount, type DeskEntry } from "../src/lib/desk/model.ts";
 import { DeskState } from "../src/lib/desk/state.svelte.ts";
+import { carriesPerson, contextMenu, droppedSession, SESSION_DRAG, type DeskAdmin } from "../src/lib/desk/admin.ts";
 import { de } from "../src/lib/i18n/de.ts";
 import { en } from "../src/lib/i18n/en.ts";
 
@@ -67,6 +68,9 @@ function fakeClient(history: unknown[] = []) {
     openAudioWizard: () => calls.push("audio"),
     disconnectServer: () => calls.push("disconnect"),
     showMenu: (x: number, y: number) => calls.push(`menu ${x},${y}`),
+    showChannelMenu: (id: number, x: number, y: number) => calls.push(`channel ${id} ${x},${y}`),
+    showUserMenu: (session: number, x: number, y: number) => calls.push(`user ${session} ${x},${y}`),
+    moveUser: (session: number, channel: number) => calls.push(`move ${session} to ${channel}`),
     logged: { connect: (h: (e: unknown) => void) => (onLogged = h) },
     serverChanged: { connect: (h: () => void) => (onServer = h) },
   };
@@ -157,5 +161,82 @@ describe("Ruumble Desk: the connection to the client", () => {
     el.getBoundingClientRect = () => ({ left: 5, bottom: 30 }) as DOMRect;
     desk.showMenuAt(el);
     expect(client.calls).toEqual(["connect", "audio", "settings", "disconnect", "menu 10,21", "menu 5,30"]);
+  });
+});
+
+describe("Ruumble Desk: administering the building like in Mumble", () => {
+  const admin = (available = true) => {
+    const calls: string[] = [];
+    const a: DeskAdmin = {
+      available,
+      channelMenu: (id, x, y) => calls.push(`channel ${id} ${x},${y}`),
+      userMenu: (session, x, y) => calls.push(`user ${session} ${x},${y}`),
+      moveUser: (session, channel) => calls.push(`move ${session} to ${channel}`),
+    };
+    return { a, calls };
+  };
+  const rightClick = (target: Element) => {
+    const e = new MouseEvent("contextmenu", { bubbles: true, cancelable: true, clientX: 40, clientY: 60 });
+    Object.defineProperty(e, "target", { value: target });
+    return e;
+  };
+  const room = () => {
+    const el = document.createElement("button");
+    el.innerHTML = '<span class="person" data-session="7"><span class="av">BE</span></span>';
+    return el;
+  };
+
+  it("a right click opens the menu of the person under the pointer, otherwise that of the channel", () => {
+    const { a, calls } = admin();
+    const el = room();
+    const onPerson = rightClick(el.querySelector(".av")!);
+    expect(contextMenu(a, onPerson, 4)).toBe(true);
+    expect(onPerson.defaultPrevented).toBe(true);
+    const onRoom = rightClick(el);
+    expect(contextMenu(a, onRoom, 4)).toBe(true);
+    expect(contextMenu(a, rightClick(el), 0)).toBe(true); // the building (root channel)
+    expect(calls).toEqual(["user 7 40,60", "channel 4 40,60", "channel 0 40,60"]);
+  });
+
+  it("leaves the browser's own menu alone outside Ruumble Desk, or where there is no channel", () => {
+    const { a, calls } = admin(false);
+    const e = rightClick(room());
+    expect(contextMenu(a, e, 4)).toBe(false);
+    expect(e.defaultPrevented).toBe(false);
+    expect(contextMenu(undefined, rightClick(room()), 4)).toBe(false);
+    const other = admin();
+    const empty = rightClick(document.createElement("div"));
+    expect(contextMenu(other.a, empty, null)).toBe(false);
+    expect(empty.defaultPrevented).toBe(false);
+    expect([...calls, ...other.calls]).toEqual([]);
+  });
+
+  it("knows a dragged person by its type and reads the session only when dropped", () => {
+    const drag = (data: Record<string, string>) => ({ dataTransfer: { types: Object.keys(data), getData: (k: string) => data[k] ?? "" } }) as unknown as DragEvent;
+    expect(carriesPerson(drag({ [SESSION_DRAG]: "7" }))).toBe(true);
+    expect(carriesPerson(drag({ Files: "" }))).toBe(false);
+    expect(droppedSession(drag({ [SESSION_DRAG]: "7" }))).toBe(7);
+    expect(droppedSession(drag({ [SESSION_DRAG]: "x" }))).toBeNull();
+    expect(droppedSession(drag({ [SESSION_DRAG]: "0" }))).toBeNull();
+    expect(droppedSession(drag({}))).toBeNull();
+  });
+
+  it("passes menus and moves on to the client, rounded; an older client without them is no error", () => {
+    const client = fakeClient();
+    const desk = new DeskState();
+    desk.start(client.win);
+    desk.channelMenu(4, 10.4, 20.6);
+    desk.userMenu(7, 1, 2);
+    desk.moveUser(7, 5);
+    expect(client.calls).toEqual(["channel 4 10,21", "user 7 1,2", "move 7 to 5"]);
+    const old = fakeClient();
+    const olderObject = old.desk as Partial<typeof old.desk>;
+    delete olderObject.showChannelMenu;
+    delete olderObject.moveUser;
+    const olderDesk = new DeskState();
+    olderDesk.start(old.win);
+    olderDesk.channelMenu(4, 1, 1);
+    olderDesk.moveUser(7, 5);
+    expect(old.calls).toEqual([]);
   });
 });
