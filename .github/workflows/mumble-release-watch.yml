@@ -77,7 +77,7 @@ jobs:
           TAG: ${{ steps.check.outputs.tag }}
           OLD: ${{ steps.check.outputs.old }}
         run: |
-          set -uo pipefail
+          set -euo pipefail
           git config user.name "github-actions[bot]"
           git config user.email "41898283+github-actions[bot]@users.noreply.github.com"
           git switch -c "${{ steps.check.outputs.branch }}"
@@ -116,6 +116,7 @@ jobs:
         uses: anthropics/claude-code-action@v1
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          github_token: ${{ github.token }}
           claude_args: "--max-turns 80 --allowedTools Bash,Read,Edit,Write,Glob,Grep"
           prompt: |
             Mumble was updated from ${{ steps.check.outputs.old }} to ${{ steps.check.outputs.tag }}. Ruumble Desk (desk/, read
