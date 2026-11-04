@@ -1,0 +1,8 @@
+**/node_modules
+**/dist
+**/gen
+**/build
+**/test-results
+**/coverage
+plugin/build*
+.git

@@ -1,0 +1,33 @@
+{
+  "name": "@ruumble/bridge",
+  "version": "0.32.1",
+  "private": true,
+  "description": "Ruumble service: reads the Mumble server via Ice (read-only) and mediates between web UI and plugin",
+  "license": "BSD-3-Clause",
+  "type": "module",
+  "scripts": {
+    "gen": "node scripts/gen-ice.mjs",
+    "dev": "node scripts/gen-ice.mjs && node --experimental-strip-types --watch src/main.ts",
+    "start": "node dist/main.mjs",
+    "lint": "node scripts/gen-ice.mjs && tsc -p tsconfig.json",
+    "test": "vitest run",
+    "build": "node scripts/gen-ice.mjs && esbuild src/main.ts --bundle --platform=node --format=esm --target=node22 --outfile=dist/main.mjs --external:ice --external:better-sqlite3 --external:fastify --external:@fastify/* --banner:js=\"import { createRequire as __cr } from 'node:module'; const require = __cr(import.meta.url);\""
+  },
+  "dependencies": {
+    "@fastify/static": "10.1.6",
+    "@fastify/websocket": "11.3.4",
+    "@ruumble/protocol": "workspace:*",
+    "better-sqlite3": "13.0.3",
+    "fastify": "5.12.7",
+    "ice": "3.7.110"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "9.6.0",
+    "@types/node": "26.6.5",
+    "@types/ws": "8.18.2",
+    "esbuild": "0.28.2",
+    "slice2js": "3.7.110",
+    "typescript": "6.0.3",
+    "vitest": "5.0.5"
+  }
+}

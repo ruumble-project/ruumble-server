@@ -1,0 +1,54 @@
+services:
+    mumble-server:
+        deploy:
+            resources:
+                limits:
+                    memory: 128M
+        # keep the version you run today (upgrading 1.5 → 1.6: see docs/operations/mumble.md)
+        image: mumblevoip/mumble-server:v1.5.735
+        container_name: mumble-server
+        hostname: mumble-server
+        restart: unless-stopped
+        environment:
+            # Ice for Ruumble: reachable only within the Docker networks, port 6502 is not published.
+            # Read and write secrets differ; Ruumble only gets the read secret.
+            MUMBLE_CONFIG_ICE: '"tcp -h 0.0.0.0 -p 6502"'
+            # Welcome message with a clickable link to Ruumble (plugins cannot show links or buttons)
+            MUMBLE_CONFIG_WELCOMETEXT: >-
+                "Welcome! <a href='http://<LAN-IP>:64080'><b>Open the building (Ruumble)</b></a> &ndash; see who is in which room."
+        secrets:
+            - source: ice_read
+              target: MUMBLE_CONFIG_ICESECRETREAD
+            - source: ice_write
+              target: MUMBLE_CONFIG_ICESECRETWRITE
+            - source: superuser_password
+              target: MUMBLE_SUPERUSER_PASSWORD
+        volumes:
+            - mumble-data:/data
+        networks:
+            - mumble-network
+            # - homeserver-network # optional: existing network of a reverse proxy
+        ports:
+            - 64738:64738
+            - 64738:64738/udp
+        expose:
+            - 6502
+
+secrets:
+    ice_read:
+        file: ./secrets/ice_read
+    ice_write:
+        file: ./secrets/ice_write
+    superuser_password:
+        file: ./secrets/superuser_password
+
+volumes:
+    mumble-data:
+        name: mumble-data
+
+networks:
+    mumble-network:
+        name: mumble-network
+        driver: bridge
+    # homeserver-network: # optional, see above
+    #     external: true

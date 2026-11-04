@@ -1,0 +1,250 @@
+{
+  "v": 1,
+  "type": "snapshot",
+  "server": {
+    "name": "Acme HQ",
+    "version": "1.6.870"
+  },
+  "self": {
+    "session": 4
+  },
+  "channels": [
+    {
+      "id": 0,
+      "parent": null,
+      "name": "Acme HQ",
+      "position": 0,
+      "links": [],
+      "temporary": false
+    },
+    {
+      "id": 1,
+      "parent": 0,
+      "name": "Lobby",
+      "position": 0,
+      "links": [],
+      "temporary": false,
+      "description": "<b>Welcome to Acme HQ!</b><br/>Grab a coffee and say hello."
+    },
+    {
+      "id": 2,
+      "parent": 0,
+      "name": "Development",
+      "position": 1,
+      "links": [],
+      "temporary": false,
+      "description": "<p>Floor of the <b>development</b> teams.</p><p>Sprint board: <a href=\"https://example.com/sprint\">example.com/sprint</a></p>"
+    },
+    {
+      "id": 3,
+      "parent": 2,
+      "name": "Let's talk",
+      "position": 0,
+      "links": [],
+      "temporary": false,
+      "description": "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\"><html><head><style>p{}</style></head><body style=\" font-family:sans-serif;\"><p style=\" margin-top:0px;\"><span style=\" font-weight:600;\">Daily stand-up</span> at 9:30.</p><ul><li>Agenda: <a href=\"https://example.com/agenda\">example.com/agenda</a></li><li>Notes in the team wiki</li></ul><p><br/></p></body></html>"
+    },
+    {
+      "id": 4,
+      "parent": 2,
+      "name": "Let's play",
+      "position": 1,
+      "links": [],
+      "temporary": false
+    },
+    {
+      "id": 5,
+      "parent": 2,
+      "name": "Retrospective",
+      "position": 2,
+      "links": [],
+      "temporary": false
+    },
+    {
+      "id": 6,
+      "parent": 2,
+      "name": "Ben's office",
+      "position": 3,
+      "links": [],
+      "temporary": false
+    },
+    {
+      "id": 7,
+      "parent": 2,
+      "name": "Clara's office",
+      "position": 4,
+      "links": [],
+      "temporary": false
+    },
+    {
+      "id": 8,
+      "parent": 0,
+      "name": "Support",
+      "position": 2,
+      "links": [],
+      "temporary": false
+    },
+    {
+      "id": 9,
+      "parent": 8,
+      "name": "Office 1",
+      "position": 0,
+      "links": [],
+      "temporary": false
+    },
+    {
+      "id": 10,
+      "parent": 8,
+      "name": "Office 2",
+      "position": 1,
+      "links": [],
+      "temporary": false
+    },
+    {
+      "id": 11,
+      "parent": 8,
+      "name": "Office 3",
+      "position": 2,
+      "links": [],
+      "temporary": false
+    },
+    {
+      "id": 12,
+      "parent": 8,
+      "name": "Office 4",
+      "position": 3,
+      "links": [],
+      "temporary": false
+    }
+  ],
+  "users": [
+    {
+      "session": 1,
+      "name": "Ben",
+      "channel": 6,
+      "selfMute": false,
+      "selfDeaf": false,
+      "mute": false,
+      "deaf": false,
+      "suppress": false,
+      "userId": null,
+      "avatar": null,
+      "idleMinutes": 0,
+      "recording": false,
+      "ruumble": true
+    },
+    {
+      "session": 2,
+      "name": "Felix",
+      "channel": 1,
+      "selfMute": false,
+      "selfDeaf": false,
+      "mute": false,
+      "deaf": false,
+      "suppress": false,
+      "userId": null,
+      "avatar": null,
+      "idleMinutes": 0,
+      "recording": false
+    },
+    {
+      "session": 3,
+      "name": "Eva",
+      "channel": 1,
+      "selfMute": false,
+      "selfDeaf": false,
+      "mute": false,
+      "deaf": false,
+      "suppress": false,
+      "userId": null,
+      "avatar": null,
+      "idleMinutes": 0,
+      "recording": false,
+      "ruumble": true
+    },
+    {
+      "session": 4,
+      "name": "Anna",
+      "channel": 3,
+      "selfMute": false,
+      "selfDeaf": false,
+      "mute": false,
+      "deaf": false,
+      "suppress": false,
+      "userId": 1,
+      "avatar": null,
+      "idleMinutes": 0,
+      "recording": false,
+      "ruumble": true
+    },
+    {
+      "session": 5,
+      "name": "Gregor",
+      "channel": 9,
+      "selfMute": false,
+      "selfDeaf": false,
+      "mute": false,
+      "deaf": false,
+      "suppress": false,
+      "userId": null,
+      "avatar": null,
+      "idleMinutes": 0,
+      "recording": false,
+      "ruumble": true,
+      "status": {
+        "text": "Back at 2 pm",
+        "until": null
+      }
+    },
+    {
+      "session": 6,
+      "name": "Hanna",
+      "channel": 11,
+      "selfMute": false,
+      "selfDeaf": false,
+      "mute": false,
+      "deaf": false,
+      "suppress": false,
+      "userId": null,
+      "avatar": null,
+      "idleMinutes": 0,
+      "recording": false
+    },
+    {
+      "session": 7,
+      "name": "Clara",
+      "channel": 3,
+      "selfMute": false,
+      "selfDeaf": false,
+      "mute": false,
+      "deaf": false,
+      "suppress": false,
+      "userId": null,
+      "avatar": null,
+      "idleMinutes": 0,
+      "recording": false,
+      "ruumble": true,
+      "status": {
+        "text": "Focus time, please write",
+        "until": null
+      }
+    },
+    {
+      "session": 8,
+      "name": "David",
+      "channel": 3,
+      "selfMute": false,
+      "selfDeaf": false,
+      "mute": false,
+      "deaf": false,
+      "suppress": false,
+      "userId": null,
+      "avatar": null,
+      "idleMinutes": 0,
+      "recording": false
+    }
+  ],
+  "listeners": {},
+  "canEnter": {},
+  "care": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+}

@@ -1,0 +1,63 @@
+{
+  "v": 1,
+  "type": "snapshot",
+  "server": {
+    "name": "Acme HQ",
+    "version": "1.6.870"
+  },
+  "self": {
+    "session": 4
+  },
+  "channels": [
+    {
+      "id": 0,
+      "parent": null,
+      "name": "Acme HQ",
+      "position": 0,
+      "links": [],
+      "temporary": false
+    },
+    {
+      "id": 16,
+      "parent": 0,
+      "name": "ARCHIVE",
+      "position": 0,
+      "links": [],
+      "temporary": false
+    },
+    {
+      "id": 17,
+      "parent": 16,
+      "name": "File room",
+      "position": 0,
+      "links": [],
+      "temporary": false
+    },
+    {
+      "id": 18,
+      "parent": 17,
+      "name": "Subchannel",
+      "position": 0,
+      "links": [],
+      "temporary": false
+    }
+  ],
+  "users": [
+    {
+      "session": 4,
+      "name": "Anna",
+      "channel": 0,
+      "selfMute": false,
+      "selfDeaf": false,
+      "mute": false,
+      "deaf": false,
+      "suppress": false,
+      "userId": null,
+      "avatar": null,
+      "idleMinutes": 0,
+      "recording": false
+    }
+  ],
+  "listeners": {},
+  "canEnter": {}
+}

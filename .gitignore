@@ -1,0 +1,10 @@
+node_modules/
+dist/
+build/
+build-win/
+.env
+*.log
+.DS_Store
+coverage/
+.idea/
+dist-demo/

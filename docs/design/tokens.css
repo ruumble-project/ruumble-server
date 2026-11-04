@@ -1,0 +1,36 @@
+/* Ruumble – design tokens of the building web UI.
+   Only the values the web UI actually uses. */
+:root {
+  /* Base colours */
+  --color-navy: #003869;       /* Text, walls, active states */
+  --color-sky: #5aa6e7;        /* Icons, focus ring */
+  --color-accent: #fbd200;     /* ONLY: ring around your own avatar */
+  --color-surface: #f5f5f5;    /* Elevator core, hover */
+  --color-white: #ffffff;
+  --color-navy-light: #0f4b8c;
+  --color-alert: #c62828;      /* ONLY: recording notice (AP10) */
+
+  /* Blues */
+  --color-blue-700: #00508c;   /* Secondary text (contrast ≥ 4.5:1 on white) */
+  --color-blue-500: #0078be;   /* Avatar fill of other users, floor kicker */
+  --color-blue-300: #9ccaf1;   /* Door arcs, tool button borders */
+  --color-blue-100: #cee4f8;   /* own room, tool button hover */
+
+  /* Patterns */
+  --raster-dot: #e3e3e3;       /* Background grid in the corridor */
+
+  /* Gradient (elevator panel) */
+  --gradient-elevator: linear-gradient(90deg, #0f4b8c 0%, #003869 25%);
+
+  /* Type */
+  --font-sans: "Inter Variable", "Inter", Arial, "Helvetica Neue", Helvetica, sans-serif;
+  --font-mono: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+
+  /* Dimensions */
+  --wall: 4px;
+  --radius-md: 4px;
+
+  /* Motion */
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --dur: 160ms;
+}

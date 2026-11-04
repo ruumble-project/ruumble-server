@@ -1,0 +1,45 @@
+# Ruumble: a Mumble server as an office building (https://github.com/Skrrytch/Ruumble)
+# Accesses Mumble via Ice read-only. Plain HTTP on the LAN address; from the internet only through an HTTPS reverse proxy
+# (docs/operations/https.md, "On the internet": securing an exposed instance is up to its operator).
+services:
+    ruumble:
+        image: ghcr.io/skrrytch/ruumble:0.32.1
+        container_name: ruumble
+        restart: unless-stopped
+        deploy:
+            resources:
+                limits:
+                    memory: 256M
+        environment:
+            ICE_HOST: mumble-server
+            ICE_SECRET_READ_FILE: /run/secrets/ice_read
+            ADDRESS_CHECK: enforce
+            # HTTPS behind a reverse proxy (docs/operations/https.md): instead of the line above
+            # ADDRESS_CHECK: warn
+            # TRUST_PROXY: "172.18.0.0/16"   # address or network of the proxy (docker network inspect)
+        secrets:
+            - ice_read
+        volumes:
+            - ruumble-data:/data
+        networks:
+            - mumble-network
+            # - homeserver-network   # network of the reverse proxy
+        ports:
+            # Plain HTTP belongs in a LAN or VPN (the internet only through HTTPS): on a server with a public address,
+            # bind it to the LAN/VPN address instead, e.g. "192.168.1.10:64080:64080".
+            # With HTTPS, remove it unless plain HTTP on the LAN should stay available.
+            - 64080:64080
+
+secrets:
+    ice_read:
+        file: ../mumble/secrets/ice_read
+
+volumes:
+    ruumble-data:
+        name: ruumble-data
+
+networks:
+    mumble-network:
+        external: true
+    # homeserver-network:
+    #     external: true

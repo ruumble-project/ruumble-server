@@ -1,0 +1,14 @@
+import { svelte } from "@sveltejs/vite-plugin-svelte";
+import { defineConfig } from "vitest/config";
+export default defineConfig({
+  // Runes in *.svelte.ts (e.g. i18n) in the unit tests too
+  plugins: [svelte()],
+  test: {
+    include: ["test/**/*.test.ts"],
+    setupFiles: ["test/setup.ts"],
+    coverage: {
+      include: ["src/lib/model/**", "src/lib/board/model.ts", "src/lib/board/links.ts", "src/lib/board/render.ts", "src/lib/care/model.ts", "src/lib/chat/model.ts", "src/lib/tube/model.ts", "src/lib/notices/model.ts", "src/lib/i18n/**"],
+      thresholds: { lines: 95, branches: 95, functions: 95, statements: 95 },
+    },
+  },
+});

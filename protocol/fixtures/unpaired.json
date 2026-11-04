@@ -1,0 +1,231 @@
+{
+  "v": 1,
+  "type": "snapshot",
+  "server": {
+    "name": "Acme HQ",
+    "version": "1.6.870"
+  },
+  "self": null,
+  "channels": [
+    {
+      "id": 0,
+      "parent": null,
+      "name": "Acme HQ",
+      "position": 0,
+      "links": [],
+      "temporary": false
+    },
+    {
+      "id": 1,
+      "parent": 0,
+      "name": "Lobby",
+      "position": 0,
+      "links": [],
+      "temporary": false
+    },
+    {
+      "id": 2,
+      "parent": 0,
+      "name": "Development",
+      "position": 1,
+      "links": [],
+      "temporary": false
+    },
+    {
+      "id": 3,
+      "parent": 2,
+      "name": "Let's talk",
+      "position": 0,
+      "links": [],
+      "temporary": false
+    },
+    {
+      "id": 4,
+      "parent": 2,
+      "name": "Let's play",
+      "position": 1,
+      "links": [],
+      "temporary": false
+    },
+    {
+      "id": 5,
+      "parent": 2,
+      "name": "Retrospective",
+      "position": 2,
+      "links": [],
+      "temporary": false
+    },
+    {
+      "id": 6,
+      "parent": 2,
+      "name": "Ben's office",
+      "position": 3,
+      "links": [],
+      "temporary": false
+    },
+    {
+      "id": 7,
+      "parent": 2,
+      "name": "Clara's office",
+      "position": 4,
+      "links": [],
+      "temporary": false
+    },
+    {
+      "id": 8,
+      "parent": 0,
+      "name": "Support",
+      "position": 2,
+      "links": [],
+      "temporary": false
+    },
+    {
+      "id": 9,
+      "parent": 8,
+      "name": "Office 1",
+      "position": 0,
+      "links": [],
+      "temporary": false
+    },
+    {
+      "id": 10,
+      "parent": 8,
+      "name": "Office 2",
+      "position": 1,
+      "links": [],
+      "temporary": false
+    },
+    {
+      "id": 11,
+      "parent": 8,
+      "name": "Office 3",
+      "position": 2,
+      "links": [],
+      "temporary": false
+    },
+    {
+      "id": 12,
+      "parent": 8,
+      "name": "Office 4",
+      "position": 3,
+      "links": [],
+      "temporary": false
+    }
+  ],
+  "users": [
+    {
+      "session": 1,
+      "name": "Ben",
+      "channel": 6,
+      "selfMute": false,
+      "selfDeaf": false,
+      "mute": false,
+      "deaf": false,
+      "suppress": false,
+      "userId": null,
+      "avatar": null,
+      "idleMinutes": 0,
+      "recording": false
+    },
+    {
+      "session": 2,
+      "name": "Felix",
+      "channel": 1,
+      "selfMute": false,
+      "selfDeaf": false,
+      "mute": false,
+      "deaf": false,
+      "suppress": false,
+      "userId": null,
+      "avatar": null,
+      "idleMinutes": 0,
+      "recording": false
+    },
+    {
+      "session": 3,
+      "name": "Eva",
+      "channel": 1,
+      "selfMute": false,
+      "selfDeaf": false,
+      "mute": false,
+      "deaf": false,
+      "suppress": false,
+      "userId": null,
+      "avatar": null,
+      "idleMinutes": 0,
+      "recording": false
+    },
+    {
+      "session": 4,
+      "name": "Anna",
+      "channel": 3,
+      "selfMute": false,
+      "selfDeaf": false,
+      "mute": false,
+      "deaf": false,
+      "suppress": false,
+      "userId": null,
+      "avatar": null,
+      "idleMinutes": 0,
+      "recording": false
+    },
+    {
+      "session": 5,
+      "name": "Gregor",
+      "channel": 9,
+      "selfMute": false,
+      "selfDeaf": false,
+      "mute": false,
+      "deaf": false,
+      "suppress": false,
+      "userId": null,
+      "avatar": null,
+      "idleMinutes": 0,
+      "recording": false
+    },
+    {
+      "session": 6,
+      "name": "Hanna",
+      "channel": 11,
+      "selfMute": false,
+      "selfDeaf": false,
+      "mute": false,
+      "deaf": false,
+      "suppress": false,
+      "userId": null,
+      "avatar": null,
+      "idleMinutes": 0,
+      "recording": false
+    },
+    {
+      "session": 7,
+      "name": "Clara",
+      "channel": 3,
+      "selfMute": false,
+      "selfDeaf": false,
+      "mute": false,
+      "deaf": false,
+      "suppress": false,
+      "userId": null,
+      "avatar": null,
+      "idleMinutes": 0,
+      "recording": false
+    },
+    {
+      "session": 8,
+      "name": "David",
+      "channel": 3,
+      "selfMute": false,
+      "selfDeaf": false,
+      "mute": false,
+      "deaf": false,
+      "suppress": false,
+      "userId": null,
+      "avatar": null,
+      "idleMinutes": 0,
+      "recording": false
+    }
+  ],
+  "listeners": {},
+  "canEnter": {}
+}

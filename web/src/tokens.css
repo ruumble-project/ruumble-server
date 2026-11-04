@@ -1,0 +1,143 @@
+/* Ruumble – design tokens of the building web UI.
+   Only the values the web UI actually uses.
+   Two themes: light (default) and dark, chosen by `data-theme` on <html> (lib/theme.svelte.ts, set before the first
+   paint by index.html). Colours are named by their role, so the dark theme only swaps values; the blues are a ramp
+   by distance from the background (100 = closest), which the dark theme mirrors. */
+:root {
+  color-scheme: light;
+
+  /* Base colours */
+  --color-ink: #003869;        /* text, walls, active states; also the fill of primary buttons, with paper as their text */
+  --color-paper: #ffffff;      /* background of rooms, cards, dialogs and menus */
+  --color-page: #ffffff;       /* around the building */
+  --color-wall: #003869;       /* walls of the floor plan and the cross-section, the frame of the floating board; dark in
+                                  both themes, so the roof's name on it is white */
+  --color-ink-soft: #0f4b8c;   /* hover of ink-filled buttons, numbers in code */
+  --color-sky: #5aa6e7;        /* icons, focus ring */
+  --color-accent: #fbd200;     /* ONLY: ring around your own avatar, the board graphic's pin and its note for unseen posts */
+  --color-surface: #f5f5f5;    /* elevator core, hover */
+  --color-alert: #c62828;      /* ONLY: recording indicator (AP10), deleting a post, destructive steps of care, keys and maintenance */
+
+  /* Plates that stay dark in both themes (floor sign, elevator, directory, lightbox) and avatars on blue-500:
+     their text keeps these fixed values */
+  --color-white: #ffffff;
+  --color-navy: #003869;       /* fill of such a plate where it is not the elevator gradient (lightbox bar) */
+  --color-plate-muted: #cee4f8; /* captions and secondary text on those plates */
+
+  /* Behind modal dialogs; the soft one behind a confirmation on top of a dialog */
+  --color-backdrop: rgb(0 56 105 / 0.45);
+  --color-backdrop-soft: rgb(0 56 105 / 0.25);
+
+  /* Plant (care, ADR-0014): ONLY the potted plant in rooms, corridors and at the entrance, and the cypress beside the
+     building in the building overview (ADR-0019), whose trunk is the only bark */
+  --color-leaf: #4f9a6b;
+  --color-leaf-dark: #2f6e47;
+  --color-pot: #c97d4e;
+  --color-bark: #7a5236;
+  /* Key (key cabinet, ADR-0015): ONLY the key in the user menu and its dialog */
+  --color-brass: #d9a93b;
+  /* Wrench (building maintenance, ADR-0016): ONLY the wrench, the symbol of the maintenance dialog.
+     The lantern that opens it in the building overview (ADR-0019) uses navy, sky and blue-100. */
+  --color-steel: #c9d6e3;
+
+  /* Direct chat (ADR-0021): ONLY the bubbles of the other person in a conversation (tint) and the line under their tab
+     (line); six hues apart from the reserved ones, picked per person (chat/model.ts tintOf). Ink text on every tint. */
+  --chat-1: #dff1ef; --chat-1-line: #2f8f8a;
+  --chat-2: #f8e9df; --chat-2-line: #b8643a;
+  --chat-3: #ece6f6; --chat-3-line: #7a5fb0;
+  --chat-4: #ecf0dc; --chat-4-line: #6f7f2c;
+  --chat-5: #f7e3ea; --chat-5-line: #b0476b;
+  --chat-6: #e3ebf5; --chat-6-line: #3d6fa8;
+
+  /* Blues */
+  --color-blue-700: #00508c;   /* secondary text (contrast ≥ 4.5:1 on white) */
+  --color-blue-500: #0078be;   /* avatar fill of other users, floor kicker */
+  --color-link: #0078be;       /* links and blue text or icons on paper (blue-500 in the light theme) */
+  --color-code-comment: #58738f; /* comments in code (≥ 4.5:1 on surface) */
+  --color-blue-300: #9ccaf1;   /* door arcs, tool button borders */
+  --color-blue-50: #eef5fc;    /* "+n" tile for people who do not fit */
+  --color-blue-100: #cee4f8;   /* own room, tool button hover */
+
+  /* Patterns */
+  --raster-dot: #e3e3e3;       /* background grid in the corridor */
+
+  /* Board: its own tint, cards on it. The board sets --color-paper to --color-card for everything inside it. */
+  --color-board: color-mix(in srgb, var(--color-blue-100) 45%, var(--color-paper));
+  --color-card: #ffffff;
+
+  /* Menus, popovers and dialogs: raised above the page. They set --color-paper to --color-raised for everything inside
+     them and draw a ring in --color-raised-edge (invisible in the light theme) in front of their shadow. */
+  --color-raised: #ffffff;
+  --color-raised-edge: transparent;
+
+  /* Gradient (elevator panel) */
+  --gradient-elevator: linear-gradient(90deg, #0f4b8c 0%, #003869 25%);
+
+  /* Typography */
+  --font-sans: "Inter Variable", "Inter", Arial, "Helvetica Neue", Helvetica, sans-serif;
+  --font-mono: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+
+  /* Sizes */
+  --wall: 4px;
+  --radius-md: 4px;
+
+  /* Layout: the app scales down to this width (narrower windows scroll); a wider window is used in full */
+  --app-min-width: 1000px;
+  --board-width: 340px;        /* open board up to this window width; it gets half of every pixel beyond */
+  --board-grow-from: 1440px;
+  /* Height: the window may shrink until every room still holds two rows of people (shorter windows scroll).
+     Rooms (design "Grundriss: Flurseite"): far wall 12, people, 8, the door strip with door, plant, board and plate */
+  --door-strip: 48px;
+  --two-people: 132px;         /* 2 × person (avatar 44 + 3 + name 16 = 63) + 6 px between the rows */
+  --room-min-top: calc(12px + var(--two-people) + 8px + var(--door-strip));
+  --room-min-bottom: var(--room-min-top);
+  --corridor-height: 110px;
+  --topbar-height: 60px;
+
+  /* Motion */
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --dur: 160ms;
+  --dur-slow: 400ms;           /* rooms resizing when people come and go */
+}
+
+/* Dark theme: the building in the evening. Calm slate greys with a hint of blue instead of black and bright blue, less
+   contrast, muted walls; the board in a slightly warm grey with lighter cards, so it stands apart from the floor plan.
+   The dark plates and the plants stay as they are. */
+:root[data-theme="dark"] {
+  color-scheme: dark;
+
+  --color-ink: #c9d2dc;
+  --color-paper: #1d232b;
+  --color-page: #14181e;
+  --color-wall: #3a4452;
+  --color-ink-soft: #aab6c3;
+  --color-sky: #6fa6d6;
+  --color-accent: #e9c63c;
+  --color-surface: #232a33;
+  --color-alert: #e0766d;
+  --color-backdrop: rgb(8 10 14 / 0.6);
+  --color-backdrop-soft: rgb(8 10 14 / 0.4);
+
+  --color-blue-700: #8f9cad;   /* secondary text (contrast ≥ 4.5:1 on paper) */
+  --color-blue-500: #3f72a2;   /* avatars keep white initials (≥ 4.5:1) */
+  --color-link: #7fb3e0;       /* ≥ 4.5:1 on paper, cards and raised surfaces */
+  --color-code-comment: #8a97a8;
+  --color-blue-300: #3a4350;
+  --color-blue-100: #253447;   /* own room, hover: a quiet blue */
+  --color-blue-50: #222a35;
+
+  --raster-dot: #2b323c;
+
+  --chat-1: #213a3a; --chat-1-line: #5fb8b0;
+  --chat-2: #3b2d25; --chat-2-line: #d88f62;
+  --chat-3: #302a41; --chat-3-line: #a58ad6;
+  --chat-4: #31351f; --chat-4-line: #a3b55a;
+  --chat-5: #3b2630; --chat-5-line: #d77b9b;
+  --chat-6: #253140; --chat-6-line: #7aa3d6;
+
+  --color-board: #26262a;
+  --color-card: #2f3036;
+
+  --color-raised: #313946;
+  --color-raised-edge: #556274;
+}

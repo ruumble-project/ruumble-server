@@ -1,0 +1,465 @@
+<script lang="ts">
+  import ArrowDownUp from "@lucide/svelte/icons/arrow-down-up";
+  import Bell from "@lucide/svelte/icons/bell";
+  import BellOff from "@lucide/svelte/icons/bell-off";
+  import Building2 from "@lucide/svelte/icons/building-2";
+  import ChevronDown from "@lucide/svelte/icons/chevron-down";
+  import HeadphoneOff from "@lucide/svelte/icons/headphone-off";
+  import Headphones from "@lucide/svelte/icons/headphones";
+  import Keyboard from "@lucide/svelte/icons/keyboard";
+  import Languages from "@lucide/svelte/icons/languages";
+  import LocateFixed from "@lucide/svelte/icons/locate-fixed";
+  import Lock from "@lucide/svelte/icons/lock";
+  import Mic from "@lucide/svelte/icons/mic";
+  import MicOff from "@lucide/svelte/icons/mic-off";
+  import Moon from "@lucide/svelte/icons/moon";
+  import FileOutput from "@lucide/svelte/icons/file-output";
+  import Tag from "@lucide/svelte/icons/tag";
+  import MessagesSquare from "@lucide/svelte/icons/messages-square";
+  import UserIcon from "@lucide/svelte/icons/user";
+  import Users from "@lucide/svelte/icons/users";
+  import { locale, setLocale, t } from "../i18n/index.svelte.ts";
+  import { countText, initials, ownPlace, type Building, type Floor } from "../model/building.ts";
+  import type { RuumbleState } from "../state.svelte.ts";
+  import { setTheme, theme } from "../theme.svelte.ts";
+  import { statusText } from "../status.ts";
+  import Avatar from "./Avatar.svelte";
+  import Key from "./Key.svelte";
+
+  // Top bar instead of the elevator column, made of signs: left the floor sign (opens the elevator, which shows
+  // the server and everyone online in its status bar), in the middle the sign of the own room, right the status,
+  // mute, deafen and the name badge (opens the user menu).
+  let { app, building, floor }: { app: RuumbleState; building: Building; floor: Floor | null } = $props();
+
+  const reversed = $derived([...building.floors].reverse());
+  const me = $derived(app.me);
+  const myFloor = $derived(building.floors.find((f) => f.isSelf) ?? null);
+  const myPlace = $derived.by(() => {
+    const self = building.self;
+    if (!self || !me) return "";
+    if (self.kind === "entrance") return t().common.entrance;
+    if (self.kind === "hidden") return t().core.hiddenPlace;
+    const name = app.snapshot?.channels.find((c) => c.id === me.channel)?.name ?? "";
+    const place = self.kind === "corridor" ? t().common.corridor : name;
+    return myFloor ? `${place} · ${t().floors.floor(myFloor.badge)}` : place;
+  });
+  const lockHint = $derived(t().core.lockReason);
+  const other = $derived(locale() === "de" ? "en" : "de");
+  const muted = $derived(me ? me.selfMute || me.selfDeaf : false);
+  const deaf = $derived(me?.selfDeaf ?? false);
+  const myStatus = $derived(me?.status ?? null);
+  const unread = $derived(app.chat.unread);
+  const parcels = $derived(app.tube.waiting);
+  const sending = $derived(app.tube.progress);
+  const tubeLabel = $derived(
+    [t().tube.title, parcels ? t().tube.waiting(parcels) : "", sending !== null ? t().tube.sending(Math.round(sending * 100)) : ""].filter(Boolean).join(", "),
+  );
+  const myAvatar = $derived(me ? app.avatarOf(me.name) : null);
+  let avatarBroken = $state<string | null>(null); // URL that could not be loaded → initials
+  const hidden = $derived(building.self?.kind === "hidden");
+  const place = $derived(app.snapshot ? ownPlace(building, app.snapshot) : null);
+  // viewing another floor: the room sign leads back
+  const away = $derived(!!myFloor && floor?.channelId !== myFloor.channelId);
+
+  // one dropdown at a time; closes on a choice, Escape (focus back to its button) and a click elsewhere
+  let open = $state<"floors" | "user" | null>(null);
+  let floorsButton = $state<HTMLButtonElement | null>(null);
+  let userButton = $state<HTMLButtonElement | null>(null);
+  $effect(() => {
+    if (!open) return;
+    const which = open;
+    const onclick = (e: MouseEvent) => { if (!(e.target as HTMLElement).closest(`[data-dropdown="${which}"]`)) open = null; };
+    const onkeydown = (e: KeyboardEvent) => {
+      if (e.key !== "Escape") return;
+      open = null;
+      (which === "floors" ? floorsButton : userButton)?.focus();
+    };
+    window.addEventListener("click", onclick);
+    window.addEventListener("keydown", onkeydown);
+    return () => {
+      window.removeEventListener("click", onclick);
+      window.removeEventListener("keydown", onkeydown);
+    };
+  });
+  const toggle = (which: "floors" | "user") => (open = open === which ? null : which);
+
+  function choose(f: Floor): void {
+    app.showFloor(f);
+    if (f.lock === null || f.isSelf) open = null;
+  }
+  /** keyboard: focus on the active floor or the first entry when a dropdown opens */
+  function focusFirst(node: HTMLElement): void {
+    (node.querySelector<HTMLElement>("[aria-current='page']") ?? node.querySelector<HTMLElement>("button:not([aria-disabled])"))?.focus();
+  }
+</script>
+
+<header class="topbar">
+  <div class="left">
+    <div class="dropdown" data-dropdown="floors">
+      <!-- the floor sign: a plate with the floor and its people, the elevator buttons on the right -->
+      <button
+        type="button" class="sign floor-sign" bind:this={floorsButton} aria-expanded={open === "floors"} aria-controls="elevator"
+        aria-label={floor ? t().core.currentFloor(floor.level, floor.name, floor.population) : t().core.elevator}
+        title={t().core.chooseFloor} onclick={() => toggle("floors")}
+      >
+        <span class="badge" aria-hidden="true">{#if floor}{floor.badge}{:else}<ArrowDownUp size={16} />{/if}</span>
+        <span class="plate-text">
+          {#if floor}<span class="caption" aria-hidden="true">{floor.level}</span>{/if}
+          <span class="plate-name">
+            <h1>{floor?.name ?? t().screens.vacancyTitle}</h1>
+          </span>
+        </span>
+        <span class="call" aria-hidden="true"><ChevronDown size={18} class="chevron" /></span>
+      </button>
+      {#if open === "floors"}
+        <!-- elevator panel: highest floor at the top, the entrance below the ground floor -->
+        <nav id="elevator" class="elevator" aria-label={t().core.elevatorLabel} {@attach focusFirst}>
+          <div class="elevator-head"><span class="elevator-icon"><ArrowDownUp size={18} /></span>{t().core.elevator}</div>
+          {#each reversed as f (f.channelId)}
+            {@const active = f.channelId === floor?.channelId}
+            {@const blocked = f.lock !== null && !f.isSelf}
+            <button
+              type="button" class="floor" data-floor={f.channelId} class:active class:blocked class:mine={f.isSelf}
+              aria-current={active ? "page" : undefined} aria-disabled={blocked || undefined}
+              aria-label={t().core.floorButton(f.level, f.name, f.lock ? lockHint[f.lock] : null)}
+              title={f.lock ? lockHint[f.lock] : undefined}
+              onclick={() => choose(f)}
+            >
+              <span class="fbadge">{f.badge}</span>
+              <span class="ftext">
+                <span class="fname"><span class="name">{f.name}</span><span class="fpeople" aria-hidden="true"><Users size={13} />{f.population}</span></span>
+                {#if f.lock}<span class="sub"><Lock size={11} /> {t().core.lockedShort} · {lockHint[f.lock]}</span>{/if}
+              </span>
+            </button>
+          {/each}
+          <!-- building care and maintenance are beside the building in the building overview (ADR-0019) -->
+          {#if building.entrance.length > 0}
+            <section class="entrance" aria-label={t().common.entrance}>
+              <div class="entrance-head">{t().common.entrance} · {countText(building.entrance.length)}</div>
+              <div class="entrance-people">
+                {#each building.entrance as user (user.session)}
+                  <Avatar {user} talking={app.talking[user.session] ?? false} showName={false} />
+                {/each}
+              </div>
+            </section>
+          {/if}
+          <!-- status bar of the elevator: the whole building -->
+          <footer class="status">
+            <!-- opens the building overview: cross-section and directory board (ADR-0019) -->
+            <button type="button" class="overview-link" title={`${t().overview.open} (H)`} onclick={() => { open = null; app.openOverview(); }}>
+              <span class="online"><span class="dot" aria-hidden="true"></span>{t().header.online(building.online)}</span>
+              <span class="building">{building.name}</span>
+              <Building2 size={15} aria-hidden="true" />
+            </button>
+          </footer>
+        </nav>
+      {/if}
+    </div>
+    {#if app.readonly}<span class="note">{t().header.preview}</span>{/if}
+    {#if hidden}<span class="note">{t().common.notShown}</span>{/if}
+  </div>
+
+  <!-- the sign of the own room; from another floor it leads back -->
+  <div class="center">
+    {#if place}
+      {@const label = t().core.ownPlace(place.name, countText(place.people))}
+      {#if away}
+        <button type="button" class="sign room-sign" aria-label={`${label} – ${t().core.home}`} title={t().core.home} onclick={() => app.goHome()}>
+          <span class="caption">{t().core.youAreHere}</span>
+          <span class="plate-name"><span class="room-name">{place.name}</span><LocateFixed size={15} class="back" /></span>
+        </button>
+      {:else}
+        <div class="sign room-sign" role="status" aria-label={label}>
+          <span class="caption">{t().core.youAreHere}</span>
+          <span class="plate-name"><span class="room-name">{place.name}</span></span>
+        </div>
+      {/if}
+    {/if}
+  </div>
+
+  <div class="right">
+    <!-- tube mail (ADR-0022): opens its panel; the number of parcels waiting for an answer, a ring while own ones are on their way -->
+    <button
+      type="button" class="tool tube" data-tube-button aria-pressed={app.tube.panel} aria-label={tubeLabel} title={tubeLabel}
+      disabled={!me} onclick={() => app.tube.togglePanel()}
+    >
+      <FileOutput size={20} />
+      {#if sending !== null}
+        <svg class="ring" viewBox="0 0 44 44" aria-hidden="true"><circle cx="22" cy="22" r="20" pathLength="100" stroke-dasharray={`${Math.max(4, sending * 100)} 100`} /></svg>
+      {/if}
+      {#if parcels}<span class="count" aria-hidden="true">{parcels > 99 ? "99+" : parcels}</span>{/if}
+    </button>
+    <!-- direct chat (ADR-0021): opens its window; the number of unread messages on it -->
+    <button
+      type="button" class="tool chat" data-chat-button aria-pressed={app.chat.panel === "open"} aria-keyshortcuts="P"
+      aria-label={unread ? `${t().chat.title}, ${t().chat.unread(unread)}` : t().chat.title} title={`${t().chat.title} (P)`}
+      disabled={!me} onclick={() => app.chat.toggle()}
+    >
+      <MessagesSquare size={20} />
+      {#if unread}<span class="count" aria-hidden="true">{unread > 99 ? "99+" : unread}</span>{/if}
+    </button>
+    <!-- mute and deafen belong together: one joined pair, set apart from tube mail and the direct chat -->
+    <div class="audio" role="group" aria-label={t().core.audio}>
+    <button type="button" class="tool" aria-pressed={muted} aria-label={t().core.mute} title={t().core.mute} disabled={!me} onclick={() => app.toggleMute()}>
+      {#if muted}<MicOff size={20} />{:else}<Mic size={20} />{/if}
+    </button>
+    <button type="button" class="tool" aria-pressed={deaf} aria-label={t().core.deaf} title={t().core.deaf} disabled={!me} onclick={() => app.toggleDeaf()}>
+      {#if deaf}<HeadphoneOff size={20} />{:else}<Headphones size={20} />{/if}
+    </button>
+    </div>
+    <div class="dropdown" data-dropdown="user">
+      <!-- the name badge: yellow band like the ring around the own avatar, on a clip -->
+      <button type="button" class="me" bind:this={userButton} aria-expanded={open === "user"} aria-controls="user-menu" aria-label={t().core.userMenu} title={t().core.userMenu} onclick={() => toggle("user")}>
+        <span class="av-me" aria-hidden="true">
+          {#if me && myAvatar && avatarBroken !== myAvatar}<img src={myAvatar} alt="" onerror={() => (avatarBroken = myAvatar)} />{:else if me}{initials(me.name)}{:else}<UserIcon size={18} />{/if}
+        </span>
+        <span class="me-text"><span class="caption">{t().core.nameTag}</span><span class="me-name">{me?.name ?? t().header.preview}</span></span>
+        <ChevronDown size={18} class="chevron" aria-hidden="true" />
+      </button>
+      <!-- the own status (B, ADR-0018): a tag at the avatar of the name badge, as at every avatar in the floor plan;
+           its text in the tooltip, dashed while none is set. A button of its own: the badge opens the user menu -->
+      {#if me}
+        <button type="button" class="status-tag" class:set={!!myStatus} aria-pressed={!!myStatus} aria-label={t().status.title} aria-keyshortcuts="S"
+          title={myStatus ? statusText(myStatus) : `${t().status.set} (S)`} onclick={() => void app.openStatus()}>
+          <span class="tag-face"><Tag size={12} strokeWidth={2.5} /></span>
+        </button>
+      {/if}
+      {#if open === "user"}
+        <div id="user-menu" class="menu" role="group" aria-label={t().core.userMenu} {@attach focusFirst}>
+          {#if me}
+            <div class="me-row"><span class="n">{me.name}</span><span class="l">{myPlace}</span></div>
+          {/if}
+          <button type="button" class="item" disabled={!myFloor} onclick={() => { app.goHome(); open = null; }}>
+            <LocateFixed size={18} aria-hidden="true" />{t().core.home}
+          </button>
+          <!-- my status, also with S and from the tag at the avatar (ADR-0018) -->
+          <button type="button" class="item" onclick={() => { open = null; void app.openStatus(); }}>
+            <Tag size={18} aria-hidden="true" />{t().status.menu}<kbd class="key">S</kbd>
+          </button>
+          <!-- my keys: the own paired browsers (ADR-0015) -->
+          <button type="button" class="item" disabled={!me} onclick={() => { open = null; void app.openKeys(); }}>
+            <span class="key-icon" aria-hidden="true"><Key size={18} /></span>{t().keys.myKeys}
+          </button>
+          <!-- language: German or English (browser setting), switchable here and remembered -->
+          <button type="button" class="item" onclick={() => setLocale(other)}>
+            <Languages size={18} aria-hidden="true" />{t().core.switchLanguage(t().core.languageName[other])}
+          </button>
+          <!-- light or dark: the system setting until chosen here, then remembered in this browser -->
+          <button type="button" class="item" aria-pressed={theme() === "dark"} onclick={() => setTheme(theme() === "dark" ? "light" : "dark")}>
+            <Moon size={18} aria-hidden="true" />{t().core.darkMode}<span class="switch">{theme() === "dark" ? t().common.on : t().common.off}</span>
+          </button>
+          <!-- what Ruumble does when something happens in the room, for this browser (ADR-0023) -->
+          <button type="button" class="item" onclick={() => { open = null; app.noticesOpen = true; }}>
+            <Bell size={18} aria-hidden="true" />{t().notices.menu}
+          </button>
+          <button type="button" class="item" aria-pressed={app.notices.settings.doNotDisturb} onclick={() => app.notices.setDoNotDisturb(!app.notices.settings.doNotDisturb)}>
+            <BellOff size={18} aria-hidden="true" />{t().notices.doNotDisturb}<span class="switch">{app.notices.settings.doNotDisturb ? t().common.on : t().common.off}</span>
+          </button>
+          <!-- the keyboard shortcuts, also with ? -->
+          <button type="button" class="item" onclick={() => { open = null; app.helpOpen = true; }}>
+            <Keyboard size={18} aria-hidden="true" />{t().shortcuts.menu}<kbd class="key">?</kbd>
+          </button>
+          <div class="versions"><span>{t().core.server(building.serverVersion)}</span><span>{t().core.ui(__UI_VERSION__)}</span></div>
+        </div>
+      {/if}
+    </div>
+  </div>
+</header>
+
+<style>
+  .topbar { position: relative; z-index: 5; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 16px; min-height: var(--topbar-height); }
+  .left, .right { display: flex; align-items: center; gap: 8px; min-width: 0; }
+  .right { justify-self: end; }
+  .dropdown { position: relative; min-width: 0; }
+  .note { font-size: 13px; font-weight: 700; color: var(--color-link); white-space: nowrap; }
+  .caption { display: block; font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; line-height: 1.2; }
+  .plate-name { display: flex; align-items: baseline; gap: 8px; min-width: 0; }
+  .sign:focus-visible, .me:focus-visible, .tool:focus-visible, .item:focus-visible, .floor:focus-visible { outline: 3px solid var(--color-sky); outline-offset: 2px; }
+
+  /* signs: plates with a screw in every corner */
+  .sign {
+    position: relative; border-radius: 6px; text-align: left; font: inherit;
+    --screw: radial-gradient(circle, var(--screw-color) 1.6px, transparent 2.2px);
+    background-image: var(--screw), var(--screw), var(--screw), var(--screw), var(--plate);
+    background-size: 10px 10px, 10px 10px, 10px 10px, 10px 10px, 100% 100%;
+    background-position: 2px 2px, calc(100% - 2px) 2px, 2px calc(100% - 2px), calc(100% - 2px) calc(100% - 2px), 0 0;
+    background-repeat: no-repeat;
+  }
+
+  /* floor sign: dark like the elevator panel; on the right the elevator buttons make the action obvious */
+  .floor-sign {
+    --plate: var(--gradient-elevator); --screw-color: rgb(255 255 255 / 0.45);
+    display: flex; align-items: center; gap: 12px; max-width: 100%; min-height: 56px; padding: 6px 6px 6px 12px; border: 0;
+    color: var(--color-white); cursor: pointer; box-shadow: 0 2px 0 rgb(0 30 60 / 0.35), 0 4px 10px rgb(0 56 105 / 0.18);
+    transition: transform var(--dur) var(--ease-out), box-shadow var(--dur) var(--ease-out);
+  }
+  .floor-sign:hover { transform: translateY(-1px); box-shadow: 0 3px 0 rgb(0 30 60 / 0.35), 0 6px 14px rgb(0 56 105 / 0.25); }
+  .floor-sign[aria-expanded="true"] { transform: translateY(1px); box-shadow: 0 1px 0 rgb(0 30 60 / 0.35); }
+  .badge {
+    width: 38px; height: 38px; flex-shrink: 0; border-radius: 50%; border: 2px solid rgb(255 255 255 / 0.7);
+    display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 15px;
+  }
+  .plate-text { min-width: 0; }
+  .floor-sign .caption { color: var(--color-plate-muted); }
+  h1 { margin: 0; font-size: 20px; line-height: 1.2; font-weight: 700; letter-spacing: -0.01em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .call {
+    display: flex; align-items: center; justify-content: center; width: 24px; height: 44px; margin-left: 2px; flex-shrink: 0;
+    color: var(--color-white);
+  }
+  .call :global(.chevron), .me :global(.chevron) { flex-shrink: 0; transition: transform var(--dur) var(--ease-out); }
+  .floor-sign[aria-expanded="true"] :global(.chevron), .me[aria-expanded="true"] :global(.chevron) { transform: rotate(180deg); }
+
+  /* the elevator panel as a dropdown */
+  .elevator {
+    position: absolute; left: 0; top: calc(100% + 8px); width: 320px; max-height: calc(100vh - 120px); overflow-y: auto;
+    border-radius: var(--radius-md); padding: 12px 12px 0; background: var(--gradient-elevator); color: var(--color-white);
+    display: flex; flex-direction: column; gap: 6px; box-shadow: 0 10px 28px rgb(0 56 105 / 0.35);
+    transform-origin: top left; animation: drop 160ms var(--ease-out) both;
+  }
+  @keyframes drop { from { opacity: 0; transform: translateY(-6px) scale(0.98); } to { opacity: 1; transform: none; } }
+  .elevator-head { display: flex; align-items: center; gap: 10px; padding: 2px 6px 8px; border-bottom: 1px solid rgb(255 255 255 / 0.2); font-size: 15px; font-weight: 700; }
+  .elevator-icon { display: inline-flex; color: var(--color-sky); }
+  .floor {
+    display: flex; align-items: center; gap: 12px; width: 100%; min-height: 48px; padding: 4px 10px; border: 0; flex-shrink: 0;
+    border-radius: var(--radius-md); background: transparent; color: var(--color-white); text-align: left; cursor: pointer;
+    transition: background var(--dur) var(--ease-out);
+  }
+  .floor:hover { background: rgb(255 255 255 / 0.08); }
+  .floor.active, .floor.active:hover { background: var(--color-paper); color: var(--color-ink); }
+  .floor.blocked { opacity: 0.55; cursor: not-allowed; }
+  .floor.blocked:hover { background: transparent; }
+  .fbadge {
+    width: 40px; height: 40px; flex-shrink: 0; border: 2px solid rgb(255 255 255 / 0.6); border-radius: 50%;
+    display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px;
+  }
+  /* own floor: the yellow ring of the own avatar */
+  .floor.mine .fbadge { box-shadow: 0 0 0 2px var(--color-accent); }
+  .floor.active .fbadge { border-color: var(--color-ink); background: var(--color-ink); color: var(--color-paper); }
+  .ftext { min-width: 0; }
+  .fname { display: flex; align-items: baseline; gap: 8px; min-width: 0; }
+  .name { font-size: 15px; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .fpeople { display: inline-flex; align-items: center; gap: 3px; flex-shrink: 0; font-size: 13px; font-weight: 700; color: var(--color-plate-muted); font-variant-numeric: tabular-nums; }
+  .floor.active .fpeople { color: var(--color-blue-700); }
+  .sub { font-size: 12px; color: var(--color-plate-muted); display: flex; align-items: center; gap: 4px; white-space: nowrap; }
+  .floor.active .sub { color: var(--color-blue-700); }
+  .entrance { display: flex; flex-direction: column; gap: 8px; margin-top: 4px; padding: 10px 6px 2px; border-top: 1px solid rgb(255 255 255 / 0.2); }
+  .entrance-head { display: flex; align-items: center; gap: 8px; min-height: 28px; font-size: 13px; font-weight: 700; color: var(--color-plate-muted); }
+  .key-icon { display: inline-flex; }
+  .entrance-people { display: flex; flex-wrap: wrap; gap: 4px; }
+  .entrance-people :global(.person) { width: 48px; }
+  /* status bar at the bottom of the elevator, like the display in a lift */
+  .status {
+    position: sticky; bottom: 0; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    margin: 6px -12px 0; padding: 10px 18px; background: rgb(0 20 45 / 0.45); border-top: 1px solid rgb(255 255 255 / 0.15);
+    font-size: 13px; font-weight: 700; white-space: nowrap;
+  }
+  .overview-link {
+    display: flex; align-items: center; gap: 12px; width: 100%; margin: -4px -6px; padding: 4px 6px; border: 0; border-radius: var(--radius-md);
+    background: transparent; color: inherit; font: inherit; cursor: pointer; text-align: left;
+  }
+  .overview-link:hover { background: rgb(255 255 255 / 0.1); }
+  .overview-link:focus-visible { outline: 3px solid var(--color-sky); outline-offset: 0; }
+  .overview-link .building { margin-left: auto; }
+  .online { display: inline-flex; align-items: center; gap: 8px; font-variant-numeric: tabular-nums; }
+  .building { color: var(--color-plate-muted); overflow: hidden; text-overflow: ellipsis; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--color-sky); box-shadow: 0 0 0 3px rgb(90 166 231 / 0.25); }
+
+  /* room sign: light blue like the own room, a door plate */
+  .center { display: flex; justify-content: center; min-width: 0; }
+  .room-sign {
+    --plate: linear-gradient(var(--color-blue-100), var(--color-blue-100)); --screw-color: var(--color-blue-500);
+    display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; min-height: 52px; max-width: 360px; padding: 5px 22px;
+    border: 2px solid var(--color-ink); color: var(--color-ink); box-shadow: 0 2px 0 rgb(0 56 105 / 0.2);
+  }
+  .room-sign .caption { color: var(--color-blue-700); }
+  .room-name { font-size: 17px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  button.room-sign { cursor: pointer; transition: transform var(--dur) var(--ease-out); }
+  button.room-sign:hover { transform: translateY(-1px); }
+  .room-sign :global(.back) { flex-shrink: 0; align-self: center; color: var(--color-link); }
+
+  .tool {
+    width: 40px; height: 40px; border: 1px solid var(--color-blue-300); border-radius: var(--radius-md); background: var(--color-paper);
+    display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--color-ink); flex-shrink: 0;
+    transition: background var(--dur) var(--ease-out);
+  }
+  .tool:hover { background: var(--color-blue-100); }
+  .tool[aria-pressed="true"] { background: var(--color-ink); border-color: var(--color-ink); color: var(--color-paper); }
+  .tool:disabled { opacity: 0.5; cursor: not-allowed; }
+  .chat, .tube { position: relative; }
+  /* own parcels on their way: a ring around the button that fills up */
+  .ring { position: absolute; inset: -3px; width: calc(100% + 6px); height: calc(100% + 6px); transform: rotate(-90deg); pointer-events: none; overflow: visible; }
+  .ring circle { fill: none; stroke: var(--color-blue-500); stroke-width: 3; stroke-linecap: round; transition: stroke-dasharray 400ms var(--ease-out); }
+  /* mute and deafen: a joined pair with a little room before it */
+  .audio { display: flex; margin-left: 10px; border-radius: var(--radius-md); box-shadow: 0 1px 0 rgb(0 56 105 / 0.12); }
+  .audio .tool { border-radius: 0; background: var(--color-surface); }
+  .audio .tool:first-child { border-radius: var(--radius-md) 0 0 var(--radius-md); }
+  .audio .tool:last-child { border-left: 0; border-radius: 0 var(--radius-md) var(--radius-md) 0; }
+  .audio .tool:hover { background: var(--color-blue-100); }
+  .audio .tool[aria-pressed="true"] { background: var(--color-ink); border-color: var(--color-ink); }
+  .audio .tool:disabled:hover { background: var(--color-surface); }
+  .chat .count, .tube .count {
+    position: absolute; top: -6px; right: -6px; min-width: 18px; height: 18px; padding: 0 5px; border-radius: 9px; box-sizing: border-box;
+    background: var(--color-ink); color: var(--color-paper); box-shadow: 0 0 0 2px var(--color-paper);
+    font-size: 11px; font-weight: 700; line-height: 18px; text-align: center; font-variant-numeric: tabular-nums;
+  }
+  .chat[aria-pressed="true"] .count, .tube[aria-pressed="true"] .count { background: var(--color-paper); color: var(--color-ink); box-shadow: 0 0 0 2px var(--color-ink); }
+  .tool:disabled:hover { background: var(--color-paper); }
+
+  /* name badge: white card with a yellow band, hanging on a clip */
+  .me {
+    position: relative; display: flex; align-items: center; gap: 10px; min-height: 52px; padding: 9px 10px 5px 8px; margin: 6px 0 0 6px;
+    border: 1px solid var(--color-blue-300); border-top: 5px solid var(--color-accent); border-radius: 6px;
+    background: var(--color-paper); color: var(--color-ink); cursor: pointer; text-align: left;
+    box-shadow: 0 2px 0 rgb(0 56 105 / 0.15), 0 4px 10px rgb(0 56 105 / 0.12);
+    transition: transform var(--dur) var(--ease-out), box-shadow var(--dur) var(--ease-out);
+  }
+  .me::before {
+    content: ""; position: absolute; top: -11px; left: 50%; width: 22px; height: 8px; margin-left: -11px;
+    border-radius: 3px 3px 1px 1px; background: var(--color-blue-300); box-shadow: inset 0 -2px 0 rgb(0 56 105 / 0.2);
+  }
+  .me:hover { transform: rotate(-1deg) translateY(-1px); }
+  .me[aria-expanded="true"] { background: var(--color-surface); }
+  .me :global(.chevron) { color: var(--color-link); }
+  .av-me {
+    width: 34px; height: 34px; flex-shrink: 0; border-radius: 50%; background: var(--color-ink); color: var(--color-paper);
+    box-shadow: 0 0 0 2px var(--color-accent); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 13px; overflow: hidden;
+  }
+  .av-me img { width: 100%; height: 100%; object-fit: cover; }
+  /* the status tag on the badge's avatar: a 28 px target around a 22 px tag like the one in the floor plan */
+  .status-tag {
+    position: absolute; left: 34px; top: 7px; width: 28px; height: 28px; padding: 0; border: 0; background: none; cursor: pointer;
+    display: grid; place-items: center; z-index: 1;
+  }
+  .tag-face {
+    width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; box-sizing: border-box;
+    background: var(--color-paper); border: 1px dashed var(--color-blue-300); color: var(--color-blue-700);
+    transition: transform var(--dur) var(--ease-out), border-color var(--dur) var(--ease-out);
+  }
+  /* set: filled like the tag at every avatar in the floor plan, so it stands out */
+  .status-tag.set .tag-face { width: 24px; height: 24px; background: var(--color-ink); border: 2px solid var(--color-paper); color: var(--color-paper); box-shadow: 0 1px 3px rgb(0 56 105 / 0.35); }
+  .status-tag.set:hover .tag-face { border-color: var(--color-paper); color: var(--color-paper); }
+  .status-tag:hover .tag-face { transform: scale(1.1); border-color: var(--color-ink); color: var(--color-ink); }
+  .status-tag:focus-visible { outline: none; }
+  .status-tag:focus-visible .tag-face { outline: 3px solid var(--color-sky); outline-offset: 1px; }
+  .me-text { min-width: 0; }
+  .me .caption { color: var(--color-link); }
+  .me-name { display: block; font-size: 15px; font-weight: 700; white-space: nowrap; }
+  .menu {
+    position: absolute; right: 0; top: calc(100% + 6px); min-width: 260px; display: flex; flex-direction: column; gap: 2px; padding: 6px;
+    --color-paper: var(--color-raised); border: 1px solid var(--color-blue-300); border-radius: var(--radius-md); background: var(--color-paper); box-shadow: 0 0 0 1px var(--color-raised-edge), 0 10px 28px rgb(0 56 105 / 0.2);
+    transform-origin: top right; animation: drop 160ms var(--ease-out) both;
+  }
+  .me-row { display: flex; flex-direction: column; padding: 8px 10px 10px; margin-bottom: 4px; border-bottom: 1px solid var(--color-blue-100); }
+  .me-row .n { font-size: 15px; font-weight: 700; }
+  .me-row .l { font-size: 13px; color: var(--color-blue-700); }
+  .item {
+    display: flex; align-items: center; gap: 10px; min-height: 40px; padding: 0 10px; border: 0; border-radius: var(--radius-md);
+    background: none; color: var(--color-ink); font-size: 14px; text-align: left; cursor: pointer;
+  }
+  .item:hover { background: var(--color-blue-100); }
+  .item .key { margin-left: auto; min-width: 20px; padding: 0 5px; border: 1px solid var(--color-blue-300); border-radius: 4px; font: inherit; font-size: 12px; font-weight: 700; text-align: center; color: var(--color-blue-700); }
+  .item .switch { margin-left: auto; font-size: 12px; font-weight: 700; color: var(--color-blue-700); }
+  .item:disabled { opacity: 0.5; cursor: not-allowed; }
+  .item:disabled:hover { background: none; }
+  .versions { display: flex; justify-content: space-between; gap: 12px; padding: 10px 10px 4px; margin-top: 4px; border-top: 1px solid var(--color-blue-100); font-size: 12px; color: var(--color-blue-700); }
+</style>

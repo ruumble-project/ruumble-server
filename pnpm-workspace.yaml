@@ -1,0 +1,9 @@
+packages:
+  - protocol
+  - web
+  - bridge
+
+# Install scripts only when explicitly allowed (pnpm 11)
+allowBuilds:
+  esbuild: true
+  better-sqlite3: true
