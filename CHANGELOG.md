@@ -6,6 +6,8 @@ All notable changes to Ruumble. The service and the web UI share one version; th
 
 ## [Unreleased]
 
+## [0.33.1] - 2026-11-04
+
 Plugin 0.5.0 (unchanged). Fixes the Ruumble Desk AppImage, which crashed when connecting to a service over HTTPS.
 
 ### Fixed
@@ -420,6 +422,7 @@ Plugin 0.1.0 to 0.2.0.
 - Real Mumble avatars and presence (quiet, away, recording).
 - Docker image with the plugin bundle served under `/download`.
 
+[0.33.1]: https://github.com/KevinWebman/Ruumble-Desk/releases/tag/v0.33.1
 [0.33.0]: https://github.com/KevinWebman/Ruumble-Desk/releases/tag/v0.33.0
 [0.32.1]: https://github.com/Skrrytch/Ruumble/releases/tag/v0.32.1
 [0.32.0]: https://github.com/Skrrytch/Ruumble/releases/tag/v0.32.0
