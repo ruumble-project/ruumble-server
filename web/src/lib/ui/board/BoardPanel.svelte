@@ -298,10 +298,13 @@
 <style>
   /* its own tint (light: lightly blue), so the board stands out from the floor plan; cards and fields on it in --color-card */
   .board { --board-bg: var(--color-board); --color-paper: var(--color-card); position: relative; flex-shrink: 0;
-    /* half of the width beyond --board-grow-from (100cqw = the app's content width, i.e. without its 2 × 32 px padding);
-       the plain width first for engines without container units (Ruumble Desk, Chromium 102) */
-    width: var(--board-width);
+    /* half of the width beyond --board-grow-from (100cqw = the app's content width, i.e. without its 2 × 32 px padding) */
     width: calc(var(--board-width) + max(0px, (100cqw - (var(--board-grow-from) - 64px)) / 2)); display: flex; flex-direction: column; background: var(--board-bg); min-height: 0; }
+  /* engines without container units (Ruumble Desk, Chromium 102): the declaration above has var() in it, so it is only
+     dropped when computed and would leave the width on auto */
+  @supports not (width: 1cqw) {
+    .board { width: var(--board-width); }
+  }
   /* floating over the floor plan, framed by a wall like a room */
   .board.floating {
     position: absolute; z-index: 4; top: var(--wall); bottom: var(--wall); right: var(--wall);

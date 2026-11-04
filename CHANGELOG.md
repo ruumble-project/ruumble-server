@@ -13,7 +13,7 @@ All notable changes to Ruumble. The service and the web UI share one version; th
 
 ### Fixed
 
-- Ruumble Desk: person cards and room descriptions no longer show up in the wrong place or stay open, the board has its light background again and its width is right. Desk's engine (Qt WebEngine 6.4, Chromium 102) lacks the popover API, `color-mix()` and container units; the web UI now loads a popover polyfill only where it is missing, has plain fallbacks for the rest, and is built for Chromium 102 as well
+- Ruumble Desk: person cards and room descriptions no longer show up in the wrong place or stay open, the board has its light background again and its width is right. Desk's engine (Qt WebEngine 6.4, Chromium 102) lacks the popover API, `color-mix()` and container units; the web UI now loads a popover polyfill only where it is missing, has plain fallbacks for the rest, and is built for Chromium 102 as well. Ruumble Desk also brings these fixes itself, so it works with services that still run an older web UI
 
 ### Changed
 
