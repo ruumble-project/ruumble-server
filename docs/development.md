@@ -133,7 +133,7 @@ On GitHub the live tests run as the workflow `.github/workflows/live.yml`: weekl
 
 ## Updating the Mumble interfaces
 
-A weekly GitHub workflow (`mumble-release-watch.yml`) reports new Mumble releases as an issue, with the diff of the interface files, and starts the live tests against the new release. This also catches behaviour changes that a diff does not show. To take over a release:
+A weekly GitHub workflow (`mumble-release-watch.yml`, also on demand with a tag) takes new Mumble releases over as a pull request: interface files, Ruumble Desk's Mumble pin and patch (3-way merge, adapted by Claude if it no longer fits and the repo secret `ANTHROPIC_API_KEY` is set), client build and plugin tests; CI and the live tests are started for the branch. If it cannot be done automatically it opens an issue with the log. The live tests catch behaviour changes that a diff does not show. To take over a release by hand:
 
 ```sh
 tools/update-mumble-interfaces.sh v1.6.870     # desired tag

@@ -1,57 +1,235 @@
 name: Mumble-Release-Watch
 
-# Reports a new Mumble release as an issue, including a diff of the two interface files.
+# Takes a new Mumble release into this repo as a pull request (ADR-0024 draft, update routine):
+#   1. the interface files in third_party/mumble (tools/update-mumble-interfaces.sh) and the Mumble tag that
+#      Ruumble Desk is built from (desk/pins.env)
+#   2. Ruumble Desk's Mumble patch (desk/patches/mumble) applied onto the new tag with a 3-way merge
+#   3. if the patch does not apply or the client does not build: Claude adapts the patch (needs the repo secret
+#      ANTHROPIC_API_KEY; without it this step is skipped)
+#   4. client build, web and plugin checks; on success a branch mumble/<tag> and a pull request, CI and the live
+#      tests against the new server are started for it; on failure an issue with the log
+# Weekly on Mondays and on demand (optionally for a given tag, e.g. to retry or to take an older release).
 on:
   schedule:
     - cron: "17 6 * * 1"
   workflow_dispatch:
+    inputs:
+      tag:
+        description: "Mumble tag to take (e.g. v1.6.901); empty = the latest release"
+        required: false
+        default: ""
 
 permissions:
-  contents: read
+  contents: write
+  pull-requests: write
   issues: write
   actions: write
 
+concurrency:
+  group: mumble-release-watch
+  cancel-in-progress: false
+
 jobs:
-  watch:
+  update:
     runs-on: ubuntu-24.04
+    timeout-minutes: 180
+    env:
+      GH_TOKEN: ${{ github.token }}
+      HAS_KEY: ${{ secrets.ANTHROPIC_API_KEY != '' }}
     steps:
       - uses: actions/checkout@v7
-      - name: Compare latest release with third_party/mumble/VERSION
-        env:
-          GH_TOKEN: ${{ github.token }}
+        with:
+          fetch-depth: 0
+
+      - name: Compare the release with what we use
+        id: check
         run: |
           set -euo pipefail
-          current="$(cat third_party/mumble/VERSION)"
-          latest="$(gh api repos/mumble-voip/mumble/releases/latest --jq .tag_name)"
-          echo "current: $current, latest release: $latest"
-          if [[ "$latest" == "$current" ]]; then exit 0; fi
+          interfaces="$(cat third_party/mumble/VERSION)"
+          desk="$(sed -nE 's/^MUMBLE_REF=\$\{MUMBLE_REF:-([^}]+)\}$/\1/p' desk/pins.env)"
+          tag="${{ inputs.tag }}"
+          [[ -n "$tag" ]] || tag="$(gh api repos/mumble-voip/mumble/releases/latest --jq .tag_name)"
+          echo "interfaces $interfaces, Ruumble Desk $desk, target $tag"
+          newest="$(printf '%s\n%s\n' "$desk" "$tag" | sort -V | tail -1)"
+          if [[ "$tag" == "$desk" && "$tag" == "$interfaces" ]]; then echo "Up to date."; exit 0; fi
+          if [[ -z "${{ inputs.tag }}" && "$newest" != "$tag" ]]; then echo "$tag is older than $desk, nothing to do."; exit 0; fi
+          branch="mumble/$tag"
+          if git ls-remote --exit-code --heads origin "$branch" >/dev/null; then
+            echo "Branch $branch exists already (open pull request or earlier attempt)."; exit 0
+          fi
+          { echo "run=true"; echo "tag=$tag"; echo "old=$desk"; echo "branch=$branch"; } >> "$GITHUB_OUTPUT"
 
-          title="Mumble $latest available (Ruumble uses $current)"
-          if gh issue list --state open --search "\"$title\" in:title" --json number --jq 'length' | grep -qv '^0$'; then
-            echo "Issue already exists."; exit 0
+      - name: Build dependencies
+        if: steps.check.outputs.run == 'true'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends build-essential cmake ninja-build pkgconf \
+            qt6-base-dev qt6-tools-dev qt6-tools-dev-tools qt6-svg-dev qt6-l10n-tools qt6-webengine-dev \
+            qt6-webengine-dev-tools qt6-webchannel-dev libgl-dev libboost-dev libssl-dev libprotobuf-dev \
+            protobuf-compiler libprotoc-dev libcap-dev libxi-dev libasound2-dev libpulse-dev libogg-dev \
+            libsndfile1-dev libopus-dev libpoco-dev nlohmann-json3-dev libcli11-dev libutfcpp-dev libspdlog-dev \
+            libspeexdsp-dev
+
+      - name: Interface files, pin and patch onto the new tag
+        if: steps.check.outputs.run == 'true'
+        id: apply
+        env:
+          TAG: ${{ steps.check.outputs.tag }}
+          OLD: ${{ steps.check.outputs.old }}
+        run: |
+          set -uo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898283+github-actions[bot]@users.noreply.github.com"
+          git switch -c "${{ steps.check.outputs.branch }}"
+          cp -r third_party/mumble /tmp/before
+          tools/update-mumble-interfaces.sh "$TAG" > /dev/null
+          diff -ru --exclude=VERSION --exclude=SHA256SUMS --exclude=README.md /tmp/before third_party/mumble > /tmp/interfaces.diff || true
+          sed -i -E "s/^MUMBLE_REF=.*/MUMBLE_REF=\${MUMBLE_REF:-$TAG}/" desk/pins.env
+          # full clone (the 3-way merge needs the old tag's blobs), then the patch made for the old tag
+          git clone -q https://github.com/mumble-voip/mumble.git desk/work/mumble
+          git -C desk/work/mumble checkout -q -B ruumble-desk "$TAG"
+          git -C desk/work/mumble submodule update --init --recursive -q
+          ln -sfn "$PWD/desk/client" desk/work/mumble/src/mumble/ruumble
+          if git -C desk/work/mumble apply --3way --whitespace=nowarn "$PWD"/desk/patches/mumble/*.patch > /tmp/apply.log 2>&1; then
+            echo "patch=clean" >> "$GITHUB_OUTPUT"
+          else
+            echo "patch=conflict" >> "$GITHUB_OUTPUT"
+          fi
+          cat /tmp/apply.log
+
+      - name: Build Ruumble Desk
+        if: steps.check.outputs.run == 'true' && steps.apply.outputs.patch == 'clean'
+        id: build
+        run: |
+          set -o pipefail
+          if BUILD_TYPE=Release desk/tools/build.sh 2>&1 | tee /tmp/build.log | tail -40; then
+            echo "ok=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "ok=false" >> "$GITHUB_OUTPUT"
           fi
 
-          cp -r third_party/mumble /tmp/before
-          tools/update-mumble-interfaces.sh "$latest" > /dev/null
-          diff -ru --exclude=VERSION --exclude=SHA256SUMS --exclude=README.md /tmp/before third_party/mumble > /tmp/interfaces.diff || true
+      - name: Claude adapts the patch
+        if: >-
+          steps.check.outputs.run == 'true' && env.HAS_KEY == 'true' &&
+          (steps.apply.outputs.patch == 'conflict' || steps.build.outputs.ok == 'false')
+        id: claude
+        uses: anthropics/claude-code-action@v1
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          claude_args: "--max-turns 80 --allowedTools Bash,Read,Edit,Write,Glob,Grep"
+          prompt: |
+            Mumble was updated from ${{ steps.check.outputs.old }} to ${{ steps.check.outputs.tag }}. Ruumble Desk (desk/, read
+            desk/CLAUDE.md first) patches Mumble: desk/patches/mumble is applied onto the Mumble work tree desk/work/mumble
+            (already checked out at the new tag, desk/client is linked in as src/mumble/ruumble).
+            State: patch ${{ steps.apply.outputs.patch }} (log /tmp/apply.log), build ok=${{ steps.build.outputs.ok }} (log /tmp/build.log).
 
+            Your task: make Ruumble Desk build against the new Mumble tag.
+            - If the 3-way apply left conflicts in desk/work/mumble, resolve them so the touch points do what they did before.
+            - Fix build errors either in the touch points in desk/work/mumble or in desk/client (the client code can follow
+              renamed or changed Mumble APIs).
+            - Keep Mumble touch points minimal and under #ifdef USE_RUUMBLE. Do not change Mumble's behaviour otherwise.
+            - Build with: BUILD_TYPE=Release desk/tools/build.sh   (repeat until it succeeds)
+            - Then write the patch back with: desk/tools/export-patches.sh
+            - Do not touch anything outside desk/ and desk/work/mumble. Do not commit or push.
+            - Finally write a short summary of what you changed and why to /tmp/claude-summary.md (plain English, no dashes
+              as punctuation).
+
+      - name: Build again after Claude
+        if: steps.claude.outcome == 'success'
+        id: rebuild
+        run: |
+          set -o pipefail
+          if BUILD_TYPE=Release desk/tools/build.sh 2>&1 | tee /tmp/build.log | tail -40; then
+            echo "ok=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "ok=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Result
+        if: steps.check.outputs.run == 'true'
+        id: result
+        run: |
+          if [[ "${{ steps.build.outputs.ok }}" == "true" || "${{ steps.rebuild.outputs.ok }}" == "true" ]]; then
+            echo "ok=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "ok=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Plugin and interface checks
+        if: steps.result.outputs.ok == 'true'
+        run: |
+          tools/update-mumble-interfaces.sh
+          cmake -S plugin -B plugin/build -DCMAKE_BUILD_TYPE=Release
+          cmake --build plugin/build -j
+          plugin/build/ruumble_tests
+
+      - name: Pull request
+        if: steps.result.outputs.ok == 'true'
+        env:
+          TAG: ${{ steps.check.outputs.tag }}
+          OLD: ${{ steps.check.outputs.old }}
+          BRANCH: ${{ steps.check.outputs.branch }}
+        run: |
+          set -euo pipefail
+          desk/tools/export-patches.sh   # the patch now fits the new tag exactly
+          git add third_party/mumble desk/pins.env desk/patches desk/client
+          git commit -q -m "Mumble $TAG: interface files, Ruumble Desk pin and patch"
+          git push -q origin "$BRANCH"
           {
-            echo "A new Mumble release is available: **$latest** (Ruumble uses $current)."
+            echo "Mumble **$TAG** is available (we used $OLD). This branch takes it over:"
             echo
-            echo "To adopt it: \`tools/update-mumble-interfaces.sh $latest\`, then check \`docs/mumble-interfaces.md\` against the changes. The live tests were started for this release (workflow live.yml)."
+            echo "- interface files in \`third_party/mumble\`: check \`docs/mumble-interfaces.md\` against the diff below"
+            echo "- Ruumble Desk: \`desk/pins.env\` on $TAG, patch \`desk/patches/mumble\` refreshed"
+            if [[ "${{ steps.claude.outcome }}" == "success" ]]; then
+              echo "- **The patch needed changes, Claude adapted it.** Please review the diff of \`desk/patches/mumble\` and \`desk/client\`:"
+              echo
+              cat /tmp/claude-summary.md 2>/dev/null || echo "(no summary written)"
+            else
+              echo "- the patch applied cleanly"
+            fi
+            echo
+            echo "Ruumble Desk builds against $TAG and the plugin tests pass. CI and the live tests against the new server were started for this branch; merge when they are green and the Desk was started once."
             echo
             if [[ -s /tmp/interfaces.diff ]]; then
               echo "<details><summary>Changes to the interface files</summary>"
               echo
               echo '```diff'
-              head -c 60000 /tmp/interfaces.diff
+              head -c 50000 /tmp/interfaces.diff
               echo '```'
               echo "</details>"
             else
               echo "The interface files are unchanged."
             fi
           } > /tmp/body.md
-          gh issue create --title "$title" --body-file /tmp/body.md
-          # Check behaviour, not just the interfaces: live tests against the new release
-          gh workflow run live.yml -f mumble="$latest" || echo "Could not start the live tests"
+          gh pr create --base main --head "$BRANCH" --title "Mumble $TAG" --body-file /tmp/body.md
+          # a push with the workflow token starts no workflows, a dispatch does
+          gh workflow run ci.yml --ref "$BRANCH" || echo "Could not start CI"
+          gh workflow run live.yml --ref "$BRANCH" -f mumble="$TAG" || echo "Could not start the live tests"
 
+      - name: Issue on failure
+        if: always() && steps.check.outputs.run == 'true' && (steps.result.outputs.ok != 'true' || failure())
+        env:
+          TAG: ${{ steps.check.outputs.tag }}
+          OLD: ${{ steps.check.outputs.old }}
+        run: |
+          title="Mumble $TAG: Ruumble Desk needs manual work"
+          if gh issue list --state open --search "\"$title\" in:title" --json number --jq 'length' | grep -qv '^0$'; then exit 0; fi
+          {
+            echo "Mumble **$TAG** is available (we use $OLD), but it could not be taken over automatically."
+            echo
+            echo "- patch: ${{ steps.apply.outputs.patch }}, build: ${{ steps.build.outputs.ok || 'not run' }}"
+            if [[ "$HAS_KEY" != "true" ]]; then echo "- Claude did not run: the repo secret \`ANTHROPIC_API_KEY\` is not set"; fi
+            if [[ -n "${{ steps.claude.outcome }}" ]]; then echo "- Claude: ${{ steps.claude.outcome }}, build afterwards: ${{ steps.rebuild.outputs.ok || 'not run' }}"; fi
+            echo
+            echo "By hand: \`MUMBLE_REF=$TAG\` in \`desk/pins.env\`, \`rm -rf desk/work/mumble && desk/tools/prepare.sh\`, fix the work tree, \`desk/tools/build.sh\`, \`desk/tools/export-patches.sh\`; \`tools/update-mumble-interfaces.sh $TAG\`. Run: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+            echo
+            echo '<details><summary>Log</summary>'
+            echo
+            echo '```'
+            tail -c 30000 /tmp/apply.log 2>/dev/null
+            tail -c 30000 /tmp/build.log 2>/dev/null
+            echo '```'
+            echo '</details>'
+          } > /tmp/body.md
+          gh issue create --title "$title" --body-file /tmp/body.md
+          gh workflow run live.yml -f mumble="$TAG" || echo "Could not start the live tests"
