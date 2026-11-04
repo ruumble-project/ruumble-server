@@ -1,6 +1,6 @@
 # Ruumble
 
-[![CI](https://github.com/Skrrytch/Ruumble/actions/workflows/ci.yml/badge.svg)](https://github.com/Skrrytch/Ruumble/actions/workflows/ci.yml) [![Release](https://img.shields.io/github/v/release/Skrrytch/Ruumble)](https://github.com/Skrrytch/Ruumble/releases/latest) [![License](https://img.shields.io/github/license/Skrrytch/Ruumble)](LICENSE)
+[![CI](https://github.com/KevinWebman/Ruumble-Desk/actions/workflows/ci.yml/badge.svg)](https://github.com/KevinWebman/Ruumble-Desk/actions/workflows/ci.yml) [![Release](https://img.shields.io/github/v/release/KevinWebman/Ruumble-Desk)](https://github.com/KevinWebman/Ruumble-Desk/releases/latest) [![License](https://img.shields.io/github/license/KevinWebman/Ruumble-Desk)](LICENSE)
 
 **Your [Mumble](https://www.mumble.info/) server as an office building.** Ruumble is a web UI next to the regular Mumble client: the channels become floors and rooms, you see at a glance who sits where and who is talking, you move to another room with a click, and every room has a board for notes, code, images and files. Voice stays in Mumble, and Mumble itself stays unchanged.
 
@@ -11,7 +11,7 @@
 >
 > Without your own Mumble server and the plugin in the clients there is nothing to see, except the demo below.
 
-**[Try the demo](https://skrrytch.github.io/Ruumble/)**: runs in the browser against a simulated server, no Mumble needed.
+**[Try the demo](https://kevinwebman.github.io/Ruumble-Desk/)**: runs in the browser against a simulated server, no Mumble needed.
 
 ![Ruumble: moving between rooms, a new post on the board, the elevator and back via the room sign](docs/images/ruumble-demo.gif)
 
@@ -31,8 +31,8 @@ Full list and plans: [docs/features.md](docs/features.md).
 **For server operators** (Docker; details and the setup next to an existing Mumble container in the [operations guide](docs/operations.md)). A new Mumble server with Ruumble, in an empty folder:
 
 ```sh
-curl -fsSLO https://raw.githubusercontent.com/Skrrytch/Ruumble/main/deploy/compose/mumble-with-ruumble.docker-compose.yml
-curl -fsSLO https://raw.githubusercontent.com/Skrrytch/Ruumble/main/deploy/compose/setup.sh
+curl -fsSLO https://raw.githubusercontent.com/KevinWebman/Ruumble-Desk/main/deploy/compose/mumble-with-ruumble.docker-compose.yml
+curl -fsSLO https://raw.githubusercontent.com/KevinWebman/Ruumble-Desk/main/deploy/compose/setup.sh
 sh setup.sh && docker compose up -d
 ```
 
@@ -43,6 +43,10 @@ Then add the line `setup.sh` prints, e.g. `ruumble: http://192.168.1.10:64080`, 
 1. Download the plugin from the Ruumble address (`…/download`) and install it in Mumble under *Configure → Settings → Plugins*.
 2. Connect to the server: the plugin opens your browser with a pairing link.
 3. From then on, open Ruumble at its address. That's it.
+
+## Ruumble Desk
+
+**Ruumble Desk** ([`desk/`](desk/README.md)) is a Mumble 1.6 client for Linux with Ruumble built in: one window, the building is the whole UI, Mumble's audio runs underneath, no plugin and no browser tab needed. Its settings and certificate are kept apart from an installed official Mumble. Every release attaches it as an AppImage (`Ruumble_Desk-<version>-x86_64.AppImage`: `chmod +x`, then start it); it works with any Ruumble service of the same version. Building it yourself and native packages: [desk/README.md](desk/README.md).
 
 ## Requirements
 
@@ -78,11 +82,11 @@ Browser ──http(s)──▶ Ruumble service ──Ice (read-only)──▶ Mu
 
 ## Icons
 
-The Ruumble icon for portals, dashboards and bookmarks: [ruumble-icons.zip](https://github.com/Skrrytch/Ruumble/releases/latest/download/ruumble-icons.zip) from the latest release, with the SVG, PNGs in 192 and 512 px (also as maskable icons with a full-bleed background), the Apple touch icon and `favicon.ico`. Every Ruumble instance also serves them at its root, e.g. `https://<your-ruumble>/icon-512.png`. The sources are in [`web/public/`](web/public/).
+The Ruumble icon for portals, dashboards and bookmarks: [ruumble-icons.zip](https://github.com/KevinWebman/Ruumble-Desk/releases/latest/download/ruumble-icons.zip) from the latest release, with the SVG, PNGs in 192 and 512 px (also as maskable icons with a full-bleed background), the Apple touch icon and `favicon.ico`. Every Ruumble instance also serves them at its root, e.g. `https://<your-ruumble>/icon-512.png`. The sources are in [`web/public/`](web/public/).
 
 ## Support and contributing
 
-- Questions and ideas: [Discussions](https://github.com/Skrrytch/Ruumble/discussions). Bugs and feature requests: [issues](https://github.com/Skrrytch/Ruumble/issues).
+- Questions and ideas: [Discussions](https://github.com/KevinWebman/Ruumble-Desk/discussions). Bugs and feature requests: [issues](https://github.com/KevinWebman/Ruumble-Desk/issues).
 - Security problems: please report them privately, see [SECURITY.md](SECURITY.md).
 - Contributions are welcome, see [CONTRIBUTING.md](CONTRIBUTING.md).
 

@@ -9,6 +9,11 @@ All notable changes to Ruumble. The service and the web UI share one version; th
 ### Added
 
 - Ruumble Desk panel: inside the Ruumble Desk client (Mumble fork with Ruumble built in, ADR-0024 draft), a button in the top bar opens the Mumble log and channel chat and the client's server, audio and settings dialogs; in a normal browser nothing changes
+- Ruumble Desk (`desk/`): the Mumble 1.6 client with Ruumble built in now lives in this repo; every release attaches it as an AppImage for Linux x86_64
+
+### Changed
+
+- The project moved to `KevinWebman/Ruumble-Desk`: the image is now `ghcr.io/kevinwebman/ruumble`, the demo `https://kevinwebman.github.io/Ruumble-Desk/`; update the image line in your Compose file with the next upgrade
 
 ## [0.32.1] - 2026-11-03
 
