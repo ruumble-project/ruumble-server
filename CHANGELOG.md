@@ -16,6 +16,7 @@ All notable changes to Ruumble. The service and the web UI share one version; th
 
 ### Fixed
 
+- Ruumble Desk: its own D-Bus name; before, starting it with a `mumble://` link while the official Mumble ran handed the link to the official client, which then left its server
 - Ruumble Desk: person cards and room descriptions no longer show up in the wrong place or stay open, the board has its light background again and its width is right. Desk's engine (Qt WebEngine 6.4, Chromium 102) lacks the popover API, `color-mix()` and container units; the web UI now loads a popover polyfill only where it is missing, has plain fallbacks for the rest, and is built for Chromium 102 as well. Ruumble Desk also brings these fixes itself, so it works with services that still run an older web UI
 - Ruumble Desk: with a service whose web UI has no Desk panel yet (older than this version), Mumble's own log and chat are shown beside the building, so there is always a chat; the Mumble menu (F10) switches them with "Mumble log and chat"
 - Ruumble Desk: on its first start it takes over the audio settings and shortcuts (push-to-talk) of an installed official Mumble once; before, it started with Mumble's defaults and push-to-talk did not work
