@@ -6,11 +6,13 @@ All notable changes to Ruumble. The service and the web UI share one version; th
 
 ## [Unreleased]
 
+Plugin 0.5.0 (unchanged). Fixes the Ruumble Desk AppImage, which crashed when connecting to a service over HTTPS.
+
 ### Fixed
 
+- Ruumble Desk AppImage: no longer crashes when connecting to a Ruumble service over HTTPS; it now carries all of NSS (Chromium's crypto) instead of mixing its own with the system's
 - Ruumble Desk: in narrow rooms the number of people moves behind the name, as in a normal browser; Desk's engine (Chromium 102) has no container queries, so the web UI measures the room itself there
 - Ruumble Desk: no more "Hover once over the top channel" hint in the log; Desk loads the description itself
-- Ruumble Desk AppImage: no longer crashes when connecting to a Ruumble service over HTTPS; it now carries all of NSS (Chromium's crypto) instead of mixing its own with the system's
 
 ### Changed
 
