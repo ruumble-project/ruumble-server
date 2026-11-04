@@ -282,7 +282,7 @@
     100% { transform: none; }
   }
   @keyframes card-glow {
-    0%, 25% { border-color: var(--color-accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-accent) 55%, transparent); background: color-mix(in srgb, var(--color-accent) 18%, var(--color-paper)); }
+    0%, 25% { border-color: var(--color-accent); box-shadow: 0 0 0 3px var(--color-accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-accent) 55%, transparent); background: color-mix(in srgb, var(--color-accent) 18%, var(--color-paper)); }
     100% { border-color: var(--color-blue-100); box-shadow: 0 0 0 3px transparent; background: var(--color-paper); }
   }
   header { display: flex; align-items: center; gap: 6px; min-height: 22px; }
@@ -331,7 +331,8 @@
   .caption :global(code) { background: var(--color-surface); padding: 0 3px; border-radius: 3px; font-size: 13px; }
   .caption :global(a) { color: var(--color-link); }
   /* the post being pointed at stands out a little, so it is clear what the actions apply to (also within a group) */
-  .card:hover, .card:focus-within, .card.active { background: color-mix(in srgb, var(--color-blue-100) 35%, var(--color-paper)); }
+  /* first line: fallback for engines without color-mix() (Ruumble Desk, Chromium 102) */
+  .card:hover, .card:focus-within, .card.active { background: var(--color-blue-50); background: color-mix(in srgb, var(--color-blue-100) 35%, var(--color-paper)); }
   /* actions: float on the bottom edge of the post they belong to, shown on hover, keyboard focus and while a menu or the picker is open */
   .tools {
     position: absolute; bottom: -19px; right: 8px; z-index: 2; display: inline-flex; align-items: center; gap: 1px; padding: 1px;

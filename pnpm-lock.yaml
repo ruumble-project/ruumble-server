@@ -78,6 +78,9 @@ importers:
       '@lucide/svelte':
         specifier: 1.58.0
         version: 1.58.0(svelte@5.57.2)
+      '@oddbird/popover-polyfill':
+        specifier: 0.7.3
+        version: 0.7.3
       '@ruumble/protocol':
         specifier: workspace:*
         version: link:../protocol
@@ -415,6 +418,9 @@ packages:
   '@lukeed/ms@2.0.2':
     resolution: {integrity: sha512-9I2Zn6+NJLfaGoz9jN3lpwDgAYvfGeNYdbAIjJOqzs4Tpc+VU3Jqq4IofSUBKajiDS8k9fZIg18/z13mpk1bsA==}
     engines: {node: '>=8'}
+
+  '@oddbird/popover-polyfill@0.7.3':
+    resolution: {integrity: sha512-uOY7RLqS1M12u+EzZHQ8vPSh3NjwDlb4qwJ1WDzQ0inZ14+47Vv0NNs+1Lh4PtX1nLiiCbfJyIxPRHsgBTvhvg==}
 
   '@oxc-project/types@0.154.0':
     resolution: {integrity: sha512-KYOUGQFlLWR+s4QMV2Q9ko38TZm7EdO87Qm7rvZLqk/webse/cDjtyxKhg/47l0byCbs/k46LT8qc4PKjAikzA==}
@@ -1583,6 +1589,8 @@ snapshots:
       svelte: 5.57.2
 
   '@lukeed/ms@2.0.2': {}
+
+  '@oddbird/popover-polyfill@0.7.3': {}
 
   '@oxc-project/types@0.154.0': {}
 

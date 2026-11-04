@@ -62,7 +62,8 @@
   --raster-dot: #e3e3e3;       /* background grid in the corridor */
 
   /* Board: its own tint, cards on it. The board sets --color-paper to --color-card for everything inside it. */
-  --color-board: color-mix(in srgb, var(--color-blue-100) 45%, var(--color-paper));
+  /* 45 % --color-blue-100 on --color-paper, precomputed: Ruumble Desk's engine (Chromium 102) has no color-mix() */
+  --color-board: #e9f3fc;
   --color-card: #ffffff;
 
   /* Menus, popovers and dialogs: raised above the page. They set --color-paper to --color-raised for everything inside

@@ -18,6 +18,7 @@ The service uses **Ice for JavaScript** (GPL-2.0), so the Docker image as a comb
 | [DOMPurify](https://github.com/cure53/DOMPurify) | MPL-2.0 OR Apache-2.0 | web UI (bundled) |
 | [highlight.js](https://highlightjs.org/) | BSD-3-Clause | web UI (bundled) |
 | [Lucide](https://lucide.dev/) (`@lucide/svelte`) | ISC | web UI (bundled) |
+| [Popover polyfill](https://github.com/oddbird/popover-polyfill) (`@oddbird/popover-polyfill`, OddBird) | BSD-3-Clause | web UI (bundled, loaded only by engines without the popover API, e.g. Ruumble Desk) |
 | [Inter](https://rsms.me/inter/) (`@fontsource-variable/inter`) | SIL Open Font License 1.1 | web UI (font files) |
 | [Node.js](https://nodejs.org/) (base image `node:22-bookworm-slim`) | MIT and others | runtime |
 
