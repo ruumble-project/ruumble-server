@@ -6,6 +6,8 @@ All notable changes to Ruumble. The service and the web UI share one version; th
 
 ## [Unreleased]
 
+## [0.33.0] - 2026-11-04
+
 ### Added
 
 - Ruumble Desk panel: inside the Ruumble Desk client (Mumble fork with Ruumble built in, ADR-0024 draft), a button in the top bar opens the Mumble log and channel chat and the client's server, audio and settings dialogs; in a normal browser nothing changes
@@ -406,6 +408,7 @@ Plugin 0.1.0 to 0.2.0.
 - Real Mumble avatars and presence (quiet, away, recording).
 - Docker image with the plugin bundle served under `/download`.
 
+[0.33.0]: https://github.com/KevinWebman/Ruumble-Desk/releases/tag/v0.33.0
 [0.32.1]: https://github.com/Skrrytch/Ruumble/releases/tag/v0.32.1
 [0.32.0]: https://github.com/Skrrytch/Ruumble/releases/tag/v0.32.0
 [0.31.0]: https://github.com/Skrrytch/Ruumble/releases/tag/v0.31.0
