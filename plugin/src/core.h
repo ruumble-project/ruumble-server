@@ -66,6 +66,9 @@ struct Settings {
 	/** language of the plugin's own messages and of the service's notices */
 	Locale locale = Locale::en;
 	bool autoOpen             = true;
+	/** hint in the Mumble log while the root description is not loaded (the plugin cannot request it; Ruumble Desk
+	 * fetches it itself and turns the hint off) */
+	bool hoverHint = true;
 	/** fixed address from plugin.json; without it, the root description applies (ADR-0010) */
 	std::optional< std::string > bridgeUrl;
 	std::chrono::milliseconds spacing{ 1000 };

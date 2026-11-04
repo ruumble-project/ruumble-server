@@ -45,6 +45,8 @@ describe("Ruumble Desk: the Mumble log in the web UI (ADR-0024)", () => {
     expect(en.desk.messageTo("Kitchen")).toBe("Message to Kitchen");
     expect([de.desk.unread(1), de.desk.unread(3)]).toEqual(["1 neue Nachricht", "3 neue Nachrichten"]);
     expect([en.desk.unread(1), en.desk.unread(3)]).toEqual(["1 new message", "3 new messages"]);
+    expect(de.screens.deskOfflineText("Acme")).toBe("Verbinde Ruumble Desk mit dem Server Acme.");
+    expect(en.screens.deskOfflineText("Acme")).toBe("Connect Ruumble Desk to the server Acme.");
   });
 });
 

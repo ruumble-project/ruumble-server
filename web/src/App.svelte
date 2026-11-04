@@ -117,9 +117,10 @@
     <div class="screen" role="status">
       <Unplug size={40} />
       <strong>{t().screens.notPairedTitle}</strong>
-      <span>{t().screens.notPairedText}</span>
+      <!-- inside Ruumble Desk the plugin is built in: no download and install steps (ADR-0024) -->
+      <span>{app.desk.available ? t().screens.deskNotPairedText : t().screens.notPairedText}</span>
       <PairForm {app} />
-      <PluginHelp versions={app.versions} />
+      {#if !app.desk.available}<PluginHelp versions={app.versions} />{/if}
     </div>
   {:else if !building}
     <div class="screen" role="status">{t().screens.connecting}</div>
@@ -127,8 +128,13 @@
     <div class="screen" role="status">
       <Unplug size={40} />
       <strong>{t().common.mumbleOffline}</strong>
-      <span>{t().screens.mumbleOfflineText(building.name)}</span>
-      <PluginHelp versions={app.versions} />
+      {#if app.desk.available}
+        <span>{t().screens.deskOfflineText(building.name)}</span>
+        <button type="button" class="desk-connect" onclick={() => app.desk.openConnect()}>{t().desk.connect}</button>
+      {:else}
+        <span>{t().screens.mumbleOfflineText(building.name)}</span>
+        <PluginHelp versions={app.versions} />
+      {/if}
     </div>
   {:else}
     <!-- top bar instead of an elevator column: the floor plan gets the full width -->
@@ -213,6 +219,12 @@
   }
   .vacancy strong, .screen strong { font-size: 20px; color: var(--color-ink); }
   .screen { align-items: center; text-align: center; color: var(--color-ink); }
+  .desk-connect {
+    min-height: 44px; margin-top: 8px; padding: 10px 16px; border: 0; border-radius: var(--radius-md);
+    background: var(--color-ink); color: var(--color-paper); font: inherit; font-weight: 700; cursor: pointer;
+  }
+  .desk-connect:hover { background: var(--color-ink-soft); }
+  .desk-connect:focus-visible { outline: 3px solid var(--color-sky); outline-offset: 2px; }
 
   .toast {
     position: fixed; left: 50%; bottom: 32px; transform: translateX(-50%); display: flex; align-items: center; gap: 16px;

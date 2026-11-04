@@ -9,6 +9,11 @@ All notable changes to Ruumble. The service and the web UI share one version; th
 ### Fixed
 
 - Ruumble Desk: in narrow rooms the number of people moves behind the name, as in a normal browser; Desk's engine (Chromium 102) has no container queries, so the web UI measures the room itself there
+- Ruumble Desk: no more "Hover once over the top channel" hint in the log; Desk loads the description itself
+
+### Changed
+
+- Ruumble Desk: the "not paired" and "Mumble offline" screens no longer offer the plugin download and its install steps; Desk pairs itself, and offline a button opens the client's connect dialog
 
 ## [0.33.0] - 2026-11-04
 

@@ -226,7 +226,7 @@ void Core::resolveBridge(Clock::time_point now) {
 		if (!url) {
 			// not loaded yet, empty or without the line: check again later (description may change)
 			const bool pending = d.status == Description::Status::Pending;
-			if (pending && !hintShown_) {
+			if (pending && settings_.hoverHint && !hintShown_) {
 				api_.log(text::hoverRoot(settings_.locale, api_.rootName()));
 				hintShown_ = true;
 			}

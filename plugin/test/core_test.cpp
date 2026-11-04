@@ -132,7 +132,7 @@ struct Fixture {
 	std::set< std::string > paired;
 	std::unique_ptr< Core > core;
 
-	explicit Fixture(std::optional< std::string > bridgeUrl = std::nullopt) {
+	explicit Fixture(std::optional< std::string > bridgeUrl = std::nullopt, bool hoverHint = true) {
 		Settings s;
 		s.pluginVersion  = "0.1.0";
 		s.mumbleVersion  = "1.5.735";
@@ -141,6 +141,7 @@ struct Fixture {
 		s.spacing        = 40ms;
 		s.confirmTimeout = 150ms;
 		s.discoveryRetry = 30ms;
+		s.hoverHint      = hoverHint;
 		core = std::make_unique< Core >(
 			api, transport, s, [this](const std::string &u) { openedUrl = u; opened++; },
 			[this](const std::string &u) { std::lock_guard< std::mutex > l(pm); return paired.count(u) > 0; },
@@ -232,6 +233,19 @@ TEST_CASE("description not loaded yet: hint once, then check again") {
 	}
 	REQUIRE(eventually([&] { return f.transport.connectCount() == 1; }));
 	CHECK(f.transport.connects[0] == "http://r.test:64080");
+}
+
+TEST_CASE("description not loaded yet, hint turned off (Ruumble Desk): no log line, connects once loaded") {
+	Fixture f(std::nullopt, false);
+	f.api.description = { Description::Status::Pending, "" };
+	f.core->onSynchronized();
+	std::this_thread::sleep_for(100ms);
+	{
+		std::lock_guard< std::mutex > l(f.api.m);
+		CHECK(f.api.logs.empty());
+		f.api.description = { Description::Status::Ok, "ruumble: r.test:64080" };
+	}
+	REQUIRE(eventually([&] { return f.transport.connectCount() == 1; }));
 }
 
 TEST_CASE("fixed address from plugin.json overrides the description") {
