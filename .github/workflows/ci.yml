@@ -5,7 +5,6 @@ on:
     branches: [main]
   pull_request:
   workflow_call: # from release.yml: a release is only built from a commit that passes CI
-  workflow_dispatch: # from mumble-release-watch.yml for its branch (a push with the workflow token starts nothing)
 
 permissions:
   contents: read

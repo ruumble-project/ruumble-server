@@ -11,8 +11,6 @@
 >
 > Without your own Mumble server and the plugin in the clients there is nothing to see, except the demo below.
 
-**[Try the demo](https://kevinwebman.github.io/Ruumble-Desk/)**: runs in the browser against a simulated server, no Mumble needed.
-
 ![Ruumble: moving between rooms, a new post on the board, the elevator and back via the room sign](docs/images/ruumble-demo.gif)
 
 ## Features

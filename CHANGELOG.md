@@ -13,7 +13,7 @@ All notable changes to Ruumble. The service and the web UI share one version; th
 
 ### Changed
 
-- The project moved to `KevinWebman/Ruumble-Desk`: the image is now `ghcr.io/kevinwebman/ruumble`, the demo `https://kevinwebman.github.io/Ruumble-Desk/`; update the image line in your Compose file with the next upgrade
+- The project moved to `KevinWebman/Ruumble-Desk`: the image is now `ghcr.io/kevinwebman/ruumble`; the online demo on GitHub Pages is discontinued (`pnpm -F @ruumble/web build:demo` still builds it locally); update the image line in your Compose file with the next upgrade
 
 ## [0.32.1] - 2026-11-03
 

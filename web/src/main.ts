@@ -8,7 +8,7 @@ import { FIXTURES, MockAdapter, type FixtureName } from "./lib/adapter/mock.ts";
 import { RuumbleState } from "./lib/state.svelte.ts";
 
 // Served by the service: LiveAdapter. Mock with ?fixture=<name> or ?mock, by default in the Vite dev server
-// (there ?live for the service via the proxy) and always in the demo build (`build:demo`, GitHub Pages).
+// (there ?live for the service via the proxy) and always in the demo build (`build:demo`).
 // Further parameters for the mock: ?debug, ?talking=0, ?paired=0
 const params = new URLSearchParams(location.search);
 const useMock =

@@ -83,9 +83,9 @@ In the dev server the web UI runs against the **mock** by default (a simulated M
 
 `web/public/icon.svg` and `icon-maskable.svg` (full-bleed background, plan inside the safe zone) are the sources. `tools/gen-icons.sh` (needs ImageMagick) renders the PNGs, the Apple touch icon and `favicon.ico` from them; the 16 px favicon is drawn pixel by pixel in the script. Rerun it after changing an SVG and commit the output. The release zips them as `ruumble-icons.zip`.
 
-### Demo on GitHub Pages
+### Static demo
 
-`pnpm -F @ruumble/web build:demo` builds the web UI in the Vite mode `demo` with a relative base into `web/dist-demo`: it always runs against the mock, and the plugin download links to the latest release. `.github/workflows/pages.yml` deploys it to <https://kevinwebman.github.io/Ruumble-Desk/> for every release tag, or when started manually.
+`pnpm -F @ruumble/web build:demo` builds the web UI in the Vite mode `demo` with a relative base into `web/dist-demo`: it always runs against the mock, and the plugin download links to the latest release. It can be served from any static web server; it is not deployed anywhere (the GitHub Pages deployment was dropped on 2026-11-04).
 
 ## Translations
 
@@ -133,7 +133,7 @@ On GitHub the live tests run as the workflow `.github/workflows/live.yml`: weekl
 
 ## Updating the Mumble interfaces
 
-A weekly GitHub workflow (`mumble-release-watch.yml`, also on demand with a tag) takes new Mumble releases over as a pull request: interface files, Ruumble Desk's Mumble pin and patch (3-way merge, adapted by Claude if it no longer fits and the repo secret `ANTHROPIC_API_KEY` is set), client build and plugin tests; CI and the live tests are started for the branch. If it cannot be done automatically it opens an issue with the log. The live tests catch behaviour changes that a diff does not show. To take over a release by hand:
+A weekly GitHub workflow (`mumble-release-watch.yml`) reports new Mumble releases as an issue, with the diff of the interface files, and starts the live tests against the new release. This also catches behaviour changes that a diff does not show. The release is taken over locally: say "Update alles" ("update everything") in Claude Code in this repo (skill `.claude/skills/update-all`: interface files, Ruumble Desk's Mumble tag and patch, fixes, all checks), or run `desk/tools/update-mumble.sh <tag>`. Only the interface files:
 
 ```sh
 tools/update-mumble-interfaces.sh v1.6.870     # desired tag

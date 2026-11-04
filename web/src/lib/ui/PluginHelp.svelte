@@ -6,7 +6,7 @@
   let { versions = null }: { versions?: Versions | null } = $props();
 
   const h = $derived(t().pluginHelp);
-  // the demo on GitHub Pages has no service that serves the plugin
+  // the static demo build has no service that serves the plugin
   const downloadUrl = import.meta.env.MODE === "demo" ? "https://github.com/KevinWebman/Ruumble-Desk/releases/latest" : "/download";
 </script>
 
