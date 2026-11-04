@@ -22,6 +22,7 @@
   import NoticesDialog from "./lib/ui/NoticesDialog.svelte";
   import StatusDialog from "./lib/ui/StatusDialog.svelte";
   import ChatPanel from "./lib/ui/chat/ChatPanel.svelte";
+  import DeskPanel from "./lib/ui/desk/DeskPanel.svelte";
   import ChatToast from "./lib/ui/chat/ChatToast.svelte";
   import TubeDialog from "./lib/ui/tube/TubeDialog.svelte";
   import TubePanel from "./lib/ui/tube/TubePanel.svelte";
@@ -163,6 +164,7 @@
     {#if app.noticesOpen}<NoticesDialog {app} />{/if}
     {#if app.helpOpen}<ShortcutsDialog onclose={() => (app.helpOpen = false)} />{/if}
     {#if app.overviewOpen && building}<BuildingOverview {app} {building} />{/if}
+    {#if app.desk.available && app.desk.open}<DeskPanel {app} />{/if}
     {#if app.me}
       <ChatPanel {app} />
       <ChatToast {app} />

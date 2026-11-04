@@ -6,6 +6,10 @@ All notable changes to Ruumble. The service and the web UI share one version; th
 
 ## [Unreleased]
 
+### Added
+
+- Ruumble Desk panel: inside the Ruumble Desk client (Mumble fork with Ruumble built in, ADR-0024 draft), a button in the top bar opens the Mumble log and channel chat and the client's server, audio and settings dialogs; in a normal browser nothing changes
+
 ## [0.32.1] - 2026-11-03
 
 Plugin 0.5.0 (unchanged). Security update of a service dependency; the repository is now `Skrrytch/Ruumble`.

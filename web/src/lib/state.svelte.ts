@@ -12,6 +12,7 @@ import { avatarUrlOf, buildBuilding, homeFloor, type BuildOptions, type Building
 import { entrants, newPostAuthors } from "./notices/model.ts";
 import { NoticeCenter } from "./notices/center.svelte.ts";
 import { ChatState } from "./chat/state.svelte.ts";
+import { DeskState } from "./desk/state.svelte.ts";
 import { TubeState } from "./tube/state.svelte.ts";
 
 export type Notice = { text: string };
@@ -164,6 +165,8 @@ export class RuumbleState {
   readonly chat: ChatState;
   /** tube mail (ADR-0022): parcels sent and received, the panel, the send dialog, the files this tab holds */
   readonly tube: TubeState;
+  /** Ruumble Desk (ADR-0024): Mumble's log, chat and dialogs when running inside the Ruumble Desk client */
+  readonly desk = new DeskState();
   readonly notices: NoticeCenter;
 
   constructor(private readonly adapter: MumbleAdapter) {
@@ -187,6 +190,7 @@ export class RuumbleState {
     void this.adapter.versions().then((v) => (this.versions = v));
     this.chat.start();
     this.tube.start();
+    this.desk.start();
     this.notices.start();
     this.adapter.start({
       snapshot: (s) => this.onSnapshot(s),

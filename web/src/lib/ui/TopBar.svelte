@@ -18,6 +18,9 @@
   import MessagesSquare from "@lucide/svelte/icons/messages-square";
   import UserIcon from "@lucide/svelte/icons/user";
   import Users from "@lucide/svelte/icons/users";
+  import ScrollText from "@lucide/svelte/icons/scroll-text";
+  import Settings from "@lucide/svelte/icons/settings";
+  import Menu from "@lucide/svelte/icons/menu";
   import { locale, setLocale, t } from "../i18n/index.svelte.ts";
   import { countText, initials, ownPlace, type Building, type Floor } from "../model/building.ts";
   import type { RuumbleState } from "../state.svelte.ts";
@@ -178,6 +181,17 @@
   </div>
 
   <div class="right">
+    <!-- Ruumble Desk (ADR-0024): Mumble's log and channel chat; only inside the Ruumble Desk client -->
+    {#if app.desk.available}
+      <button
+        type="button" class="tool desk" aria-pressed={app.desk.open}
+        aria-label={app.desk.unread ? `${t().desk.button}, ${t().desk.unread(app.desk.unread)}` : t().desk.button} title={t().desk.button}
+        onclick={() => app.desk.toggle()}
+      >
+        <ScrollText size={20} />
+        {#if app.desk.unread}<span class="count" aria-hidden="true">{app.desk.unread > 99 ? "99+" : app.desk.unread}</span>{/if}
+      </button>
+    {/if}
     <!-- tube mail (ADR-0022): opens its panel; the number of parcels waiting for an answer, a ring while own ones are on their way -->
     <button
       type="button" class="tool tube" data-tube-button aria-pressed={app.tube.panel} aria-label={tubeLabel} title={tubeLabel}
@@ -241,6 +255,15 @@
             <span class="key-icon" aria-hidden="true"><Key size={18} /></span>{t().keys.myKeys}
           </button>
           <!-- language: German or English (browser setting), switchable here and remembered -->
+          <!-- Ruumble Desk (ADR-0024): Mumble's own settings dialog, also with Ctrl+, in the client -->
+          {#if app.desk.available}
+            <button type="button" class="item" onclick={() => { open = null; app.desk.openSettings(); }}>
+              <Settings size={18} aria-hidden="true" />{t().desk.mumbleSettings}<kbd class="key">Ctrl+,</kbd>
+            </button>
+            <button type="button" class="item" onclick={(e) => { const at = e.currentTarget.getBoundingClientRect(); open = null; app.desk.showMenu(at.left, at.top); }}>
+              <Menu size={18} aria-hidden="true" />{t().desk.menu}<kbd class="key">F10</kbd>
+            </button>
+          {/if}
           <button type="button" class="item" onclick={() => setLocale(other)}>
             <Languages size={18} aria-hidden="true" />{t().core.switchLanguage(t().core.languageName[other])}
           </button>
@@ -385,7 +408,7 @@
   .tool:hover { background: var(--color-blue-100); }
   .tool[aria-pressed="true"] { background: var(--color-ink); border-color: var(--color-ink); color: var(--color-paper); }
   .tool:disabled { opacity: 0.5; cursor: not-allowed; }
-  .chat, .tube { position: relative; }
+  .chat, .tube, .desk { position: relative; }
   /* own parcels on their way: a ring around the button that fills up */
   .ring { position: absolute; inset: -3px; width: calc(100% + 6px); height: calc(100% + 6px); transform: rotate(-90deg); pointer-events: none; overflow: visible; }
   .ring circle { fill: none; stroke: var(--color-blue-500); stroke-width: 3; stroke-linecap: round; transition: stroke-dasharray 400ms var(--ease-out); }
@@ -397,12 +420,12 @@
   .audio .tool:hover { background: var(--color-blue-100); }
   .audio .tool[aria-pressed="true"] { background: var(--color-ink); border-color: var(--color-ink); }
   .audio .tool:disabled:hover { background: var(--color-surface); }
-  .chat .count, .tube .count {
+  .chat .count, .tube .count, .desk .count {
     position: absolute; top: -6px; right: -6px; min-width: 18px; height: 18px; padding: 0 5px; border-radius: 9px; box-sizing: border-box;
     background: var(--color-ink); color: var(--color-paper); box-shadow: 0 0 0 2px var(--color-paper);
     font-size: 11px; font-weight: 700; line-height: 18px; text-align: center; font-variant-numeric: tabular-nums;
   }
-  .chat[aria-pressed="true"] .count, .tube[aria-pressed="true"] .count { background: var(--color-paper); color: var(--color-ink); box-shadow: 0 0 0 2px var(--color-ink); }
+  .chat[aria-pressed="true"] .count, .tube[aria-pressed="true"] .count, .desk[aria-pressed="true"] .count { background: var(--color-paper); color: var(--color-ink); box-shadow: 0 0 0 2px var(--color-ink); }
   .tool:disabled:hover { background: var(--color-paper); }
 
   /* name badge: white card with a yellow band, hanging on a clip */
