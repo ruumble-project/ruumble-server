@@ -6,6 +6,10 @@ All notable changes to Ruumble. The service and the web UI share one version; th
 
 ## [Unreleased]
 
+### Fixed
+
+- Ruumble Desk: in narrow rooms the number of people moves behind the name, as in a normal browser; Desk's engine (Chromium 102) has no container queries, so the web UI measures the room itself there
+
 ## [0.33.0] - 2026-11-04
 
 ### Added

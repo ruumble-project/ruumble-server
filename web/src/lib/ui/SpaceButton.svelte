@@ -153,6 +153,12 @@
   /** room width the door plate leaves for the door, the board and the binders */
   const plateReserve = $derived(90 + (boardToggle ? BOARD_TOGGLE_WIDTH : 0) + (space.description ? BINDERS_WIDTH : 0));
 
+  // narrow rooms (see the @container rule): engines without container queries (Ruumble Desk, Chromium 102) get the
+  // class instead, the CSS only uses it there
+  let wrapWidth = $state(0);
+  const NARROW_ROOM = 220;
+  const narrow = $derived(variant === "room" && wrapWidth > 0 && wrapWidth <= NARROW_ROOM);
+
   const fit = $derived(variant === "room" ? fitPeople(space.users, peopleWidth, peopleHeight) : { shown: space.users, hidden: [] });
   const doorState = $derived(disabled && !readonly ? "closed" : "ajar");
   // "entering …" only when Mumble takes a while: a quick move would only make it flicker (the aria-label says it at once)
@@ -218,7 +224,7 @@
   {#if space.recording}<span class="rec" title={t().space.recording}>{t().space.recordingBadge}</span>{/if}
 {/snippet}
 
-<div class="wrap wrap-{variant}" class:lower={row === "bottom"} style:flex-grow={room ? room.grow : undefined} style:--plate-reserve="{plateReserve}px">
+<div class="wrap wrap-{variant}" class:lower={row === "bottom"} class:narrow bind:clientWidth={wrapWidth} style:flex-grow={room ? room.grow : undefined} style:--plate-reserve="{plateReserve}px">
 <button
   type="button"
   class="room {variant}"
@@ -382,13 +388,15 @@
   .name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
   .wrap-room .count { margin-top: 1px; font-size: 12px; color: var(--color-blue-700); }
   .mini-count { display: none; align-items: center; gap: 2px; flex: none; font-size: 12px; font-weight: 700; color: var(--color-blue-700); }
-  /* narrow rooms: the count moves behind the name, the board gets smaller */
+  /* narrow rooms: the count moves behind the name */
   @container (max-width: 220px) {
     .wrap-room .count { display: none; }
     .mini-count { display: inline-flex; }
   }
-  @container (max-width: 170px) {
-    .notes.toggle :global(svg) { width: 20px; height: 16px; }
+  /* the same without container queries (Ruumble Desk, Chromium 102): the class comes from the measured width */
+  @supports not (container-type: inline-size) {
+    .wrap-room.narrow .count { display: none; }
+    .wrap-room.narrow .mini-count { display: inline-flex; }
   }
 
   /* board toggle without a box: only the notes, on hover they lift slightly. In a room left of the door plate
