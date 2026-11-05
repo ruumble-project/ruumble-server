@@ -86,6 +86,10 @@
   --app-min-width: 1000px;
   --board-width: 380px;        /* open board and Ruumble in a box up to this window width; they get half of every pixel beyond */
   --board-grow-from: 1440px;
+  /* the width of the board and of Ruumble in a box: --board-width, plus half of every pixel of the window beyond
+     --board-grow-from. In vw, not container units: Chromium 102 (Ruumble Client) knows vw, and the app is as wide as the
+     window (2 x 32 px padding: 100vw - 1440px is the same as the app's content width beyond 1376px) */
+  --panel-width: calc(var(--board-width) + max(0px, (100vw - var(--board-grow-from)) / 2));
   /* Height: the window may shrink until every room still holds two rows of people (shorter windows scroll).
      Rooms (design "Grundriss: Flurseite"): far wall 12, people, 8, the door strip with door, plant, board and plate */
   --door-strip: 48px;
