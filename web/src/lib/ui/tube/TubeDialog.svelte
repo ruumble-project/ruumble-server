@@ -55,7 +55,7 @@
         <FileIcon size={22} aria-hidden="true" />
         <span class="fname">{draft.file.name}</span>
         <span class="meta">{[typeLabel(draft.file.name, draft.file.type), formatSize(draft.file.size)].filter(Boolean).join(" · ")}</span>
-        <button type="button" class="btn secondary small" onclick={() => picker?.click()}>{t().tube.dialog.change}</button>
+        <button type="button" class="btn secondary compact" onclick={() => picker?.click()}>{t().tube.dialog.change}</button>
       </div>
     {:else}
       <button type="button" class="dropzone" class:dragging onclick={() => picker?.click()} ondragover={over} ondragleave={() => (dragging = false)} ondrop={drop}>
@@ -141,6 +141,5 @@
   .field { display: flex; flex-direction: column; }
   textarea { padding: 8px 10px; border: 1px solid var(--control); border-radius: 4px; font: inherit; color: var(--ink); background: var(--paper); resize: vertical; }
   .row { display: flex; gap: 8px; flex-wrap: wrap; }
-  .btn.small { min-height: 32px; padding: 0 12px; font-size: 13px; }
-  .dropzone:focus-visible, .chip:focus-visible { outline: 3px solid var(--color-sky); outline-offset: 2px; }
+  .btn.compact { height: 32px; padding: 0 12px; font-size: 13px; }
 </style>
