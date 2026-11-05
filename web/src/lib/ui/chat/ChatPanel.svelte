@@ -296,11 +296,6 @@
           {:else}
             <p class="away-note">{t().chat.away(conversation.name)}</p>
           {/if}
-          <p class="hint">
-            <span><kbd>{SHORTCUT_KEYS.chat.toUpperCase()}</kbd> {t().chat.keyToggle}</span>
-            <span><kbd>{SHORTCUT_KEYS.chatPrev}</kbd> <kbd>{SHORTCUT_KEYS.chatNext}</kbd> {t().chat.keyTabs}</span>
-            <span><kbd>Esc</kbd> {t().chat.keyClose}</span>
-          </p>
           <p class="hint">{t().chat.keep}</p>
         </div>
       </div>
@@ -431,8 +426,7 @@
   .chars { align-self: flex-end; padding-right: 92px; font-size: 11px; color: var(--color-blue-700); }
   .chars.over { color: var(--color-alert); font-weight: 700; }
   .away-note { margin: 0; padding: 8px 10px; border-radius: var(--radius-md); background: var(--color-surface); font-size: 13px; color: var(--color-blue-700); }
-  .hint { display: flex; flex-wrap: wrap; gap: 4px 12px; margin: 0; padding: 0 6px; font-size: 11px; color: var(--color-blue-700); }
-  kbd { min-width: 14px; padding: 0 4px; border: 1px solid var(--color-blue-300); border-radius: 3px; font: inherit; font-weight: 700; text-align: center; }
+  .hint { margin: 0; padding: 0 6px; font-size: 11px; color: var(--color-blue-700); }
 
   .empty { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; padding: 32px; text-align: center; color: var(--color-blue-700); font-size: 13px; line-height: 1.5; }
   .empty strong { color: var(--color-ink); font-size: 15px; }
