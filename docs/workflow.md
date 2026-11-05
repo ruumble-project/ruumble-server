@@ -31,10 +31,12 @@ working with released clients; the client then moves its `server/` submodule.
 6. **Run the checks** before pushing (see the table below).
 7. **Open a pull request** against `main` with the template: `Closes #42`, what and why, how it was tested,
    screenshots for UI changes. Draft PRs are fine for early feedback.
-8. **Review**: one other person approves. The reviewer checks the acceptance criteria of the ticket, the tests and the
-   conventions in `CLAUDE.md`, and pulls the branch for UI changes. Changes are pushed to the same branch.
-9. **Merge** with *Squash and merge* once CI is green and the review is approved; the squash commit message is the PR
-   title (one line, with `(#42)`). The branch is deleted, the ticket closes itself.
+8. **Review** is optional inside the team: ask a colleague when you want a second look (in Claude Code
+   `/code-review <PR number>` helps as well). Pull requests from outside the team (forks) are reviewed and merged by a
+   team member, who checks the acceptance criteria, the tests and the conventions in `CLAUDE.md`.
+9. **Merge** with *Squash and merge* once CI is green; team members merge their own pull requests. The squash commit
+   message is the PR title (one line, with `(#42)`). The branch is deleted, the ticket closes itself. Small, obvious
+   changes (a typo, a line of docs) may also go to `main` directly.
 10. **Releases** are made only by the maintainer, as described in [releasing.md](releasing.md).
 
 ## Checks before a pull request
@@ -71,6 +73,15 @@ sentence:
 
 Both need the GitHub CLI: `sudo apt install gh` (or see https://cli.github.com), then `gh auth login`.
 For a review, Claude's built-in `/code-review <PR number>` works on any pull request.
+
+What every Claude instance gets from the repo, so all colleagues work the same way:
+
+- `CLAUDE.md`, section "Team and GitHub": the rules of this flow and what GitHub enforces (protected `main`, required
+  checks, squash merge, labels, who may skip the rules, Claude never does).
+- `.claude/settings.json`: shared permissions. Reading git history, tickets, pull requests and workflow runs works
+  without asking; force pushes, pushing to `main`, merging and approving are left to people (denied for Claude). Personal additions
+  go into `.claude/settings.local.json` (not committed) or `~/.claude/settings.json`.
+- `.claude/skills/`: `/ticket`, `/new-ticket`, `/update-all`.
 
 Personal settings (`~/.claude/CLAUDE.md`) may be stricter, e.g. "never push": then Claude stops before pushing and
 names the commands instead.
