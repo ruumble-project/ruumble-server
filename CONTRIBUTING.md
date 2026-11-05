@@ -2,8 +2,8 @@
 
 Thanks for your interest! Bug reports, ideas and pull requests are all welcome.
 
-- **Questions and ideas:** start a [discussion](https://github.com/KevinWebman/Ruumble-Desk/discussions).
-- **Bugs:** open an [issue](https://github.com/KevinWebman/Ruumble-Desk/issues/new/choose) with the versions it asks for. Most problems depend on the Mumble server and client version.
+- **Questions and ideas:** start a [discussion](https://github.com/ruumble-project/ruumble-server/discussions).
+- **Bugs:** open an [issue](https://github.com/ruumble-project/ruumble-server/issues/new/choose) with the versions it asks for. Most problems depend on the Mumble server and client version.
 - **Security problems:** privately, see [SECURITY.md](SECURITY.md).
 
 ## Pull requests

@@ -33,7 +33,7 @@ The templates already set these.
 
 ## Compose templates
 
-In [`deploy/compose/`](../../deploy/compose/README.md), also attached to every [release](https://github.com/KevinWebman/Ruumble-Desk/releases/latest):
+In [`deploy/compose/`](../../deploy/compose/README.md), also attached to every [release](https://github.com/ruumble-project/ruumble-server/releases/latest):
 
 | File | For |
 |---|---|
@@ -43,6 +43,6 @@ In [`deploy/compose/`](../../deploy/compose/README.md), also attached to every [
 
 ## Image
 
-- `ghcr.io/kevinwebman/ruumble:<version>` for linux/amd64 and linux/arm64. Tags: the exact version, `<major>.<minor>` and `latest`.
+- `ghcr.io/ruumble-project/ruumble:<version>` for linux/amd64 and linux/arm64. Tags: the exact version, `<major>.<minor>` and `latest`.
 - It contains the plugin for Linux x86_64 and Windows x64, offered for download on Ruumble's start page, also on arm64 servers.
 - License: the service uses Ice for JavaScript (GPL-2.0), so the image as a whole is GPL-2.0; see [THIRD_PARTY_NOTICES.md](../../THIRD_PARTY_NOTICES.md).

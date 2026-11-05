@@ -1,4 +1,4 @@
-# Ruumble: a Mumble server as an office building (https://github.com/KevinWebman/Ruumble-Desk)
+# Ruumble: a Mumble server as an office building (https://github.com/ruumble-project/ruumble-server)
 # Accesses Mumble via Ice read-only. Plain HTTP on the LAN address; from the internet only through an HTTPS reverse proxy
 # (docs/operations/https.md, "On the internet": securing an exposed instance is up to its operator).
 services:

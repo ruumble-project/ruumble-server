@@ -1,8 +1,8 @@
 blank_issues_enabled: false
 contact_links:
   - name: Question or idea
-    url: https://github.com/KevinWebman/Ruumble-Desk/discussions
+    url: https://github.com/ruumble-project/ruumble-server/discussions
     about: Ask a question, share an idea or show your setup.
   - name: Security problem
-    url: https://github.com/KevinWebman/Ruumble-Desk/security/advisories/new
+    url: https://github.com/ruumble-project/ruumble-server/security/advisories/new
     about: Please report vulnerabilities privately, not as an issue.

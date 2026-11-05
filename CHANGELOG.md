@@ -6,6 +6,10 @@ All notable changes to Ruumble. The service and the web UI share one version; th
 
 ## [Unreleased]
 
+### Changed
+
+- The project moved to the organization `ruumble-project` and is split in two repositories: this one, `ruumble-project/ruumble-server` (service, web UI, plugin), and `ruumble-project/ruumble-client` (Ruumble Desk, released there from now on). From the next release the image is `ghcr.io/ruumble-project/ruumble`; Compose files on `ghcr.io/kevinwebman/ruumble` need the new image name (ADR-0025)
+
 ## [0.33.1] - 2026-11-04
 
 Plugin 0.5.0 (unchanged). Fixes the Ruumble Desk AppImage, which crashed when connecting to a service over HTTPS.

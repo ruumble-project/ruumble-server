@@ -133,7 +133,7 @@ On GitHub the live tests run as the workflow `.github/workflows/live.yml`: weekl
 
 ## Updating the Mumble interfaces
 
-A weekly GitHub workflow (`mumble-release-watch.yml`) reports new Mumble releases as an issue, with the diff of the interface files, and starts the live tests against the new release. This also catches behaviour changes that a diff does not show. The release is taken over locally: say "Update alles" ("update everything") in Claude Code in this repo (skill `.claude/skills/update-all`: interface files, Ruumble Desk's Mumble tag and patch, fixes, all checks), or run `desk/tools/update-mumble.sh <tag>`. Only the interface files:
+A weekly GitHub workflow (`mumble-release-watch.yml`) reports new Mumble releases as an issue, with the diff of the interface files, and starts the live tests against the new release. This also catches behaviour changes that a diff does not show. The release is taken over locally: say "Update alles" ("update everything") in Claude Code in this repo (skill `.claude/skills/update-all`: interface files, fixes, all checks). Ruumble Desk's Mumble tag and patch are taken over in [ruumble-project/ruumble-client](https://github.com/ruumble-project/ruumble-client). Only the interface files:
 
 ```sh
 tools/update-mumble-interfaces.sh v1.6.870     # desired tag

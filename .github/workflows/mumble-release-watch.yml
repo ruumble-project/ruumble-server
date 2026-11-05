@@ -1,9 +1,9 @@
 name: Mumble-Release-Watch
 
 # Reports a new Mumble release as an issue, including a diff of the two interface files, and starts the live tests
-# against it. Taking the release over (interface files, Ruumble Desk's Mumble tag and patch, build, checks) is done
-# locally: say "Update alles" / "update everything" in Claude Code (skill .claude/skills/update-all), or run
-# desk/tools/update-mumble.sh <tag> by hand.
+# against it. Taking the release over (interface files, checks) is done locally: say "Update alles" / "update everything"
+# in Claude Code (skill .claude/skills/update-all), or run tools/update-mumble-interfaces.sh <tag> by hand.
+# Ruumble Desk (ruumble-project/ruumble-client) watches Mumble releases for its own Mumble tag and patch.
 on:
   schedule:
     - cron: "17 6 * * 1"
@@ -25,13 +25,12 @@ jobs:
         run: |
           set -euo pipefail
           interfaces="$(cat third_party/mumble/VERSION)"
-          desk="$(sed -nE 's/^MUMBLE_REF=\$\{MUMBLE_REF:-([^}]+)\}$/\1/p' desk/pins.env)"
           latest="$(gh api repos/mumble-voip/mumble/releases/latest --jq .tag_name)"
-          echo "interfaces $interfaces, Ruumble Desk $desk, latest release $latest"
-          newest="$(printf '%s\n%s\n' "$desk" "$latest" | sort -V | tail -1)"
-          if [[ "$latest" == "$desk" && "$latest" == "$interfaces" ]] || [[ "$newest" != "$latest" ]]; then exit 0; fi
+          echo "interfaces $interfaces, latest release $latest"
+          newest="$(printf '%s\n%s\n' "$interfaces" "$latest" | sort -V | tail -1)"
+          if [[ "$latest" == "$interfaces" ]] || [[ "$newest" != "$latest" ]]; then exit 0; fi
 
-          title="Mumble $latest available (we use $desk)"
+          title="Mumble $latest available (we use $interfaces)"
           if gh issue list --state open --search "\"$title\" in:title" --json number --jq 'length' | grep -qv '^0$'; then
             echo "Issue already exists."; exit 0
           fi
@@ -41,9 +40,9 @@ jobs:
           diff -ru --exclude=VERSION --exclude=SHA256SUMS --exclude=README.md /tmp/before third_party/mumble > /tmp/interfaces.diff || true
 
           {
-            echo "A new Mumble release is available: **$latest** (interface files $interfaces, Ruumble Desk $desk)."
+            echo "A new Mumble release is available: **$latest** (interface files $interfaces)."
             echo
-            echo "To take it over: say **\"Update alles\"** in Claude Code in this repo (skill \`.claude/skills/update-all\`), or run \`desk/tools/update-mumble.sh $latest\` by hand. Then check \`docs/mumble-interfaces.md\` against the changes. The live tests were started for this release (workflow live.yml)."
+            echo "To take it over: say **\"Update alles\"** in Claude Code in this repo (skill \`.claude/skills/update-all\`), or run \`tools/update-mumble-interfaces.sh $latest\` by hand. Then check \`docs/mumble-interfaces.md\` against the changes. The live tests were started for this release (workflow live.yml)."
             echo
             if [[ -s /tmp/interfaces.diff ]]; then
               echo "<details><summary>Changes to the interface files</summary>"

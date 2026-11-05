@@ -63,7 +63,7 @@ COPY --from=plugin /out /
 FROM node:22-bookworm-slim
 LABEL org.opencontainers.image.title="Ruumble" \
       org.opencontainers.image.description="Mumble server as an office building" \
-      org.opencontainers.image.source="https://github.com/KevinWebman/Ruumble-Desk" \
+      org.opencontainers.image.source="https://github.com/ruumble-project/ruumble-server" \
       org.opencontainers.image.licenses="GPL-2.0-only AND BSD-3-Clause"
 # a build from an untagged commit names itself, e.g. --build-arg BUILD_VERSION="$(git describe --tags --dirty | sed 's/^v//')"
 ARG BUILD_VERSION=""

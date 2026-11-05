@@ -27,17 +27,18 @@ for f in bridge/package.json web/package.json; do
 done
 
 # image tag in the templates and docs (release.yml checks the same list)
+IMAGE=ghcr.io/ruumble-project/ruumble
 IMAGE_FILES=(deploy/compose/ruumble.docker-compose.yml deploy/compose/mumble-with-ruumble.docker-compose.yml docs/operations.md docs/operations/maintenance.md)
 for f in "${IMAGE_FILES[@]}"; do
-  sed -i -E "s#ghcr\.io/kevinwebman/ruumble:[0-9]+\.[0-9]+\.[0-9]+#ghcr.io/kevinwebman/ruumble:$version#g" "$f"
-  grep -q "ghcr.io/kevinwebman/ruumble:$version" "$f" || die "$f names no image tag"
+  sed -i -E "s#ghcr\.io/[a-z0-9-]+/ruumble:[0-9]+\.[0-9]+\.[0-9]+#$IMAGE:$version#g" "$f"
+  grep -q "$IMAGE:$version" "$f" || die "$f names no image tag"
 done
 
 # changelog: a dated section below an empty Unreleased, and the link reference on top of the others
 today="$(date +%Y-%m-%d)"
 awk -v v="$version" -v d="$today" '
   /^## \[Unreleased\]/ { print; print ""; print "## [" v "] - " d; next }
-  /^\[[0-9]+\.[0-9]+\.[0-9]+\]: / && !linked { print "[" v "]: https://github.com/KevinWebman/Ruumble-Desk/releases/tag/v" v; linked = 1 }
+  /^\[[0-9]+\.[0-9]+\.[0-9]+\]: / && !linked { print "[" v "]: https://github.com/ruumble-project/ruumble-server/releases/tag/v" v; linked = 1 }
   { print }
 ' CHANGELOG.md > CHANGELOG.md.tmp && mv CHANGELOG.md.tmp CHANGELOG.md
 
