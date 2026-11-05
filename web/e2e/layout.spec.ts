@@ -80,10 +80,10 @@ test("layout matches the prototype (sample building, DEVELOPMENT floor)", async 
   expect(rooms(ours)).toEqual(rooms(reference));
 });
 
-test("width: scales down to 1000 px, a wider window is used in full, the open board grows beyond 1440 px", async ({ page }) => {
+test("width: scales down to 1000 px, a wider window is used in full, the open board grows from 300 to 500 px", async ({ page }) => {
   await page.goto("/?fixture=sample&talking=0");
   const width = async (selector: string) => (await page.locator(selector).boundingBox())!.width;
-  for (const [window, board] of [[1000, 380], [1280, 380], [1440, 380], [1920, 380 + 240], [2560, 380 + 560]] as const) {
+  for (const [window, board] of [[1000, 300], [1280, 356], [1440, 388], [1920, 484], [2560, 500]] as const) {
     await page.setViewportSize({ width: window, height: 900 });
     expect(await width(".app")).toBeCloseTo(window, 0);
     await page.getByRole("button", { name: "Show board" }).click();
