@@ -14,6 +14,8 @@ test.describe("Tube mail", () => {
   test("from the person card: choose a file, send it, and watch it arrive", async ({ page }) => {
     await person(page, "Clara").hover();
     await page.getByRole("group", { name: "Clara" }).getByRole("button", { name: "Send Clara a file" }).click();
+    // the first step has the focus, not the close button: here the file
+    await expect(dialog(page).getByRole("button", { name: "Drop a file here or choose one" })).toBeFocused();
     await expect(dialog(page).getByRole("checkbox", { name: /Clara/ })).toBeChecked();
     await expect(dialog(page).getByRole("checkbox", { name: /Ben/ })).not.toBeChecked();
     await expect(dialog(page)).toContainText("David, Felix, Hanna – without Ruumble");
@@ -49,6 +51,8 @@ test.describe("Tube mail", () => {
 
   test("a file dropped on a person goes to them alone, on a room to everyone with Ruumble there", async ({ page }) => {
     await dropFile(page, person(page, "Clara"));
+    // file and person came along: the note is next
+    await expect(dialog(page).getByRole("textbox", { name: "Note (optional)" })).toBeFocused();
     await expect(dialog(page).getByRole("checkbox", { name: /Clara/ })).toBeChecked();
     await expect(dialog(page).getByRole("checkbox", { name: /Ben/ })).not.toBeChecked();
     await expect(dialog(page)).toContainText("notes.txt");

@@ -21,6 +21,17 @@
   const ready = $derived(!!draft.file && draft.to.length > 0 && !app.tube.busy);
   let picker = $state<HTMLInputElement | null>(null);
   let dragging = $state(false);
+  let form = $state<HTMLFormElement | null>(null);
+
+  // on opening, the first step instead of the close button: the file, or the people when the file came along (dropped
+  // on a room), or the note when they are chosen too. A frame later, after the frame's showModal() placed the focus.
+  $effect(() => {
+    const frame = requestAnimationFrame(() => {
+      const start = !draft.file ? ".dropzone" : draft.to.length === 0 ? ".people input" : "#tube-note";
+      form?.querySelector<HTMLElement>(start)?.focus();
+    });
+    return () => cancelAnimationFrame(frame);
+  });
 
   function pick(e: Event): void {
     const file = (e.currentTarget as HTMLInputElement).files?.[0];
@@ -49,7 +60,7 @@
 
 <CareShell title={t().tube.dialog.title} level="tube" narrow onclose={() => app.tube.closeDraft()} houseRule={t().tube.dialog.limit(formatSize(TUBE_LIMITS.fileBytes))}>
   {#snippet glyph()}<span class="glyph"><Package size={30} /></span>{/snippet}
-  <form onsubmit={submit}>
+  <form bind:this={form} onsubmit={submit}>
     <input bind:this={picker} id="tube-file" class="picker" type="file" onchange={pick} tabindex="-1" aria-hidden="true" />
     {#if draft.file}
       <div class="file" class:dragging role="group" aria-label={draft.file.name} ondragover={over} ondragleave={() => (dragging = false)} ondrop={drop}>
