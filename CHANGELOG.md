@@ -6,14 +6,23 @@ All notable changes to Ruumble. The service and the web UI share one version; th
 
 ## [Unreleased]
 
+Plugin 0.5.0 (unchanged). Inside Ruumble Client, Mumble's log and chat become "Ruumble in a box" and Mumble's functions move into the elevator; the dialogs get one rule for their buttons, and the tube mail's send dialog is easier to follow. Nothing to do when updating.
+
+### Added
+
+- Ruumble in a box (Ruumble Client): Mumble's log and channel chat open with a button next to the floor sign. A search finds entries while typing, a filter shows all, only messages or only notices (remembered in this browser), and a "New" line marks where the unread messages start
+- Elevator footer (Ruumble Client): Mumble's functions with labels at the bottom of the elevator: City Map, configuration, room acoustics assistant, all Mumble functions (F10) and Leave. Released clients up to 0.35.1 open Mumble's connection dialog for "City Map", newer ones the Ruumble City Map
+
 ### Changed
 
-- Ruumble Client: Mumble's log and chat are now "Ruumble in a box", opened with a button next to the floor sign; a search, a filter (all, messages, notices) and a "New" line above the unread messages help to find things
-- Ruumble Client: Mumble's functions moved from the log's header to the bottom of the elevator, with labels: City Map, configuration, room acoustics assistant, all Mumble functions and Leave
-- Dialogs: a form's main action (Send, Set status) now stands at the bottom right with "Cancel" before it; "Close" in the other dialogs is no longer drawn like a main action
-- Tube mail: the send dialog shows its errors itself instead of behind it, says what is missing before a file can go, explains what a room picks, lists the people in the own room first and starts with the focus on the file
+- The elevator shows everyone online in its head, next to "Elevator", and is a little wider; the server's name is no longer shown there (it stays on the roof of the building overview)
+- Dialogs: a form's main action (Send, Set status) stands at the bottom right with "Cancel" before it; "Close" in the other dialogs is no longer drawn like a main action
+- Tube mail, send dialog: says what is missing before a file can go, explains what a room picks (people icon and tooltip), lists the people in the own room first and starts with the focus on the file instead of the close button
 - Tube mail has a parcel as its icon instead of a file with an arrow, so it stands apart from "Ruumble in a box"
-- The elevator shows everyone online in its head, next to "Elevator"; the server's name is no longer shown there (it stays on the roof of the building overview)
+
+### Fixed
+
+- Tube mail, send dialog: a file that is empty or larger than 500 MB, and a refused offer, now show their reason in the dialog; before, the notice appeared behind the dialog and dropping such a file seemed to do nothing
 
 ## [0.34.0] - 2026-11-05
 
