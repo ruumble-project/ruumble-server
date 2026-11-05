@@ -8,7 +8,7 @@ Thanks for your interest! Bug reports, ideas and pull requests are all welcome.
 
 ## Pull requests
 
-For anything bigger than a small fix, please open an issue or discussion first, so we can agree on the approach before you invest time.
+The team works with tickets, one branch per ticket and pull requests, described in [docs/workflow.md](docs/workflow.md); outside contributors follow the same flow from a fork. For anything bigger than a small fix, please open an issue or discussion first, so we can agree on the approach before you invest time.
 
 1. Set up the workspace as described in [docs/development.md](docs/development.md) (Node 22, pnpm via `corepack enable`; CMake and a C++17 compiler for the plugin).
 2. Before pushing, run `pnpm lint && pnpm test && pnpm build`, plus `pnpm -F @ruumble/web e2e` when you touch the web UI, and the plugin tests when you touch `plugin/`. CI runs the same checks on every pull request.

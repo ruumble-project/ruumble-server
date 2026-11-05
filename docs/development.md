@@ -153,6 +153,6 @@ docker build -f deploy/Dockerfile --build-arg BUILD_VERSION="$(git describe --ta
 
 ## Contributing
 
-- Commit directly to `main` after `pnpm lint && pnpm test && pnpm build` (plus e2e or plugin tests when touched); commit messages in English. External contributors: pull request.
+- Tickets, branches and pull requests as in [workflow.md](workflow.md): one branch per issue, `pnpm lint && pnpm test && pnpm build` (plus e2e or plugin tests when touched) before pushing, commit messages in English, squash merge after review.
 - CI (`.github/workflows/ci.yml`) checks interfaces, lint, tests, build, browser tests and the plugin.
 - Record decisions with wider impact as an ADR under [decisions/](decisions/README.md).

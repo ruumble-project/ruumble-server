@@ -55,7 +55,7 @@ Short, in the person's language:
 - Mumble: old tag, new tag (or "already current").
 - Interface changes and their consequences, if any.
 - Each check with its result.
-- A one-line commit message. Do not commit or push unless the person asks; then commit to `main` and push only when
+- A one-line commit message. Do not commit or push unless the person asks; then on a branch `mumble-<tag>` with a pull request (`docs/workflow.md`), pushed only when
   told to.
 
 ## Stop and ask

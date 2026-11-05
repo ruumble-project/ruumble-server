@@ -15,6 +15,14 @@ body:
       label: Your idea
       description: How could Ruumble support it?
   - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria
+      description: What must be true when this is done? One checkable statement per line. The team fills this in before work starts.
+      placeholder: |
+        - [ ] A board post can be exported with its attachments
+        - [ ] People without Write permission see no export button
+  - type: textarea
     id: context
     attributes:
       label: Anything else
