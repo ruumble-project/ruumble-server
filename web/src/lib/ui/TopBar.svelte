@@ -26,6 +26,7 @@
   import { locale, setLocale, t } from "../i18n/index.svelte.ts";
   import { countText, initials, ownPlace, type Building, type Floor } from "../model/building.ts";
   import type { RuumbleState } from "../state.svelte.ts";
+  import { SHORTCUT_KEYS } from "../shortcuts.ts";
   import { setTheme, theme } from "../theme.svelte.ts";
   import { statusText } from "../status.ts";
   import Avatar from "./Avatar.svelte";
@@ -231,8 +232,8 @@
     </button>
     <!-- Ruumble in a box (#10): the room's log and the quiet words in one window; everything unread on it -->
     <button
-      type="button" class="tool chat" data-chat-button aria-pressed={app.chat.panel === "open"} aria-keyshortcuts="P"
-      aria-label={unread ? `${t().box.title}, ${t().chat.unread(unread)}` : t().box.title} title={`${t().box.title} (P)`}
+      type="button" class="tool chat" data-chat-button aria-pressed={app.chat.panel === "open"} aria-keyshortcuts={SHORTCUT_KEYS.chat.toUpperCase()}
+      aria-label={unread ? `${t().box.title}, ${t().chat.unread(unread)}` : t().box.title} title={`${t().box.title} (${SHORTCUT_KEYS.chat.toUpperCase()})`}
       disabled={!me && !app.desk.available} onclick={() => app.chat.toggle()}
     >
       <Inbox size={20} />

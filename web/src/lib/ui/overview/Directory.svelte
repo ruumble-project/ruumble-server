@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { SHORTCUT_KEYS } from "../../shortcuts.ts";
   import BellRing from "@lucide/svelte/icons/bell-ring";
   import Tag from "@lucide/svelte/icons/tag";
   import MessagesSquare from "@lucide/svelte/icons/messages-square";
@@ -42,7 +43,7 @@
   function personKey(p: DirectoryEntry): (e: KeyboardEvent) => void {
     const go = onActivateKey(() => p.canGo && onvisit(p));
     return (e) => {
-      if (e.key.toLowerCase() === "p" && p.canChat && !e.ctrlKey && !e.altKey && !e.metaKey) {
+      if (e.key.toLowerCase() === SHORTCUT_KEYS.chat && p.canChat && !e.ctrlKey && !e.altKey && !e.metaKey) {
         e.preventDefault();
         onchat(p);
       } else go(e);
@@ -97,7 +98,7 @@
                   {/if}
                 </button>
                 {#if p.canChat}
-                  <button type="button" class="side" aria-label={t().chat.label(p.user.name)} title={`${t().chat.label(p.user.name)} (P)`} onclick={() => onchat(p)}>
+                  <button type="button" class="side" aria-label={t().chat.label(p.user.name)} title={`${t().chat.label(p.user.name)} (${SHORTCUT_KEYS.chat.toUpperCase()})`} onclick={() => onchat(p)}>
                     <MessagesSquare size={16} aria-hidden="true" />
                   </button>
                 {/if}

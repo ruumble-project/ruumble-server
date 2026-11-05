@@ -54,7 +54,7 @@ test("own room in the middle: the board stays on the right and Ruumble in a box 
   await expect(page.getByRole("button", { name: /^Ben's office – you are here/ })).toBeVisible();
   await page.getByRole("button", { name: "Show board" }).click();
   await view(page, "Floating");
-  await page.keyboard.press("p");
+  await page.keyboard.press("t");
   const chatBox = page.getByRole("region", { name: "Ruumble in a box" });
   for (const width of [1600, 1440, 1280, 1180, 1100, 1000, 1280]) {
     await page.setViewportSize({ width, height: 900 });

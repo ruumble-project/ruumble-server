@@ -159,7 +159,7 @@
     <header class="bar">
       <Inbox size={18} aria-hidden="true" />
       <h2>{t().box.title}</h2>
-      <button type="button" class="bar-btn" aria-label={t().common.close} title={`${t().common.close} (P, Esc)`} onclick={() => chat.closePanel()}><X size={18} /></button>
+      <button type="button" class="bar-btn" aria-label={t().common.close} title={`${t().common.close} (${SHORTCUT_KEYS.chat.toUpperCase()}, Esc)`} onclick={() => chat.closePanel()}><X size={18} /></button>
     </header>
 
     {#if chat.order.length}

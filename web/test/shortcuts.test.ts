@@ -6,13 +6,13 @@ const key = (k: string, extra: Partial<{ ctrlKey: boolean; altKey: boolean; meta
   ({ key: k, ctrlKey: false, altKey: false, metaKey: false, repeat: false, target: document.body, ...extra });
 
 describe("keyboard shortcuts", () => {
-  it("B toggles the board, upper or lower case; H (house, Haus) opens the building overview, S the status, P (personal) the direct chat, comma and full stop its tabs, ? the list of shortcuts", () => {
+  it("B toggles the board, upper or lower case; H (house, Haus) opens the building overview, S the status, T (talk) Ruumble in a box, comma and full stop its tabs, ? the list of shortcuts", () => {
     expect(shortcutOf(key("b"), false)).toBe("toggleBoard");
     expect(shortcutOf(key("B"), false)).toBe("toggleBoard");
     expect(shortcutOf(key("h"), false)).toBe("overview");
     expect(shortcutOf(key("s"), false)).toBe("status");
     expect(shortcutOf(key("?"), false)).toBe("help");
-    expect(shortcutOf(key("P"), false)).toBe("chat");
+    expect(shortcutOf(key("T"), false)).toBe("chat");
     expect(shortcutOf(key(","), false)).toBe("chatPrev");
     expect(shortcutOf(key("."), false)).toBe("chatNext");
     expect(shortcutOf(key("x"), false)).toBeNull();

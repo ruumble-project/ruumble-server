@@ -61,10 +61,10 @@ Avatars only work with Mumble server 1.5.x. From 1.6, Mumble's Ice `getTexture` 
 
 ### A quiet word
 
-- **Private messages** between two people who use Ruumble, wherever they are in the building ([ADR-0021](decisions/0021-tube-mail.md)). Start from the person card (hover someone with Ruumble: "Have a quiet word") or the directory board (**H**: the conversation symbol beside a person, or **P** on them).
+- **Private messages** between two people who use Ruumble, wherever they are in the building ([ADR-0021](decisions/0021-tube-mail.md)). Start from the person card (hover someone with Ruumble: "Have a quiet word") or the directory board (**H**: the conversation symbol beside a person, or **T** on them).
 - A tab per person in **Ruumble in a box** (#10), the one window for what is said; inside Ruumble Client its first tab is the own room with Mumble's log and channel chat. The box docks away from the own room's row and from the floating board. Its head shows where the other one is right now, their status and **Go there**; **Come over!** (door button) invites them to your own room, and they can follow with one click. Messages take the board's quick reactions (A1).
 - New messages outside the conversation in view show a notice at the top right with **Reply**; the box's button in the top bar counts everything unread. Texts and invitations also go as a line to the recipient's Mumble log, so they see them without an open Ruumble tab.
-- **P** opens and closes the window, **comma** and **full stop** switch tabs, **Escape** closes it.
+- **T** opens and closes the window, **comma** and **full stop** switch tabs, **Escape** closes it.
 - The service only passes messages on and keeps nothing. Each browser keeps a conversation for **24 hours after its last message**; "Forget history" removes it at once, and revoking the browser's key removes them all. Up to 2,000 characters, 30 messages per minute.
 
 ### Tube mail

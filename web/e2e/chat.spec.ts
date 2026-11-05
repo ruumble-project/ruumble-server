@@ -58,7 +58,7 @@ test.describe("A quiet word", () => {
     await page.keyboard.press("h");
     const overview = page.getByRole("dialog", { name: "Building overview" });
     await overview.getByRole("button", { name: /^Go to Ben/ }).focus();
-    await page.keyboard.press("p");
+    await page.keyboard.press("t");
     await expect(panel(page).getByRole("tab", { name: "Ben" })).toHaveAttribute("aria-selected", "true");
   });
 
@@ -96,20 +96,20 @@ test.describe("A quiet word", () => {
     await input(page, "Ben").press("Escape");
     await expect(panel(page)).toHaveCount(0);
     await expect(page.getByRole("button", { name: "Ruumble in a box", exact: true })).toBeFocused();
-    await page.keyboard.press("p");
+    await page.keyboard.press("t");
     await expect(panel(page).getByRole("tab", { name: "Ben" })).toHaveAttribute("aria-selected", "true");
     await panel(page).getByRole("heading", { name: "Ruumble in a box" }).click();
-    await page.keyboard.press("p");
+    await page.keyboard.press("t");
     await expect(panel(page)).toHaveCount(0);
 
     await page.reload();
-    await page.keyboard.press("p");
+    await page.keyboard.press("t");
     await panel(page).getByRole("tab", { name: "Clara" }).click();
     await expect(panel(page).getByText("First")).toBeVisible();
     await panel(page).getByRole("button", { name: "Forget the history with Clara in this browser" }).click();
     await expect(panel(page).getByRole("tab", { name: "Clara" })).toHaveCount(0);
     await page.reload();
-    await page.keyboard.press("p");
+    await page.keyboard.press("t");
     await expect(panel(page).getByRole("tab", { name: "Ben" })).toBeVisible();
     await expect(panel(page).getByRole("tab", { name: "Clara" })).toHaveCount(0);
   });
