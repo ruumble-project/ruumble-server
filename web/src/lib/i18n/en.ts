@@ -621,7 +621,7 @@ export const en: Messages = {
     nothingFound: "Nothing found.",
     newLine: "New",
     message: "Message to the channel",
-    messageTo: (room: string) => `Message to ${room}`,
+    messageTo: (room: string) => `Message in ${room}`,
     send: "Send",
     functions: "Mumble",
     cityMap: "City Map",

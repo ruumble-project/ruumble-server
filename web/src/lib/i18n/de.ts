@@ -660,7 +660,7 @@ export const de = {
     nothingFound: "Nichts gefunden.",
     newLine: "Neu",
     message: "Nachricht an den Kanal",
-    messageTo: (room: string) => `Nachricht an ${room}`,
+    messageTo: (room: string) => `Nachricht in ${room}`,
     send: "Senden",
     /** the footer of the elevator: Mumble's functions */
     functions: "Mumble",

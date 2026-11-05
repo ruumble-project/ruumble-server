@@ -275,7 +275,7 @@
                 oninput={(e) => { chat.setDraft(conversation!.person, e.currentTarget.value); grow(); }} {onkeydown}
               ></textarea>
               <button type="button" class="round" aria-label={t().chat.invite(conversation.name)} title={t().chat.invite(conversation.name)} disabled={chat.busy} onclick={() => void chat.invite()}><DoorOpen size={18} /></button>
-              <button type="button" class="round solid" aria-label={t().chat.send} title={`${t().chat.send} (Enter)`} disabled={chat.busy || !draft.trim()} onclick={() => void send()}><SendHorizontal size={17} /></button>
+              <button type="button" class="round solid" aria-label={t().chat.send} title={`${t().chat.send} (Enter)`} disabled={chat.busy || !draft.trim()} onclick={() => void send()}><SendHorizontal size={20} /></button>
             </div>
             {#if nearLimit}<span class="chars" class:over={draft.length > CHAT_LIMITS.textChars}>{t().chat.chars(draft.length, CHAT_LIMITS.textChars)}</span>{/if}
           {:else}
@@ -311,16 +311,11 @@
   .chat {
     --color-paper: var(--color-raised);
     position: fixed; left: 32px; bottom: 24px; z-index: 20; height: min(520px, calc(100vh - 120px));
-    /* as wide as the board (--board-width, growing like it on wide windows; 100cqw = the app's content width) */
-    width: calc(var(--board-width) + max(0px, (100cqw - (var(--board-grow-from) - 64px)) / 2));
+    /* as wide as the board, growing like it on wide windows (tokens.css) */
+    width: var(--panel-width);
     display: flex; flex-direction: column; overflow: hidden; border-radius: 10px; background: var(--color-paper); color: var(--color-ink);
     box-shadow: 0 0 0 1px var(--color-raised-edge), 0 16px 48px rgb(0 56 105 / 0.28), 0 2px 6px rgb(0 56 105 / 0.15);
     animation: rise 200ms var(--ease-out) both;
-  }
-  /* Chromium 102 (Ruumble Client) has no cqw: a var() width with it is only dropped when computed and would leave the
-     width on auto, so the plain width comes from here */
-  @supports not (width: 1cqw) {
-    .chat { width: var(--board-width); }
   }
   /* away from the own room's row and from the floating board (boxCorner) */
   .chat.right { left: auto; right: 32px; }
@@ -402,17 +397,18 @@
 
   .compose { flex: none; display: flex; flex-direction: column; gap: 4px; padding: 10px 10px 8px; border-top: 1px solid var(--color-blue-100); }
   .compose-row { display: flex; align-items: flex-end; gap: 6px; }
+  /* input and buttons as on the board (Composer): square corners, the send button dark and a little wider */
   textarea {
-    flex: 1; min-width: 0; min-height: 40px; max-height: 132px; box-sizing: border-box; padding: 9px 14px; border: 1px solid var(--color-blue-300); border-radius: 20px;
-    background: var(--color-paper); color: var(--color-ink); font: inherit; font-size: 14px; line-height: 20px; resize: none;
+    flex: 1; min-width: 0; min-height: 40px; max-height: 132px; box-sizing: border-box; padding: 9px 10px; border: 1px solid var(--color-blue-300);
+    border-radius: var(--radius-md); background: var(--color-paper); color: var(--color-ink); font: inherit; font-size: 14px; line-height: 20px; resize: none;
   }
-  textarea:focus-visible { outline: 3px solid var(--color-sky); outline-offset: 1px; }
+  textarea:focus-visible { outline: 3px solid var(--color-sky); outline-offset: 0; }
   .round {
-    width: 40px; height: 40px; flex: none; display: grid; place-items: center; border: 1px solid var(--color-blue-300); border-radius: 50%;
+    width: 40px; height: 40px; flex: none; display: grid; place-items: center; border: 1px solid var(--color-blue-300); border-radius: var(--radius-md);
     background: var(--color-paper); color: var(--color-ink); cursor: pointer;
   }
   .round:hover:not(:disabled) { background: var(--color-blue-100); }
-  .round.solid { border-color: var(--color-ink); background: var(--color-ink); color: var(--color-paper); }
+  .round.solid { width: 44px; border: 0; background: var(--color-ink); color: var(--color-paper); }
   .round.solid:hover:not(:disabled) { background: var(--color-ink-soft); }
   .round:disabled { opacity: 0.45; cursor: default; }
   .chars { align-self: flex-end; padding-right: 92px; font-size: 11px; color: var(--color-blue-700); }

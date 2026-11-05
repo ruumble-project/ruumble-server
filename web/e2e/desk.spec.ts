@@ -130,14 +130,16 @@ test.describe("Ruumble in a box", () => {
     const search = panel.getByRole("searchbox", { name: "Search the log" });
     await search.fill("CLARA");
     await expect(log.locator(".entry")).toHaveText([/Clara entered the channel/, /Clara: build is green/]);
-    await panel.getByRole("combobox", { name: "Show" }).selectOption("messages");
+    // the filter is a menu, as on the board
+    const pick = async (name: string) => { await panel.getByRole("button", { name: "Show" }).click(); await panel.getByRole("menuitemradio", { name }).click(); };
+    await pick("Messages");
     await expect(log.locator(".entry")).toHaveText([/Clara: build is green/]);
     await search.fill("nobody");
     await expect(log.getByText("Nothing found.")).toBeVisible();
     await search.press("Escape"); // clears the search first
     await expect(search).toHaveValue("");
     await expect(log.locator(".entry")).toHaveCount(3);
-    await panel.getByRole("combobox", { name: "Show" }).selectOption("notices");
+    await pick("Notices");
     await expect(log.locator(".entry")).toHaveText([/Welcome to Acme/, /Clara entered the channel/]);
     // a new entry while searching: shown when it matches
     await search.fill("dave");
@@ -146,7 +148,11 @@ test.describe("Ruumble in a box", () => {
 
     await page.reload();
     await page.getByRole("button", { name: /^Ruumble in a box/ }).click();
-    await expect(panel.getByRole("combobox", { name: "Show" })).toHaveValue("notices");
+    await panel.getByRole("button", { name: "Show" }).click();
+    await expect(panel.getByRole("menuitemradio", { name: "Notices" })).toHaveAttribute("aria-checked", "true");
+    await page.keyboard.press("Escape"); // closes only the menu
+    await expect(panel.getByRole("menu")).toHaveCount(0);
+    await expect(panel).toBeVisible();
     await expect(panel.getByRole("searchbox", { name: "Search the log" })).toHaveValue("");
   });
 
@@ -197,7 +203,7 @@ test.describe("Ruumble in a box", () => {
 
   test("the chat input sends to the own room", async ({ page }) => {
     await page.getByRole("button", { name: /^Ruumble in a box/ }).click();
-    const input = page.getByRole("textbox", { name: "Message to Let's talk" });
+    const input = page.getByRole("textbox", { name: "Message in Let's talk" });
     await expect(page.getByRole("tab", { name: "Log and chat of Let's talk" })).toBeFocused(); // as with P: ready for , and .
     await input.fill("Hello room");
     await input.press("Enter");

@@ -74,8 +74,8 @@ describe("Ruumble Client: the Mumble log in the web UI (ADR-0024)", () => {
   });
 
   it("has texts in both languages", () => {
-    expect(de.desk.messageTo("Küche")).toBe("Nachricht an Küche");
-    expect(en.desk.messageTo("Kitchen")).toBe("Message to Kitchen");
+    expect(de.desk.messageTo("Küche")).toBe("Nachricht in Küche");
+    expect(en.desk.messageTo("Kitchen")).toBe("Message in Kitchen");
     expect([de.box.title, en.box.title]).toEqual(["Ruumble in a box", "Ruumble in a box"]);
     expect([de.box.roomTab("Küche"), en.box.roomTab("Kitchen")]).toEqual(["Protokoll und Chat von Küche", "Log and chat of Kitchen"]);
     expect([de.desk.filters.messages, en.desk.filters.notices]).toEqual(["Nachrichten", "Notices"]);
