@@ -1,6 +1,6 @@
 <script lang="ts">
   import FileIcon from "@lucide/svelte/icons/file";
-  import FileOutput from "@lucide/svelte/icons/file-output";
+  import Package from "@lucide/svelte/icons/package";
   import { TUBE_LIMITS } from "@ruumble/protocol";
   import { formatSize } from "../../board/model.ts";
   import { t } from "../../i18n/index.svelte.ts";
@@ -47,7 +47,7 @@
 </script>
 
 <CareShell title={t().tube.dialog.title} level="tube" narrow onclose={() => app.tube.closeDraft()} houseRule={t().tube.dialog.limit(formatSize(TUBE_LIMITS.fileBytes))}>
-  {#snippet glyph()}<span class="glyph"><FileOutput size={30} /></span>{/snippet}
+  {#snippet glyph()}<span class="glyph"><Package size={30} /></span>{/snippet}
   <form onsubmit={submit}>
     <input bind:this={picker} id="tube-file" class="picker" type="file" onchange={pick} tabindex="-1" aria-hidden="true" />
     {#if draft.file}
@@ -59,7 +59,7 @@
       </div>
     {:else}
       <button type="button" class="dropzone" class:dragging onclick={() => picker?.click()} ondragover={over} ondragleave={() => (dragging = false)} ondrop={drop}>
-        <FileOutput size={26} aria-hidden="true" />
+        <Package size={26} aria-hidden="true" />
         <span>{t().tube.dialog.drop}</span>
       </button>
     {/if}

@@ -1,6 +1,6 @@
 <script lang="ts">
   import FileIcon from "@lucide/svelte/icons/file";
-  import FileOutput from "@lucide/svelte/icons/file-output";
+  import Package from "@lucide/svelte/icons/package";
   import TriangleAlert from "@lucide/svelte/icons/triangle-alert";
   import X from "@lucide/svelte/icons/x";
   import type { Parcel, ParcelRecipient } from "@ruumble/protocol";
@@ -54,7 +54,7 @@
 
 <section bind:this={panel} class="tube-panel" aria-labelledby="tube-title">
   <header>
-    <h2 id="tube-title"><FileOutput size={18} aria-hidden="true" />{t().tube.title}</h2>
+    <h2 id="tube-title"><Package size={18} aria-hidden="true" />{t().tube.title}</h2>
     <button type="button" class="compose" onclick={() => tube.compose()}>{t().tube.compose}</button>
     <button type="button" class="icon" aria-label={t().screens.dismissNotice} title={t().screens.dismissNotice} onclick={() => tube.closePanel()}><X size={16} /></button>
   </header>

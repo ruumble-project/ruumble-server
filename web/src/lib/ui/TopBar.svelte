@@ -13,7 +13,7 @@
   import Mic from "@lucide/svelte/icons/mic";
   import MicOff from "@lucide/svelte/icons/mic-off";
   import Moon from "@lucide/svelte/icons/moon";
-  import FileOutput from "@lucide/svelte/icons/file-output";
+  import Package from "@lucide/svelte/icons/package";
   import Tag from "@lucide/svelte/icons/tag";
   import MessagesSquare from "@lucide/svelte/icons/messages-square";
   import UserIcon from "@lucide/svelte/icons/user";
@@ -236,7 +236,7 @@
       type="button" class="tool tube" data-tube-button aria-pressed={app.tube.panel} aria-label={tubeLabel} title={tubeLabel}
       disabled={!me} onclick={() => app.tube.togglePanel()}
     >
-      <FileOutput size={20} />
+      <Package size={20} />
       {#if sending !== null}
         <svg class="ring" viewBox="0 0 44 44" aria-hidden="true"><circle cx="22" cy="22" r="20" pathLength="100" stroke-dasharray={`${Math.max(4, sending * 100)} 100`} /></svg>
       {/if}

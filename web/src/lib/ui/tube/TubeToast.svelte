@@ -1,5 +1,5 @@
 <script lang="ts">
-  import FileOutput from "@lucide/svelte/icons/file-output";
+  import Package from "@lucide/svelte/icons/package";
   import TriangleAlert from "@lucide/svelte/icons/triangle-alert";
   import { formatSize } from "../../board/model.ts";
   import { t } from "../../i18n/index.svelte.ts";
@@ -14,7 +14,7 @@
 
 {#if parcel}
   <div class="tube-toast" class:lower={!!app.chat.toast} role="status">
-    <span class="mini" aria-hidden="true"><FileOutput size={18} /></span>
+    <span class="mini" aria-hidden="true"><Package size={18} /></span>
     <div class="body">
       <span class="from">{t().tube.from(parcel.fromName)}</span>
       <span class="name">{parcel.name}</span>
