@@ -35,7 +35,7 @@ working with released clients; the client then moves its `server/` submodule.
    `/code-review <PR number>` helps as well). Pull requests from outside the team (forks) are reviewed and merged by a
    team member, who checks the acceptance criteria, the tests and the conventions in `CLAUDE.md`.
 9. **Merge** with *Squash and merge* once CI is green; team members merge their own pull requests. The squash commit
-   message is the PR title (one line, with `(#42)`). The branch is deleted, the ticket closes itself. Small, obvious
+   message is the PR title: one line, without a number, GitHub adds the pull request number when squashing ("... (#43)"); the ticket is linked through `Closes #<issue>`. The branch is deleted, the ticket closes itself. Small, obvious
    changes (a typo, a line of docs) may also go to `main` directly.
 10. **Releases** are made only by the maintainer, as described in [releasing.md](releasing.md).
 
