@@ -300,7 +300,7 @@
   .board { --board-bg: var(--color-board); --color-paper: var(--color-card); position: relative; flex-shrink: 0;
     /* half of the width beyond --board-grow-from (100cqw = the app's content width, i.e. without its 2 × 32 px padding) */
     width: calc(var(--board-width) + max(0px, (100cqw - (var(--board-grow-from) - 64px)) / 2)); display: flex; flex-direction: column; background: var(--board-bg); min-height: 0; }
-  /* engines without container units (Ruumble Desk, Chromium 102): the declaration above has var() in it, so it is only
+  /* engines without container units (Ruumble Client, Chromium 102): the declaration above has var() in it, so it is only
      dropped when computed and would leave the width on auto */
   @supports not (width: 1cqw) {
     .board { width: var(--board-width); }

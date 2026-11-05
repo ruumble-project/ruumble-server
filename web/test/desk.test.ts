@@ -8,7 +8,7 @@ import { en } from "../src/lib/i18n/en.ts";
 
 const entry = (id: number, kind: DeskEntry["kind"] = "info", text = `line ${id}`): DeskEntry => ({ id, time: 1000 * id, kind, text });
 
-describe("Ruumble Desk: the Mumble log in the web UI (ADR-0024)", () => {
+describe("Ruumble Client: the Mumble log in the web UI (ADR-0024)", () => {
   it("takes only well-formed entries from the client; an unknown kind counts as info", () => {
     expect(parseEntry({ id: 1, time: 5, kind: "text", text: "Ben: hi" })).toEqual({ id: 1, time: 5, kind: "text", text: "Ben: hi" });
     expect(parseEntry({ id: 2, time: 5, kind: "shout", text: "x" })?.kind).toBe("info");
@@ -45,8 +45,8 @@ describe("Ruumble Desk: the Mumble log in the web UI (ADR-0024)", () => {
     expect(en.desk.messageTo("Kitchen")).toBe("Message to Kitchen");
     expect([de.desk.unread(1), de.desk.unread(3)]).toEqual(["1 neue Nachricht", "3 neue Nachrichten"]);
     expect([en.desk.unread(1), en.desk.unread(3)]).toEqual(["1 new message", "3 new messages"]);
-    expect(de.screens.deskOfflineText("Acme")).toBe("Verbinde Ruumble Desk mit dem Server Acme.");
-    expect(en.screens.deskOfflineText("Acme")).toBe("Connect Ruumble Desk to the server Acme.");
+    expect(de.screens.deskOfflineText("Acme")).toBe("Verbinde Ruumble Client mit dem Server Acme.");
+    expect(en.screens.deskOfflineText("Acme")).toBe("Connect Ruumble Client to the server Acme.");
   });
 });
 
@@ -92,7 +92,7 @@ function fakeClient(history: unknown[] = []) {
   };
 }
 
-describe("Ruumble Desk: the connection to the client", () => {
+describe("Ruumble Client: the connection to the client", () => {
   it("stays unavailable in a normal browser", () => {
     const desk = new DeskState();
     desk.start({});
@@ -166,7 +166,7 @@ describe("Ruumble Desk: the connection to the client", () => {
   });
 });
 
-describe("Ruumble Desk: administering the building like in Mumble", () => {
+describe("Ruumble Client: administering the building like in Mumble", () => {
   const admin = (available = true) => {
     const calls: string[] = [];
     const a: DeskAdmin = {
@@ -200,7 +200,7 @@ describe("Ruumble Desk: administering the building like in Mumble", () => {
     expect(calls).toEqual(["user 7 40,60", "channel 4 40,60", "channel 0 40,60"]);
   });
 
-  it("leaves the browser's own menu alone outside Ruumble Desk, or where there is no channel", () => {
+  it("leaves the browser's own menu alone outside Ruumble Client, or where there is no channel", () => {
     const { a, calls } = admin(false);
     const e = rightClick(room());
     expect(contextMenu(a, e, 4)).toBe(false);

@@ -6,16 +6,17 @@ Status: proposed (2026-11-05)
 Since 0.33.0 Ruumble (service, web UI, plugin) and Ruumble Desk (the Mumble 1.6 client with Ruumble built in) lived in
 one repository, `KevinWebman/Ruumble-Desk`, with Desk in `desk/`. The project now has its own GitHub organization,
 `ruumble-project`, and the two parts have different audiences, toolchains and release rhythms: the service is a Docker
-image for operators, Desk is a Qt/C++ desktop program built against a patched Mumble.
+image for operators, the client is a Qt/C++ desktop program built against a patched Mumble.
 
 ## Decision
 | Topic | Decision |
 |---|---|
-| **Repositories** | `ruumble-project/ruumble-server`: protocol, bridge (service), web UI, Mumble plugin, `third_party/mumble`, deployment, docs, ADRs. `ruumble-project/ruumble-client`: Ruumble Desk (the former `desk/`, now at its root). |
+| **Repositories** | `ruumble-project/ruumble-server`: protocol, bridge (service), web UI, Mumble plugin, `third_party/mumble`, deployment, docs, ADRs. `ruumble-project/ruumble-client`: Ruumble Client (the former `desk/`, now at its root). |
 | **Plugin** | Stays in the server repo, next to the protocol it speaks and the image that serves it under `/download`. |
 | **Coupling** | The client pins the server repo as a git submodule (`server/`) and compiles `plugin/src` and reads the icon from it. Moving the pin is a deliberate client commit. |
-| **Web UI part of Desk** | `web/src/lib/desk/` and `web/src/lib/ui/desk/` stay in the server repo, because the service serves the UI. The contract is the client's `client/DeskChannel.h`; both sides stay compatible with released versions of the other. |
+| **Web UI part of the client** | `web/src/lib/desk/` and `web/src/lib/ui/desk/` stay in the server repo, because the service serves the UI. The contract is the client's `client/DeskChannel.h`; both sides stay compatible with released versions of the other. |
 | **Versions and releases** | Each repo has its own version, changelog and release workflow. The server keeps its version line and tags (`v0.33.x`); the AppImage is attached to the client's releases. |
+| **Name** | Ruumble Desk is renamed Ruumble Client (program `ruumble-client`). Internal names that both sides rely on stay: the QWebChannel object `desk`, `web/src/lib/desk/`, the CSS and test names. The client takes over the settings of "Ruumble Desk" once on its first start. |
 | **History** | Both repos carry the history of their own paths (split from the old repository); the old repository stays as an archive. |
 | **Image** | `ghcr.io/ruumble-project/ruumble`; the Compose templates switch to it with the next release (`tools/release.sh`). |
 

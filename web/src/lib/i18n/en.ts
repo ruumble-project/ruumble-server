@@ -56,10 +56,10 @@ export const en: Messages = {
   screens: {
     notPairedTitle: "This device is not paired yet.",
     notPairedText: "Start Mumble with the Ruumble plugin enabled. On the first connection the plugin opens this page with a pairing link.",
-    deskNotPairedText: "Ruumble Desk pairs itself the next time it connects to the server. You can also pair here with a code.",
+    deskNotPairedText: "Ruumble Client pairs itself the next time it connects to the server. You can also pair here with a code.",
     connecting: "Connecting …",
     mumbleOfflineText: (server) => `Start Mumble with the Ruumble plugin enabled and connect to the server ${server}.`,
-    deskOfflineText: (server) => `Connect Ruumble Desk to the server ${server}.`,
+    deskOfflineText: (server) => `Connect Ruumble Client to the server ${server}.`,
     vacancyTitle: "Vacant",
     vacancyText: "No floor of this building can be shown: every floor is nested deeper than two levels. Use the classic view in Mumble.",
     reconnecting: "Connection to the Ruumble service lost, reconnecting …",

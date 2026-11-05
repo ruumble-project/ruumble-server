@@ -32,7 +32,7 @@
   // the server and everyone online in its status bar), in the middle the sign of the own room, right the status,
   // mute, deafen and the name badge (opens the user menu).
   let { app, building, floor }: { app: RuumbleState; building: Building; floor: Floor | null } = $props();
-  // Ruumble Desk: right click on the floor sign, a floor or the building opens Mumble's menu for that channel
+  // Ruumble Client: right click on the floor sign, a floor or the building opens Mumble's menu for that channel
   const admin = getDeskAdmin();
 
   const reversed = $derived([...building.floors].reverse());
@@ -153,7 +153,7 @@
           <!-- status bar of the elevator: the whole building -->
           <footer class="status">
             <!-- opens the building overview: cross-section and directory board (ADR-0019) -->
-            <!-- right click in Ruumble Desk: Mumble's menu of the whole building (the root channel: add a floor) -->
+            <!-- right click in Ruumble Client: Mumble's menu of the whole building (the root channel: add a floor) -->
             <button type="button" class="overview-link" title={`${t().overview.open} (H)`} onclick={() => { open = null; app.openOverview(); }} oncontextmenu={(e) => contextMenu(admin, e, 0)}>
               <span class="online"><span class="dot" aria-hidden="true"></span>{t().header.online(building.online)}</span>
               <span class="building">{building.name}</span>
@@ -186,7 +186,7 @@
   </div>
 
   <div class="right">
-    <!-- Ruumble Desk (ADR-0024): Mumble's log and channel chat; only inside the Ruumble Desk client -->
+    <!-- Ruumble Client (ADR-0024): Mumble's log and channel chat; only inside the Ruumble Client -->
     {#if app.desk.available}
       <button
         type="button" class="tool desk" aria-pressed={app.desk.open}

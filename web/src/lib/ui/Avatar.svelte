@@ -26,7 +26,7 @@
     dropTarget?: boolean;
     /** a click on the avatar does something (the own one: the status): said in the tooltip, shown by the pointer */
     action?: string;
-    /** inside Ruumble Desk: can be dragged onto another room to move the person (lib/desk/admin.ts) */
+    /** inside Ruumble Client: can be dragged onto another room to move the person (lib/desk/admin.ts) */
     movable?: boolean;
   } = $props();
 

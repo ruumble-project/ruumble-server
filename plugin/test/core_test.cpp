@@ -235,7 +235,7 @@ TEST_CASE("description not loaded yet: hint once, then check again") {
 	CHECK(f.transport.connects[0] == "http://r.test:64080");
 }
 
-TEST_CASE("description not loaded yet, hint turned off (Ruumble Desk): no log line, connects once loaded") {
+TEST_CASE("description not loaded yet, hint turned off (Ruumble Client): no log line, connects once loaded") {
 	Fixture f(std::nullopt, false);
 	f.api.description = { Description::Status::Pending, "" };
 	f.core->onSynchronized();

@@ -1,5 +1,5 @@
 /**
- * Ruumble Desk (ADR-0024): administering the building like in Mumble. Inside the Desk client a right click on a room,
+ * Ruumble Client (ADR-0024): administering the building like in Mumble. Inside the Desk client a right click on a room,
  * corridor, floor or person opens Mumble's own context menu for that channel or user (add, remove, edit, ACL, links,
  * kick, ban, ...), and a person dragged onto a room is moved there. Everything runs with the user's own Mumble
  * permissions in the client; destructive actions always need a click in the native menu. In a normal browser

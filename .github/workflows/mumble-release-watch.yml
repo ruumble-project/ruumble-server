@@ -3,7 +3,7 @@ name: Mumble-Release-Watch
 # Reports a new Mumble release as an issue, including a diff of the two interface files, and starts the live tests
 # against it. Taking the release over (interface files, checks) is done locally: say "Update alles" / "update everything"
 # in Claude Code (skill .claude/skills/update-all), or run tools/update-mumble-interfaces.sh <tag> by hand.
-# Ruumble Desk (ruumble-project/ruumble-client) watches Mumble releases for its own Mumble tag and patch.
+# Ruumble Client (ruumble-project/ruumble-client) watches Mumble releases for its own Mumble tag and patch.
 on:
   schedule:
     - cron: "17 6 * * 1"

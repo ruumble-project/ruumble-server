@@ -7,7 +7,7 @@ import { LiveAdapter } from "./lib/adapter/live.ts";
 import { FIXTURES, MockAdapter, type FixtureName } from "./lib/adapter/mock.ts";
 import { RuumbleState } from "./lib/state.svelte.ts";
 
-// Ruumble Desk shows this page in Qt WebEngine 6.4 (Chromium 102), which has no popover API (Chrome 114): person
+// Ruumble Client shows this page in Qt WebEngine 6.4 (Chromium 102), which has no popover API (Chrome 114): person
 // cards and room descriptions need it. Only such engines load the polyfill.
 if (!("showPopover" in HTMLElement.prototype)) await import("@oddbird/popover-polyfill");
 

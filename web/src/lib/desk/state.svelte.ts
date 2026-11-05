@@ -1,5 +1,5 @@
 /**
- * Ruumble Desk (ADR-0024): when the web UI runs inside the Ruumble Desk client, the client offers an object "desk"
+ * Ruumble Client (ADR-0024): when the web UI runs inside the Ruumble Client, the client offers an object "desk"
  * over Qt's WebChannel (contract in the fork's src/mumble/ruumble/DeskChannel.h). Through it the web UI shows the
  * Mumble log and channel chat and opens the client's settings and server dialogs, so the client needs no window
  * chrome of its own. In a normal browser nothing of this exists and `available` stays false.

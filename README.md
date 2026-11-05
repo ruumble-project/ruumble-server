@@ -42,9 +42,9 @@ Then add the line `setup.sh` prints, e.g. `ruumble: http://192.168.1.10:64080`, 
 2. Connect to the server: the plugin opens your browser with a pairing link.
 3. From then on, open Ruumble at its address. That's it.
 
-## Ruumble Desk
+## Ruumble Client
 
-**Ruumble Desk** ([ruumble-project/ruumble-client](https://github.com/ruumble-project/ruumble-client)) is a Mumble 1.6 client for Linux with Ruumble built in: one window, the building is the whole UI, Mumble's audio runs underneath, no plugin and no browser tab needed. Its settings and certificate are kept apart from an installed official Mumble. Its releases attach it as an AppImage (`chmod +x`, then start it). Building it yourself and native packages: see that repo.
+**Ruumble Client** ([ruumble-project/ruumble-client](https://github.com/ruumble-project/ruumble-client)) is a Mumble 1.6 client for Linux with Ruumble built in: one window, the building is the whole UI, Mumble's audio runs underneath, no plugin and no browser tab needed. Its settings and certificate are kept apart from an installed official Mumble. Its releases attach it as an AppImage (`chmod +x`, then start it). Building it yourself and native packages: see that repo.
 
 ## Requirements
 

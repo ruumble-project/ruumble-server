@@ -52,10 +52,10 @@ export const de = {
   screens: {
     notPairedTitle: "Dieses Gerät ist noch nicht gekoppelt.",
     notPairedText: "Starte Mumble mit aktiviertem Ruumble-Plugin. Beim ersten Verbinden öffnet das Plugin diese Seite mit einem Kopplungslink.",
-    deskNotPairedText: "Ruumble Desk koppelt sich beim nächsten Verbinden mit dem Server von selbst. Du kannst auch hier mit einem Code koppeln.",
+    deskNotPairedText: "Ruumble Client koppelt sich beim nächsten Verbinden mit dem Server von selbst. Du kannst auch hier mit einem Code koppeln.",
     connecting: "Verbinde …",
     mumbleOfflineText: (server: string) => `Starte Mumble mit aktiviertem Ruumble-Plugin und verbinde dich mit dem Server ${server}.`,
-    deskOfflineText: (server: string) => `Verbinde Ruumble Desk mit dem Server ${server}.`,
+    deskOfflineText: (server: string) => `Verbinde Ruumble Client mit dem Server ${server}.`,
     vacancyTitle: "Leerstand",
     vacancyText: "Keine Etage dieses Gebäudes lässt sich darstellen: Jede Etage ist tiefer als zwei Ebenen. Nutze die klassische Ansicht in Mumble.",
     reconnecting: "Verbindung zum Ruumble-Dienst unterbrochen, verbinde neu …",
@@ -641,7 +641,7 @@ export const de = {
     "sender-away": "Der Absender ist gerade nicht erreichbar.",
     offline: "Keine Verbindung zum Ruumble-Dienst.",
   },
-  /** Ruumble Desk (ADR-0024): Mumble's log, channel chat and dialogs inside the Ruumble Desk client */
+  /** Ruumble Client (ADR-0024): Mumble's log, channel chat and dialogs inside the Ruumble Client */
   desk: {
     title: "Mumble",
     button: "Mumble-Protokoll und Kanal-Chat",

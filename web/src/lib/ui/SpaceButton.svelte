@@ -84,7 +84,7 @@
     const anchor = (e.target as HTMLElement | null)?.closest<HTMLElement>("[data-session]");
     return anchor ? recipients.find((u) => u.session === Number(anchor.dataset.session)) : undefined;
   }
-  // Ruumble Desk: right click opens Mumble's menu for this channel or the person under the pointer; a person dragged
+  // Ruumble Client: right click opens Mumble's menu for this channel or the person under the pointer; a person dragged
   // here is moved into this channel (lib/desk/admin.ts)
   const admin = getDeskAdmin();
   const movable = $derived(!!admin?.available && !readonly);
@@ -153,7 +153,7 @@
   /** room width the door plate leaves for the door, the board and the binders */
   const plateReserve = $derived(90 + (boardToggle ? BOARD_TOGGLE_WIDTH : 0) + (space.description ? BINDERS_WIDTH : 0));
 
-  // narrow rooms (see the @container rule): engines without container queries (Ruumble Desk, Chromium 102) get the
+  // narrow rooms (see the @container rule): engines without container queries (Ruumble Client, Chromium 102) get the
   // class instead, the CSS only uses it there
   let wrapWidth = $state(0);
   const NARROW_ROOM = 220;
@@ -393,7 +393,7 @@
     .wrap-room .count { display: none; }
     .mini-count { display: inline-flex; }
   }
-  /* the same without container queries (Ruumble Desk, Chromium 102): the class comes from the measured width */
+  /* the same without container queries (Ruumble Client, Chromium 102): the class comes from the measured width */
   @supports not (container-type: inline-size) {
     .wrap-room.narrow .count { display: none; }
     .wrap-room.narrow .mini-count { display: inline-flex; }

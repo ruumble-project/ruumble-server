@@ -332,7 +332,7 @@
   .caption :global(a) { color: var(--color-link); }
   /* the post being pointed at stands out a little, so it is clear what the actions apply to (also within a group) */
   .card:hover, .card:focus-within, .card.active { background: color-mix(in srgb, var(--color-blue-100) 35%, var(--color-paper)); }
-  /* engines without color-mix() (Ruumble Desk, Chromium 102): a declaration with var() is only dropped when computed,
+  /* engines without color-mix() (Ruumble Client, Chromium 102): a declaration with var() is only dropped when computed,
      so a plain declaration before it would not help */
   @supports not (color: color-mix(in srgb, red, blue)) {
     .card:hover, .card:focus-within, .card.active { background: var(--color-blue-50); }

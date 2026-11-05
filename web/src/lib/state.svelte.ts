@@ -165,7 +165,7 @@ export class RuumbleState {
   readonly chat: ChatState;
   /** tube mail (ADR-0022): parcels sent and received, the panel, the send dialog, the files this tab holds */
   readonly tube: TubeState;
-  /** Ruumble Desk (ADR-0024): Mumble's log, chat and dialogs when running inside the Ruumble Desk client */
+  /** Ruumble Client (ADR-0024): Mumble's log, chat and dialogs when running inside the Ruumble Client */
   readonly desk = new DeskState();
   readonly notices: NoticeCenter;
 

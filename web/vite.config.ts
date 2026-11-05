@@ -10,7 +10,7 @@ const pluginVersion = (existsSync(cmake) && /project\(ruumble_plugin VERSION ([\
 
 export default defineConfig({
   plugins: [svelte()],
-  // Ruumble Desk (ruumble-project/ruumble-client) shows the UI in Qt WebEngine 6.4 = Chromium 102: syntax and CSS are lowered for it as well
+  // Ruumble Client (ruumble-project/ruumble-client) shows the UI in Qt WebEngine 6.4 = Chromium 102: syntax and CSS are lowered for it as well
   build: { target: ["chrome102", "edge107", "firefox104", "safari16"] },
   define: { __UI_VERSION__: JSON.stringify(pkg.version), __PLUGIN_VERSION__: JSON.stringify(pluginVersion) },
   // Workspace packages (e.g. protocol/) live outside web/

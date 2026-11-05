@@ -23,7 +23,7 @@ A release is a git tag `v<version>` on a commit of `main`. Pushing the tag start
 3. builds and pushes the Docker image `ghcr.io/ruumble-project/ruumble` with the tags `<version>`, `<major>.<minor>` and `latest` (linux/amd64 and linux/arm64),
 4. creates the GitHub release titled `Ruumble <version>` with these assets: the plugin bundle `ruumble-<plugin version>.mumble_plugin`, both Compose templates, `ruumble-icons.zip`, `THIRD_PARTY_NOTICES.md`, `SHA256SUMS`. The release notes are the version's section of `CHANGELOG.md` plus install notes.
 
-Ruumble Desk is released from [ruumble-project/ruumble-client](https://github.com/ruumble-project/ruumble-client) with its own version (ADR-0025).
+Ruumble Client is released from [ruumble-project/ruumble-client](https://github.com/ruumble-project/ruumble-client) with its own version (ADR-0025).
 
 Servers that update automatically (e.g. Watchtower on `latest` or `<major>.<minor>`) only see a new version once step 3 has run. A GitHub release without the image updates nobody.
 

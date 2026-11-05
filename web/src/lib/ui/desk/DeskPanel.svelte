@@ -11,8 +11,8 @@
   import { ownPlace } from "../../model/building.ts";
   import type { RuumbleState } from "../../state.svelte.ts";
 
-  // Ruumble Desk (ADR-0024): the Mumble client's log and channel chat, and its dialogs, in a window docked at the bottom
-  // left (the direct chat docks at the right). Only exists inside the Ruumble Desk client.
+  // Ruumble Client (ADR-0024): the Mumble client's log and channel chat, and its dialogs, in a window docked at the bottom
+  // left (the direct chat docks at the right). Only exists inside the Ruumble Client.
   let { app }: { app: RuumbleState } = $props();
 
   const desk = $derived(app.desk);

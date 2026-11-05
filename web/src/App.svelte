@@ -30,7 +30,7 @@
   import TubeToast from "./lib/ui/tube/TubeToast.svelte";
 
   let { app, mock = null }: { app: RuumbleState; mock?: MockAdapter | null } = $props();
-  // Ruumble Desk: right click and drag and drop administer the building like in Mumble (only inside the client)
+  // Ruumble Client: right click and drag and drop administer the building like in Mumble (only inside the client)
   // (the DeskState of an app never changes: read once)
   setDeskAdmin(untrack(() => app.desk));
 
@@ -117,7 +117,7 @@
     <div class="screen" role="status">
       <Unplug size={40} />
       <strong>{t().screens.notPairedTitle}</strong>
-      <!-- inside Ruumble Desk the plugin is built in: no download and install steps (ADR-0024) -->
+      <!-- inside Ruumble Client the plugin is built in: no download and install steps (ADR-0024) -->
       <span>{app.desk.available ? t().screens.deskNotPairedText : t().screens.notPairedText}</span>
       <PairForm {app} />
       {#if !app.desk.available}<PluginHelp versions={app.versions} />{/if}

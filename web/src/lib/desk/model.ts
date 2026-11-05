@@ -1,5 +1,5 @@
 /**
- * Ruumble Desk (ADR-0024): the Mumble log and channel chat when the web UI runs inside the Ruumble Desk client.
+ * Ruumble Client (ADR-0024): the Mumble log and channel chat when the web UI runs inside the Ruumble Client.
  * Pure functions over the entries the client hands over (plain text, never Mumble's HTML).
  */
 

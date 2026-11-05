@@ -8,7 +8,7 @@ description: Brings the whole repo up to date in one go - takes over a new Mumbl
 Goal: the person says one sentence, you do the rest and come back with a short report. Work through the steps in
 order, fix what breaks on the way, and only stop to ask when a decision is really theirs (see "Stop and ask").
 
-Ruumble Desk (Mumble tag, patch, Desk build, AppImage) lives in `ruumble-project/ruumble-client` and has its own
+Ruumble Client (Mumble tag, patch, Desk build, AppImage) lives in `ruumble-project/ruumble-client` and has its own
 `update-all` skill there. This one covers the service, the web UI and the plugin.
 
 ## 0. Starting point
@@ -32,7 +32,7 @@ tools/update-mumble-interfaces.sh <tag> > <scratch>/interfaces.diff
 - Read the diff: if `MumblePlugin.h` or `MumbleServer.ice` changed, check `docs/mumble-interfaces.md` and the code that
   uses the changed parts (`plugin/src`, `bridge/src`), and add a short note to `docs/mumble-interfaces.md`.
 - Add a line under `## [Unreleased]` in `CHANGELOG.md` ("Interface files from Mumble <tag>").
-- Ruumble Desk compiles `plugin/src` from this repo: if the plugin core had to change, say so in the report, because
+- Ruumble Client compiles `plugin/src` from this repo: if the plugin core had to change, say so in the report, because
   the client repo then needs its submodule moved.
 
 If Mumble is already current, say so and go on with the checks (they still prove the tree is healthy).
