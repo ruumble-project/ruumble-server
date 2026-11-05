@@ -166,7 +166,7 @@ test.describe("Ruumble in a box", () => {
     await expect(page.getByRole("status", { name: /^You are here: Ben's office/ })).toBeVisible();
     // now in the bottom row: the box moves to the top, below the top bar
     await expect.poll(async () => (await box.boundingBox())!.y).toBeLessThan(plan.y + 20);
-    await expect.poll(async () => (await box.boundingBox())!.y).toBeGreaterThanOrEqual(plan.y - 2); // after its animation
+    await expect.poll(async () => (await box.boundingBox())!.y).toBeGreaterThanOrEqual(plan.y - 10); // 5 px past the wall, after its animation
     expect((await box.boundingBox())!.x).toBeLessThan(plan.x + 20);
     // own room at the bottom right, floating board on the left: the box goes to the top right
     await page.getByRole("button", { name: "Show board" }).click();
@@ -181,24 +181,28 @@ test.describe("Ruumble in a box", () => {
     await expect.poll(async () => (await box.boundingBox())!.y).toBeLessThan(plan.y + 20);
   });
 
-  test("the box covers the other row and the corridor and reaches a little past it, not into the own row", async ({ page }) => {
+  test("the box covers the other row and the corridor, stops short of the own row and floats 5 px past the plan's wall", async ({ page }) => {
     await page.emulateMedia({ reducedMotion: "reduce" });
     await page.getByRole("button", { name: /^Ruumble in a box/ }).click();
     const box = page.getByRole("region", { name: "Ruumble in a box" });
     const rect = (sel: string) => page.locator(sel).first().evaluate((el) => { const r = el.getBoundingClientRect(); return { top: r.top, bottom: r.bottom }; });
     const edges = async () => { const b = (await box.boundingBox())!; return { top: b.y, bottom: b.y + b.height }; };
-    // in "Let's talk" (top row): from the bottom a little past the corridor's top (16 px), so it floats over the plan
+    // 5 px past the floor plan's outer wall (its outer edge: 32 px from the left, 24 px from the bottom)
+    const outer = (await box.boundingBox())!;
+    expect(outer.x).toBeCloseTo(27, 0);
+    await expect.poll(async () => Math.round(page.viewportSize()!.height - (await edges()).bottom)).toBe(19);
+    // in "Let's talk" (top row): from the bottom up to 16 px short of the corridor's top, never into the own row
     const corridor = await rect(".floorplan .wrap-corridor");
-    await expect.poll(async () => Math.abs((await edges()).top - (corridor.top - 16))).toBeLessThan(3);
+    await expect.poll(async () => Math.abs((await edges()).top - (corridor.top + 16))).toBeLessThan(3);
     // in "Ben's office" (bottom row): from the top down to the corridor's bottom
     await page.locator(".floorplan").getByRole("button", { name: /^Ben's office/ }).dblclick();
     await expect(page.getByRole("status", { name: /^You are here: Ben's office/ })).toBeVisible();
-    await expect.poll(async () => Math.abs((await edges()).bottom - (corridor.bottom + 16))).toBeLessThan(3);
+    await expect.poll(async () => Math.abs((await edges()).bottom - (corridor.bottom - 16))).toBeLessThan(3);
     // in the corridor: only the bottom row
     await page.locator(".floorplan .room.corridor").dblclick({ position: { x: 600, y: 30 } });
     await expect(page.getByRole("status", { name: /^You are here: Corridor/ })).toBeVisible();
     const bottomRow = await rect(".floorplan .row.bottom");
-    await expect.poll(async () => Math.abs((await edges()).top - (bottomRow.top - 16))).toBeLessThan(3);
+    await expect.poll(async () => Math.abs((await edges()).top - (bottomRow.top + 16))).toBeLessThan(3);
   });
 
   test("the chat input sends to the own room", async ({ page }) => {

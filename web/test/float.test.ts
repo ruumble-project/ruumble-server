@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { BOX_MIN_HEIGHT, BOX_OVERHANG, boxHeight, floatSide } from "../src/lib/model/float.ts";
+import { BOX_MIN_HEIGHT, BOX_GAP, boxHeight, floatSide } from "../src/lib/model/float.ts";
 
 const plan = { left: 0, right: 1000 };
 
@@ -24,10 +24,10 @@ describe("side of the floating board", () => {
 describe("height of Ruumble in a box (#10)", () => {
   // window 800 high: corridor from 375 to 490, bottom row from 490
   const bands = { corridorTop: 375, corridorBottom: 490, bottomRowTop: 490 };
-  it("covers the other row and the corridor and reaches a little past it, not into the own row", () => {
-    expect(boxHeight("top", 776, bands, 800)).toBe(401 + BOX_OVERHANG); // docked at the bottom (776): past the corridor's top
-    expect(boxHeight("bottom", 90, bands, 800)).toBe(400 + BOX_OVERHANG); // docked at the top (90): past the corridor's bottom
-    expect(boxHeight("corridor", 776, bands, 800)).toBe(286 + BOX_OVERHANG); // in the corridor: the bottom row
+  it("covers the other row and the corridor, stopping just short of the own row", () => {
+    expect(boxHeight("top", 776, bands, 800)).toBe(401 - BOX_GAP); // docked at the bottom (776): up to just short of the corridor's top
+    expect(boxHeight("bottom", 90, bands, 800)).toBe(400 - BOX_GAP); // docked at the top (90): down to just short of the corridor's bottom
+    expect(boxHeight("corridor", 790, bands, 800)).toBe(300 - BOX_GAP); // in the corridor: the bottom row only
   });
   it("keeps a usable height and fits the window; nothing to keep clear of: its usual height", () => {
     expect(boxHeight("corridor", 600, bands, 800)).toBe(BOX_MIN_HEIGHT);

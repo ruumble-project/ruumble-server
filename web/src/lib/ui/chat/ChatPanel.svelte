@@ -27,7 +27,8 @@
   // own room (Mumble's log and channel chat, DeskLog), then one tab per person for the direct chat (ADR-0021). The head
   // of a conversation says where the other one is right now (from the snapshot), with the way to go there; below the
   // messages, the reactions of the board (A1) and the invitation to the own room ("come over"). It docks away from the
-  // own room's row and from the floating board, and covers at most the other row and the corridor (boxHeight). Closed,
+  // own room's row and from the floating board, covers the other row and the corridor but stops short of the own row
+  // (boxHeight), and reaches 5 px past the floor plan's outer wall. Closed,
   // the button in the top bar counts what is unread, and T brings the window back.
   let { app }: { app: RuumbleState } = $props();
 
@@ -323,7 +324,9 @@
 
   .chat {
     --color-paper: var(--color-raised);
-    position: fixed; left: 32px; bottom: 24px; z-index: 20; height: min(520px, calc(100vh - 120px));
+    /* 5 px past the floor plan's outer wall (32 px from the sides, 24 px from the bottom, 88 px from the top), so it
+       is seen to float over it */
+    position: fixed; left: 27px; bottom: 19px; z-index: 20; height: min(520px, calc(100vh - 120px));
     /* as wide as the board (tokens.css) */
     width: var(--board-width);
     display: flex; flex-direction: column; overflow: hidden; border-radius: 10px; background: var(--color-paper); color: var(--color-ink);
@@ -331,8 +334,8 @@
     animation: rise 200ms var(--ease-out) both;
   }
   /* away from the own room's row and from the floating board */
-  .chat.right { left: auto; right: 32px; }
-  .chat.top { top: calc(var(--topbar-height) + 30px); bottom: auto; animation-name: drop; }
+  .chat.right { left: auto; right: 27px; }
+  .chat.top { top: calc(var(--topbar-height) + 23px); bottom: auto; animation-name: drop; }
   @keyframes rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
   @keyframes drop { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: none; } }
 

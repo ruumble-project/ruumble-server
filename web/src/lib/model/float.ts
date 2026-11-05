@@ -36,17 +36,17 @@ export interface PlanBands {
 /** the box stays usable on a small window, even if it then covers a little more */
 export const BOX_MIN_HEIGHT = 280;
 
-/** the box reaches a little past the edge it keeps clear of, so it floats over the floor plan instead of lining up with a wall */
-export const BOX_OVERHANG = 16;
+/** the box stops this far before the row (or corridor) of the own user, so it never reaches it */
+export const BOX_GAP = 16;
 
 /**
  * Height of Ruumble in a box (#10): it covers the other row of rooms and the corridor, not the row the own user is in
- * (with the user in the corridor only the bottom row), and reaches BOX_OVERHANG past that edge. `edge`: the box's fixed edge (its top when it docks at
+ * (with the user in the corridor only the bottom row), and stops BOX_GAP before that edge. `edge`: the box's fixed edge (its top when it docks at
  * the top, i.e. the own room is in the bottom row, else its bottom). `null`: no rows to keep clear of (another floor, an
  * open floor), the box keeps its usual height.
  */
 export function boxHeight(own: OwnBand, edge: number, bands: PlanBands | null, viewport: number): number | null {
   if (!own || !bands) return null;
-  const height = BOX_OVERHANG + (own === "bottom" ? bands.corridorBottom - edge : edge - (own === "corridor" ? bands.bottomRowTop : bands.corridorTop));
+  const height = -BOX_GAP + (own === "bottom" ? bands.corridorBottom - edge : edge - (own === "corridor" ? bands.bottomRowTop : bands.corridorTop));
   return Math.round(Math.min(Math.max(height, BOX_MIN_HEIGHT), viewport - 120));
 }
