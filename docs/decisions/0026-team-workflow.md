@@ -12,7 +12,7 @@ flow two people pick the same work, changes reach `main` without a second look, 
 |---|---|
 | **Tickets** | Every change starts with a GitHub issue (Feature, Bug, Task templates) in the repo where the code lives; features and tasks carry acceptance criteria. Cross-repo changes get one linked ticket per repo. |
 | **Branches** | One branch per ticket from `main`, named `<issue>-<slug>`. No long-lived branches. |
-| **Commits** | English, one line, ending with `(#<issue>)`. |
+| **Commits** | English, one line; commits on the branch end with `(#<issue>)`. The pull request title (the squash commit on `main`) has no number, GitHub adds the pull request number. |
 | **Pull requests** | Template with `Closes #<issue>`, checks and changelog line; CI must be green. |
 | **Review** | Optional inside the team; pull requests from outside the team are reviewed and merged by a team member. |
 | **Merge** | Squash and merge, so `main` keeps one line per change; the branch is deleted. |

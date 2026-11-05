@@ -64,7 +64,7 @@ All must pass; a failing check is fixed, not skipped. Check every acceptance cri
 
 ```sh
 git push -u origin HEAD
-gh pr create --fill-first --title "<what it does> (#<n>)" --body-file <file>
+gh pr create --title "<what it does>" --body-file <file>      # no number: GitHub adds the PR number on squash
 ```
 
 The body follows `.github/pull_request_template.md`: `Closes #<n>`, what and why, how it was tested, the checks ticked.
