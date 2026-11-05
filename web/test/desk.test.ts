@@ -1,6 +1,8 @@
 // @vitest-environment jsdom
 import { describe, expect, it } from "vitest";
-import { DESK_MAX_ENTRIES, mergeEntries, outgoing, parseEntry, timeOf, unreadCount, type DeskEntry } from "../src/lib/desk/model.ts";
+import {
+  DESK_MAX_ENTRIES, firstUnreadId, mergeEntries, outgoing, parseEntry, parseFilter, timeOf, unreadCount, visibleEntries, type DeskEntry,
+} from "../src/lib/desk/model.ts";
 import { DeskState } from "../src/lib/desk/state.svelte.ts";
 import { carriesPerson, contextMenu, droppedSession, SESSION_DRAG, type DeskAdmin } from "../src/lib/desk/admin.ts";
 import { de } from "../src/lib/i18n/de.ts";
@@ -40,11 +42,44 @@ describe("Ruumble Client: the Mumble log in the web UI (ADR-0024)", () => {
     expect(outgoing("   ")).toBe("");
   });
 
+  it("search and filter: text anywhere ignoring case, messages or notices, both together", () => {
+    const entries = [
+      entry(1, "info", "Welcome to Acme"), entry(2, "text", "Ben: Coffee?"), entry(3, "own", "Me: coffee, yes"),
+      entry(4, "private", "Ben: psst"), entry(5, "warning", "Server is restarting"), entry(6, "text", "Clara: build is green"),
+    ];
+    const ids = (q: string, f: Parameters<typeof visibleEntries>[2]) => visibleEntries(entries, q, f).map((e) => e.id);
+    expect(ids("", "all")).toEqual([1, 2, 3, 4, 5, 6]);
+    expect(ids("  ", "all")).toEqual([1, 2, 3, 4, 5, 6]);
+    expect(ids("COFFEE", "all")).toEqual([2, 3]);
+    expect(ids("", "messages")).toEqual([2, 3, 4, 6]);
+    expect(ids("", "notices")).toEqual([1, 5]);
+    expect(ids("ben", "messages")).toEqual([2, 4]);
+    expect(ids("ben", "notices")).toEqual([]);
+  });
+
+  it("takes only a known filter from storage", () => {
+    expect(parseFilter("messages")).toBe("messages");
+    expect(parseFilter("notices")).toBe("notices");
+    expect(parseFilter("shouting")).toBe("all");
+    expect(parseFilter(null)).toBe("all");
+  });
+
+  it("the New line stands above the first message from others after the last one seen", () => {
+    const entries = [entry(1, "text"), entry(2, "info"), entry(3, "own"), entry(4, "private"), entry(5, "text")];
+    expect(firstUnreadId(entries, 0)).toBe(1);
+    expect(firstUnreadId(entries, 1)).toBe(4);
+    expect(firstUnreadId(entries, 4)).toBe(5);
+    expect(firstUnreadId(entries, 5)).toBeNull();
+    expect(firstUnreadId([entry(1, "info"), entry(2, "own")], 0)).toBeNull();
+  });
+
   it("has texts in both languages", () => {
     expect(de.desk.messageTo("Küche")).toBe("Nachricht an Küche");
     expect(en.desk.messageTo("Kitchen")).toBe("Message to Kitchen");
     expect([de.desk.unread(1), de.desk.unread(3)]).toEqual(["1 neue Nachricht", "3 neue Nachrichten"]);
     expect([en.desk.unread(1), en.desk.unread(3)]).toEqual(["1 new message", "3 new messages"]);
+    expect([de.desk.title, en.desk.title]).toEqual(["Ruumble in a box", "Ruumble in a box"]);
+    expect([de.desk.filters.messages, en.desk.filters.notices]).toEqual(["Nachrichten", "Notices"]);
     expect(de.screens.deskOfflineText("Acme")).toBe("Verbinde Ruumble Client mit dem Server Acme.");
     expect(en.screens.deskOfflineText("Acme")).toBe("Connect Ruumble Client to the server Acme.");
   });
@@ -130,6 +165,32 @@ describe("Ruumble Client: the connection to the client", () => {
 
     client.serverChange("");
     expect(desk.server).toBe("");
+  });
+
+  it("on opening marks where the unread messages start; the filter is remembered, the search is not", () => {
+    localStorage.removeItem("ruumble.deskFilter");
+    const client = fakeClient([{ id: 1, time: 1, kind: "text", text: "Ben: hi" }]);
+    const desk = new DeskState();
+    desk.start(client.win);
+    desk.toggle();
+    expect(desk.newFrom).toBe(1);
+    desk.close();
+    client.log({ id: 2, time: 2, kind: "info", text: "Clara entered" });
+    client.log({ id: 3, time: 3, kind: "text", text: "Clara: morning" });
+    desk.toggle();
+    expect(desk.newFrom).toBe(3);
+    desk.close();
+    desk.toggle(); // nothing unread any more: no line
+    expect(desk.newFrom).toBeNull();
+
+    desk.query = "clara";
+    desk.setFilter("messages");
+    expect(desk.visible.map((e) => e.id)).toEqual([3]);
+    expect(localStorage.getItem("ruumble.deskFilter")).toBe("messages");
+    const again = new DeskState();
+    expect(again.filter).toBe("messages");
+    expect(again.query).toBe("");
+    localStorage.removeItem("ruumble.deskFilter");
   });
 
   it("sends the trimmed draft and clears it only when the client took it", () => {

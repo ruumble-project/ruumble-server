@@ -1,31 +1,36 @@
 <script lang="ts">
-  import AudioLines from "@lucide/svelte/icons/audio-lines";
-  import Menu from "@lucide/svelte/icons/menu";
+  import Search from "@lucide/svelte/icons/search";
   import SendHorizontal from "@lucide/svelte/icons/send-horizontal";
-  import Server from "@lucide/svelte/icons/server";
-  import Settings from "@lucide/svelte/icons/settings";
-  import Unplug from "@lucide/svelte/icons/unplug";
   import X from "@lucide/svelte/icons/x";
-  import { timeOf } from "../../desk/model.ts";
+  import { DESK_FILTERS, timeOf, type DeskFilter } from "../../desk/model.ts";
   import { locale, t } from "../../i18n/index.svelte.ts";
   import { ownPlace } from "../../model/building.ts";
   import type { RuumbleState } from "../../state.svelte.ts";
 
-  // Ruumble Client (ADR-0024): the Mumble client's log and channel chat, and its dialogs, in a window docked at the bottom
-  // left (the direct chat docks at the right). Only exists inside the Ruumble Client.
+  // Ruumble Client (ADR-0024): "Ruumble in a box", the Mumble client's log and channel chat in a window docked at the
+  // bottom left (the direct chat docks at the right), with a search, a filter by kind and a "New" line above what was
+  // unread. Mumble's functions are in the footer of the elevator (TopBar). Only exists inside the Ruumble Client.
   let { app }: { app: RuumbleState } = $props();
-
   const desk = $derived(app.desk);
   // the own place as the building names it ("Entrance", "Corridor", the room), not Mumble's channel name
   const room = $derived(app.building && app.snapshot ? (ownPlace(app.building, app.snapshot)?.name ?? "") : "");
+  const searching = $derived(desk.query.trim() !== "");
+
   let list = $state<HTMLElement | null>(null);
   let input = $state<HTMLTextAreaElement | null>(null);
 
-  // the newest entry in view
-  const count = $derived(desk.entries.length);
+  // on opening the "New" line in view, else the newest entry; later, new entries and a changed filter bring the newest
+  // entry into view, unless a search is active
+  const count = $derived(desk.visible.length);
+  let opened = false;
   $effect(() => {
     void count;
-    if (list) list.scrollTop = list.scrollHeight;
+    void desk.filter;
+    if (!list) return;
+    const line = opened ? null : list.querySelector<HTMLElement>(".new-line");
+    if (line) list.scrollTop = line.offsetTop - list.offsetTop - 8;
+    else if (!opened || !searching) list.scrollTop = list.scrollHeight;
+    opened = true;
   });
   $effect(() => input?.focus());
 
@@ -38,33 +43,41 @@
       desk.close();
     }
   }
+  function onsearchkey(e: KeyboardEvent): void {
+    if (e.key !== "Escape") return;
+    e.preventDefault();
+    if (desk.query) desk.query = "";
+    else desk.close();
+  }
 </script>
 
 <section class="desk" aria-label={t().desk.title}>
   <div class="bar">
     <h2>{t().desk.title}</h2>
-    <span class="server" title={desk.server ? t().desk.server : undefined}>{desk.server}</span>
-    <button type="button" class="bar-btn" aria-label={t().desk.menu} title={`${t().desk.menu} (F10)`} onclick={(e) => desk.showMenuAt(e.currentTarget)}><Menu size={18} /></button>
-    <button type="button" class="bar-btn" aria-label={t().desk.connect} title={t().desk.connect} onclick={() => desk.openConnect()}><Server size={18} /></button>
-    <button type="button" class="bar-btn" aria-label={t().desk.audioWizard} title={t().desk.audioWizard} onclick={() => desk.openAudioWizard()}><AudioLines size={18} /></button>
-    <button type="button" class="bar-btn" aria-label={t().desk.mumbleSettings} title={`${t().desk.mumbleSettings} (Ctrl+,)`} onclick={() => desk.openSettings()}><Settings size={18} /></button>
-    {#if desk.server}
-      <button type="button" class="bar-btn" aria-label={t().desk.disconnect} title={t().desk.disconnect} onclick={() => desk.disconnect()}><Unplug size={18} /></button>
-    {/if}
     <button type="button" class="bar-btn" aria-label={t().desk.close} title={t().desk.close} onclick={() => desk.close()}><X size={18} /></button>
   </div>
-
+  <div class="tools">
+    <label class="search">
+      <Search size={16} aria-hidden="true" />
+      <input type="search" bind:value={desk.query} placeholder={t().desk.search} aria-label={t().desk.search} onkeydown={onsearchkey} />
+    </label>
+    <select aria-label={t().desk.filter} title={t().desk.filter} value={desk.filter} onchange={(e) => desk.setFilter(e.currentTarget.value as DeskFilter)}>
+      {#each DESK_FILTERS as f (f)}<option value={f}>{t().desk.filters[f]}</option>{/each}
+    </select>
+  </div>
   <div class="log" bind:this={list} role="log" aria-live="polite">
-    {#each desk.entries as entry (entry.id)}
+    {#each desk.visible as entry (entry.id)}
+      {#if entry.id === desk.newFrom}
+        <div class="new-line" role="separator" aria-label={t().desk.newLine}><span>{t().desk.newLine}</span></div>
+      {/if}
       <div class="entry {entry.kind}">
         <time>{timeOf(entry.time, locale())}</time>
         <span class="text">{entry.text}</span>
       </div>
     {:else}
-      <p class="empty">{t().desk.empty}</p>
+      <p class="empty">{desk.entries.length ? t().desk.nothingFound : t().desk.empty}</p>
     {/each}
   </div>
-
   <div class="compose">
     <textarea
       bind:this={input} bind:value={desk.draft} rows="1" maxlength="5000"
@@ -88,8 +101,21 @@
   @media (prefers-reduced-motion: reduce) { .desk { animation: none; } }
 
   .bar { display: flex; align-items: center; gap: 2px; height: 44px; flex: none; padding: 0 6px 0 14px; background: var(--color-wall); color: var(--color-white); }
-  h2 { margin: 0 8px 0 0; font-size: 14px; font-weight: 700; letter-spacing: 0.02em; }
-  .server { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12px; color: var(--color-plate-muted); }
+  h2 { flex: 1; margin: 0 8px 0 0; font-size: 14px; font-weight: 700; letter-spacing: 0.02em; }
+  .tools { flex: none; display: flex; gap: 6px; padding: 8px 10px; border-bottom: 1px solid var(--color-blue-100); }
+  .search {
+    flex: 1; min-width: 0; display: flex; align-items: center; gap: 6px; height: 34px; padding: 0 10px; box-sizing: border-box;
+    border: 1px solid var(--color-blue-300); border-radius: 17px; background: var(--color-paper); color: var(--color-blue-700);
+  }
+  .search:focus-within { outline: 3px solid var(--color-sky); outline-offset: 1px; }
+  .search input { flex: 1; min-width: 0; border: 0; padding: 0; background: transparent; color: var(--color-ink); font: inherit; font-size: 13px; outline: none; }
+  select {
+    flex: none; height: 34px; padding: 0 8px; border: 1px solid var(--color-blue-300); border-radius: var(--radius-md);
+    background: var(--color-paper); color: var(--color-ink); font: inherit; font-size: 13px; cursor: pointer;
+  }
+  select:focus-visible { outline: 3px solid var(--color-sky); outline-offset: 1px; }
+  .new-line { display: flex; align-items: center; gap: 8px; margin: 2px 0; color: var(--color-link); font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; }
+  .new-line::before, .new-line::after { content: ""; flex: 1; height: 1px; background: currentColor; opacity: 0.6; }
   .bar-btn { width: 36px; height: 36px; flex: none; display: grid; place-items: center; border: 0; border-radius: var(--radius-md); background: transparent; color: var(--color-plate-muted); cursor: pointer; }
   .bar-btn:hover { background: rgb(255 255 255 / 0.12); color: var(--color-white); }
 

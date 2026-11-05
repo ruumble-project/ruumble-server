@@ -643,21 +643,30 @@ export const de = {
   },
   /** Ruumble Client (ADR-0024): Mumble's log, channel chat and dialogs inside the Ruumble Client */
   desk: {
-    title: "Mumble",
-    button: "Mumble-Protokoll und Kanal-Chat",
-    server: "Verbunden mit diesem Mumble-Server",
+    title: "Ruumble in a box",
+    button: "Ruumble in a box: Protokoll und Chat",
+    /** the button on the screen shown while Mumble is offline: opens the City Map */
     connect: "Mit einem Server verbinden",
-    audioWizard: "Audio-Assistent",
-    settings: "Einstellungen",
-    mumbleSettings: "Mumble-Einstellungen",
-    menu: "Mumble-Menü (Server, Ich, Konfiguration, Hilfe, Benutzerliste)",
-    disconnect: "Verbindung trennen",
     close: "Schließen",
     empty: "Noch nichts im Protokoll.",
+    search: "Protokoll durchsuchen",
+    filter: "Anzeigen",
+    filters: { all: "Alles", messages: "Nachrichten", notices: "Hinweise" },
+    nothingFound: "Nichts gefunden.",
+    newLine: "Neu",
     message: "Nachricht an den Kanal",
     messageTo: (room: string) => `Nachricht an ${room}`,
     send: "Senden",
     unread: (n: number) => (n === 1 ? "1 neue Nachricht" : `${n} neue Nachrichten`),
+    /** the footer of the elevator: Mumble's functions */
+    functions: "Mumble",
+    cityMap: "Stadtplan",
+    cityMapHint: "Ruumble Stadtplan: ein anderes Gebäude betreten",
+    configuration: "Konfiguration",
+    audioWizard: "Assistent für Raumakustik",
+    allFunctions: "Alle Mumble-Funktionen",
+    leave: "Verlassen",
+    leaveHint: "Gebäude verlassen (Verbindung zum Server trennen)",
   },
 };
 

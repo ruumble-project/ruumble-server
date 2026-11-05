@@ -6,6 +6,12 @@ All notable changes to Ruumble. The service and the web UI share one version; th
 
 ## [Unreleased]
 
+### Changed
+
+- Ruumble Client: Mumble's log and chat are now "Ruumble in a box", opened with a button next to the floor sign; a search, a filter (all, messages, notices) and a "New" line above the unread messages help to find things
+- Ruumble Client: Mumble's functions moved from the log's header to the bottom of the elevator, with labels: City Map, configuration, room acoustics assistant, all Mumble functions and Leave
+- The elevator shows everyone online in its head, next to "Elevator"; the server's name is no longer shown there (it stays on the roof of the building overview)
+
 ## [0.34.0] - 2026-11-05
 
 Plugin 0.5.0 (unchanged). Ruumble moves to the organization `ruumble-project`; the image is now `ghcr.io/ruumble-project/ruumble`.

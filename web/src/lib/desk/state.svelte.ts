@@ -5,7 +5,11 @@
  * chrome of its own. In a normal browser nothing of this exists and `available` stays false.
  */
 import type { DeskAdmin } from "./admin.ts";
-import { mergeEntries, outgoing, parseEntry, unreadCount, type DeskEntry } from "./model.ts";
+import {
+  firstUnreadId, mergeEntries, outgoing, parseEntry, parseFilter, unreadCount, visibleEntries, type DeskEntry, type DeskFilter,
+} from "./model.ts";
+
+const FILTER_KEY = "ruumble.deskFilter";
 
 /** the client's object as QWebChannel hands it over: results arrive in callbacks */
 interface DeskObject {
@@ -38,10 +42,16 @@ export class DeskState implements DeskAdmin {
   version = $state("");
   draft = $state("");
   sending = $state(false);
+  /** search text and filter of the box; the filter is remembered in this browser, the search is not */
+  query = $state("");
+  filter = $state<DeskFilter>(readFilter());
+  /** the first message that was unread when the box was opened: the "New" line stands above it */
+  newFrom = $state<number | null>(null);
   private seenId = $state(0);
   private desk: DeskObject | null = null;
 
   readonly unread = $derived(this.open ? 0 : unreadCount(this.entries, this.seenId));
+  readonly visible = $derived(visibleEntries(this.entries, this.query, this.filter));
 
   /** looks for the client; does nothing in a normal browser */
   start(win: QtWindow = window as unknown as QtWindow): void {
@@ -73,7 +83,19 @@ export class DeskState implements DeskAdmin {
 
   toggle(): void {
     this.open = !this.open;
-    if (this.open) this.markSeen();
+    if (this.open) {
+      this.newFrom = firstUnreadId(this.entries, this.seenId);
+      this.markSeen();
+    }
+  }
+
+  setFilter(filter: DeskFilter): void {
+    this.filter = filter;
+    try {
+      localStorage.setItem(FILTER_KEY, filter);
+    } catch {
+      // private mode or similar: then only applies until reload
+    }
   }
 
   close(): void {
@@ -131,5 +153,13 @@ export class DeskState implements DeskAdmin {
   showMenuAt(el: Element): void {
     const r = el.getBoundingClientRect();
     this.showMenu(r.left, r.bottom);
+  }
+}
+
+function readFilter(): DeskFilter {
+  try {
+    return parseFilter(localStorage.getItem(FILTER_KEY));
+  } catch {
+    return "all";
   }
 }

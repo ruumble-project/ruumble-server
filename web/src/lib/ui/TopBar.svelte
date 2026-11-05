@@ -18,7 +18,12 @@
   import MessagesSquare from "@lucide/svelte/icons/messages-square";
   import UserIcon from "@lucide/svelte/icons/user";
   import Users from "@lucide/svelte/icons/users";
-  import ScrollText from "@lucide/svelte/icons/scroll-text";
+  import AudioLines from "@lucide/svelte/icons/audio-lines";
+  import LogOut from "@lucide/svelte/icons/log-out";
+  import MapIcon from "@lucide/svelte/icons/map";
+  import Menu from "@lucide/svelte/icons/menu";
+  import Settings from "@lucide/svelte/icons/settings";
+  import Inbox from "@lucide/svelte/icons/inbox";
   import { locale, setLocale, t } from "../i18n/index.svelte.ts";
   import { countText, initials, ownPlace, type Building, type Floor } from "../model/building.ts";
   import type { RuumbleState } from "../state.svelte.ts";
@@ -29,7 +34,8 @@
   import Key from "./Key.svelte";
 
   // Top bar instead of the elevator column, made of signs: left the floor sign (opens the elevator, which shows
-  // the server and everyone online in its status bar), in the middle the sign of the own room, right the status,
+  // everyone online in its head and, inside Ruumble Client, Mumble's functions in its footer) and the button of
+  // "Ruumble in a box" (Mumble's log and chat, only inside Ruumble Client), in the middle the sign of the own room, right the status,
   // mute, deafen and the name badge (opens the user menu).
   let { app, building, floor }: { app: RuumbleState; building: Building; floor: Floor | null } = $props();
   // Ruumble Client: right click on the floor sign, a floor or the building opens Mumble's menu for that channel
@@ -87,6 +93,12 @@
   });
   const toggle = (which: "floors" | "user") => (open = open === which ? null : which);
 
+  /** a button in the elevator's footer: closes the elevator, then does its thing */
+  function act(run: () => void): void {
+    open = null;
+    run();
+  }
+
   function choose(f: Floor): void {
     app.showFloor(f);
     if (f.lock === null || f.isSelf) open = null;
@@ -97,7 +109,7 @@
   }
 </script>
 
-<header class="topbar">
+<header class="topbar" class:raised={open !== null}>
   <div class="left">
     <div class="dropdown" data-dropdown="floors">
       <!-- the floor sign: a plate with the floor and its people, the elevator buttons on the right -->
@@ -118,8 +130,16 @@
       </button>
       {#if open === "floors"}
         <!-- elevator panel: highest floor at the top, the entrance below the ground floor -->
-        <nav id="elevator" class="elevator" aria-label={t().core.elevatorLabel} {@attach focusFirst}>
-          <div class="elevator-head"><span class="elevator-icon"><ArrowDownUp size={18} /></span>{t().core.elevator}</div>
+        <nav id="elevator" class="elevator" class:bare={!app.desk.available} aria-label={t().core.elevatorLabel} {@attach focusFirst}>
+          <div class="elevator-head">
+            <span class="elevator-icon"><ArrowDownUp size={18} /></span>{t().core.elevator}
+            <!-- everyone online, opens the building overview: cross-section and directory board (ADR-0019) -->
+            <!-- right click in Ruumble Client: Mumble's menu of the whole building (the root channel: add a floor) -->
+            <button type="button" class="overview-link" title={`${t().overview.open} (H)`} onclick={() => { open = null; app.openOverview(); }} oncontextmenu={(e) => contextMenu(admin, e, 0)}>
+              <span class="online"><span class="dot" aria-hidden="true"></span>{t().header.online(building.online)}</span>
+              <Building2 size={15} aria-hidden="true" />
+            </button>
+          </div>
           {#each reversed as f (f.channelId)}
             {@const active = f.channelId === floor?.channelId}
             {@const blocked = f.lock !== null && !f.isSelf}
@@ -150,19 +170,44 @@
               </div>
             </section>
           {/if}
-          <!-- status bar of the elevator: the whole building -->
-          <footer class="status">
-            <!-- opens the building overview: cross-section and directory board (ADR-0019) -->
-            <!-- right click in Ruumble Client: Mumble's menu of the whole building (the root channel: add a floor) -->
-            <button type="button" class="overview-link" title={`${t().overview.open} (H)`} onclick={() => { open = null; app.openOverview(); }} oncontextmenu={(e) => contextMenu(admin, e, 0)}>
-              <span class="online"><span class="dot" aria-hidden="true"></span>{t().header.online(building.online)}</span>
-              <span class="building">{building.name}</span>
-              <Building2 size={15} aria-hidden="true" />
-            </button>
-          </footer>
+          <!-- Ruumble Client (ADR-0024): Mumble's functions in the elevator's footer, from entering another building on
+               the left to leaving on the right; Ctrl+, and F10 also work as keys -->
+          {#if app.desk.available}
+            <footer class="status">
+              <button type="button" class="act" title={t().desk.cityMapHint} onclick={() => act(() => app.desk.openConnect())}>
+                <MapIcon size={18} aria-hidden="true" />{t().desk.cityMap}
+              </button>
+              <div class="mumble" role="group" aria-label={t().desk.functions}>
+                <button type="button" class="act icon" aria-label={t().desk.configuration} title={`${t().desk.configuration} (Ctrl+,)`} onclick={() => act(() => app.desk.openSettings())}>
+                  <Settings size={18} aria-hidden="true" />
+                </button>
+                <button type="button" class="act icon" aria-label={t().desk.audioWizard} title={t().desk.audioWizard} onclick={() => act(() => app.desk.openAudioWizard())}>
+                  <AudioLines size={18} aria-hidden="true" />
+                </button>
+                <button type="button" class="act icon" aria-label={t().desk.allFunctions} title={`${t().desk.allFunctions} (F10)`}
+                  onclick={(e) => { const at = e.currentTarget; act(() => app.desk.showMenuAt(at)); }}>
+                  <Menu size={18} aria-hidden="true" />
+                </button>
+              </div>
+              <button type="button" class="act" title={t().desk.leaveHint} onclick={() => act(() => app.desk.disconnect())}>
+                {t().desk.leave}<LogOut size={18} aria-hidden="true" />
+              </button>
+            </footer>
+          {/if}
         </nav>
       {/if}
     </div>
+    <!-- Ruumble Client (ADR-0024): "Ruumble in a box", Mumble's log and channel chat; only inside the Ruumble Client -->
+    {#if app.desk.available}
+      <button
+        type="button" class="tool desk" aria-pressed={app.desk.open}
+        aria-label={app.desk.unread ? `${t().desk.button}, ${t().desk.unread(app.desk.unread)}` : t().desk.button} title={t().desk.button}
+        onclick={() => app.desk.toggle()}
+      >
+        <Inbox size={20} />
+        {#if app.desk.unread}<span class="count" aria-hidden="true">{app.desk.unread > 99 ? "99+" : app.desk.unread}</span>{/if}
+      </button>
+    {/if}
     {#if app.readonly}<span class="note">{t().header.preview}</span>{/if}
     {#if hidden}<span class="note">{t().common.notShown}</span>{/if}
   </div>
@@ -186,17 +231,6 @@
   </div>
 
   <div class="right">
-    <!-- Ruumble Client (ADR-0024): Mumble's log and channel chat; only inside the Ruumble Client -->
-    {#if app.desk.available}
-      <button
-        type="button" class="tool desk" aria-pressed={app.desk.open}
-        aria-label={app.desk.unread ? `${t().desk.button}, ${t().desk.unread(app.desk.unread)}` : t().desk.button} title={t().desk.button}
-        onclick={() => app.desk.toggle()}
-      >
-        <ScrollText size={20} />
-        {#if app.desk.unread}<span class="count" aria-hidden="true">{app.desk.unread > 99 ? "99+" : app.desk.unread}</span>{/if}
-      </button>
-    {/if}
     <!-- tube mail (ADR-0022): opens its panel; the number of parcels waiting for an answer, a ring while own ones are on their way -->
     <button
       type="button" class="tool tube" data-tube-button aria-pressed={app.tube.panel} aria-label={tubeLabel} title={tubeLabel}
@@ -287,6 +321,8 @@
 
 <style>
   .topbar { position: relative; z-index: 5; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 16px; min-height: var(--topbar-height); }
+  /* an open dropdown lies above the panels at the bottom (the box, the chat, tube mail), below the toasts */
+  .topbar.raised { z-index: 26; }
   .left, .right { display: flex; align-items: center; gap: 8px; min-width: 0; }
   .right { justify-self: end; }
   .dropdown { position: relative; min-width: 0; }
@@ -335,6 +371,7 @@
     display: flex; flex-direction: column; gap: 6px; box-shadow: 0 10px 28px rgb(0 56 105 / 0.35);
     transform-origin: top left; animation: drop 160ms var(--ease-out) both;
   }
+  .elevator.bare { padding-bottom: 12px; }
   @keyframes drop { from { opacity: 0; transform: translateY(-6px) scale(0.98); } to { opacity: 1; transform: none; } }
   .elevator-head { display: flex; align-items: center; gap: 10px; padding: 2px 6px 8px; border-bottom: 1px solid rgb(255 255 255 / 0.2); font-size: 15px; font-weight: 700; }
   .elevator-icon { display: inline-flex; color: var(--color-sky); }
@@ -367,20 +404,31 @@
   .entrance-people { display: flex; flex-wrap: wrap; gap: 4px; }
   .entrance-people :global(.person) { width: 48px; }
   /* status bar at the bottom of the elevator, like the display in a lift */
-  .status {
-    position: sticky; bottom: 0; display: flex; align-items: center; justify-content: space-between; gap: 12px;
-    margin: 6px -12px 0; padding: 10px 18px; background: rgb(0 20 45 / 0.45); border-top: 1px solid rgb(255 255 255 / 0.15);
-    font-size: 13px; font-weight: 700; white-space: nowrap;
-  }
+  /* everyone online, right-aligned in the elevator's head */
   .overview-link {
-    display: flex; align-items: center; gap: 12px; width: 100%; margin: -4px -6px; padding: 4px 6px; border: 0; border-radius: var(--radius-md);
-    background: transparent; color: inherit; font: inherit; cursor: pointer; text-align: left;
+    display: flex; align-items: center; gap: 8px; margin: -4px -6px -4px auto; padding: 4px 6px; border: 0; border-radius: var(--radius-md);
+    background: transparent; color: inherit; font: inherit; font-size: 13px; cursor: pointer; white-space: nowrap;
   }
   .overview-link:hover { background: rgb(255 255 255 / 0.1); }
-  .overview-link:focus-visible { outline: 3px solid var(--color-sky); outline-offset: 0; }
-  .overview-link .building { margin-left: auto; }
+  .overview-link:focus-visible, .act:focus-visible { outline: 3px solid var(--color-sky); outline-offset: 0; }
   .online { display: inline-flex; align-items: center; gap: 8px; font-variant-numeric: tabular-nums; }
-  .building { color: var(--color-plate-muted); overflow: hidden; text-overflow: ellipsis; }
+  /* Mumble's functions at the bottom of the elevator, like the buttons below a lift's display */
+  .status {
+    position: sticky; bottom: 0; display: flex; align-items: center; justify-content: space-between; gap: 8px;
+    margin: 6px -12px 0; padding: 8px 10px; background: rgb(0 20 45 / 0.45); border-top: 1px solid rgb(255 255 255 / 0.15);
+    font-size: 13px; font-weight: 700; white-space: nowrap;
+  }
+  .act {
+    display: inline-flex; align-items: center; gap: 6px; height: 34px; padding: 0 8px; border: 0; border-radius: var(--radius-md);
+    background: transparent; color: var(--color-white); font: inherit; cursor: pointer;
+  }
+  .act:hover { background: rgb(255 255 255 / 0.12); }
+  .act.icon { width: 34px; padding: 0; justify-content: center; }
+  .mumble { display: flex; border: 1px solid rgb(255 255 255 / 0.25); border-radius: var(--radius-md); }
+  .mumble .act { border-radius: 0; }
+  .mumble .act + .act { border-left: 1px solid rgb(255 255 255 / 0.25); }
+  .mumble .act:first-child { border-radius: var(--radius-md) 0 0 var(--radius-md); }
+  .mumble .act:last-child { border-radius: 0 var(--radius-md) var(--radius-md) 0; }
   .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--color-sky); box-shadow: 0 0 0 3px rgb(90 166 231 / 0.25); }
 
   /* room sign: light blue like the own room, a door plate */

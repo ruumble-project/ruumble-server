@@ -11,9 +11,12 @@ test.describe("Sample building", () => {
     await expect(page.getByRole("button", { name: "Let's talk – you are here" })).toBeVisible();
     const lift = await elevator(page);
     await expect(lift.getByRole("button", { name: "1st floor: Development" })).toHaveAttribute("aria-current", "page");
-    // the whole building in the elevator's status bar
-    await expect(lift.getByText("8 online", { exact: true })).toBeVisible();
-    await expect(lift.getByText("Acme HQ")).toBeVisible();
+    // everyone online in the elevator's head; the building's name only on the roof of the overview
+    await expect(lift.getByRole("button", { name: "8 online" })).toBeVisible();
+    await expect(lift.getByText("Acme HQ")).toHaveCount(0);
+    // Mumble's functions exist only inside Ruumble Client: no footer in a normal browser
+    await expect(lift.locator("footer")).toHaveCount(0);
+    await expect(page.getByRole("button", { name: /^Ruumble in a box/ })).toHaveCount(0);
   });
 
   test("top bar: the elevator and the user menu open as dropdowns, Escape and a click elsewhere close them", async ({ page }) => {

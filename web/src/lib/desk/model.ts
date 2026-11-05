@@ -40,6 +40,33 @@ export function unreadCount(entries: readonly DeskEntry[], seenId: number): numb
   return entries.filter((e) => e.id > seenId && (e.kind === "text" || e.kind === "private")).length;
 }
 
+/** what the box shows: everything, only chat messages, or only Mumble's notices */
+export type DeskFilter = "all" | "messages" | "notices";
+
+export const DESK_FILTERS: readonly DeskFilter[] = ["all", "messages", "notices"];
+
+const MESSAGE_KINDS: readonly DeskKind[] = ["text", "private", "own"];
+
+/** a remembered filter, or "all" for anything else */
+export function parseFilter(raw: unknown): DeskFilter {
+  return DESK_FILTERS.includes(raw as DeskFilter) ? (raw as DeskFilter) : "all";
+}
+
+/** the entries that match the filter and contain the search text anywhere, ignoring case */
+export function visibleEntries(entries: readonly DeskEntry[], query: string, filter: DeskFilter): DeskEntry[] {
+  const needle = query.trim().toLocaleLowerCase();
+  return entries.filter((e) => {
+    if (filter === "messages" && !MESSAGE_KINDS.includes(e.kind)) return false;
+    if (filter === "notices" && MESSAGE_KINDS.includes(e.kind)) return false;
+    return !needle || e.text.toLocaleLowerCase().includes(needle);
+  });
+}
+
+/** where the "New" line goes: the first message from others after the last one seen, or null when there is none */
+export function firstUnreadId(entries: readonly DeskEntry[], seenId: number): number | null {
+  return entries.find((e) => e.id > seenId && (e.kind === "text" || e.kind === "private"))?.id ?? null;
+}
+
 /** "09:41" in the viewer's time */
 export function timeOf(time: number, locale: string): string {
   return new Date(time).toLocaleTimeString(locale, { hour: "2-digit", minute: "2-digit" });
