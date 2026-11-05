@@ -4,6 +4,12 @@
 
 **Your [Mumble](https://www.mumble.info/) server as an office building.** Ruumble is a web UI next to the regular Mumble client: the channels become floors and rooms, you see at a glance who sits where and who is talking, you move to another room with a click, and every room has a board for notes, code, images and files. Voice stays in Mumble, and Mumble itself stays unchanged.
 
+## For team members
+
+> [!IMPORTANT]
+> **[Open the team Kanban board](https://github.com/orgs/ruumble-project/projects/1)**: tickets of ruumble-client and ruumble-server, who works on what and the status of each.
+> You need access to the Ruumble organization; if the page shows a 404, ask a maintainer to add you to the board.
+
 > **Ruumble is an add-on, not a standalone app.** It needs a Mumble server that you run or administer, and it has two parts:
 >
 > - a small **service** (one Docker container) that the server operator runs next to the Mumble server. It needs access to the server's Ice interface and serves the web UI.
