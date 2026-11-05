@@ -6,6 +6,8 @@ All notable changes to Ruumble. The service and the web UI share one version; th
 
 ## [Unreleased]
 
+Plugin 0.5.0 (unchanged). Ruumble moves to the organization `ruumble-project`; the image is now `ghcr.io/ruumble-project/ruumble`.
+
 ### Changed
 
 - The project moved to the organization `ruumble-project` and is split in two repositories: this one, `ruumble-project/ruumble-server` (service, web UI, plugin), and `ruumble-project/ruumble-client` (Ruumble Desk, released there from now on). From the next release the image is `ghcr.io/ruumble-project/ruumble`; Compose files on `ghcr.io/kevinwebman/ruumble` need the new image name (ADR-0025)
