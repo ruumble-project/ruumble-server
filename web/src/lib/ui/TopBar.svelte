@@ -366,7 +366,7 @@
 
   /* the elevator panel as a dropdown */
   .elevator {
-    position: absolute; left: 0; top: calc(100% + 8px); width: 320px; max-height: calc(100vh - 120px); overflow-y: auto;
+    position: absolute; left: 0; top: calc(100% + 8px); width: 380px; max-width: calc(100vw - 32px); max-height: calc(100vh - 120px); overflow-y: auto;
     border-radius: var(--radius-md); padding: 12px 12px 0; background: var(--gradient-elevator); color: var(--color-white);
     display: flex; flex-direction: column; gap: 6px; box-shadow: 0 10px 28px rgb(0 56 105 / 0.35);
     transform-origin: top left; animation: drop 160ms var(--ease-out) both;

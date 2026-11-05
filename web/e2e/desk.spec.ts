@@ -168,5 +168,15 @@ test.describe("Ruumble in a box", () => {
     expect(await namesOf(lift.locator("footer").getByRole("button"))).toEqual(
       ["Stadtplan", "Konfiguration", "Assistent für Raumakustik", "Alle Mumble-Funktionen", "Verlassen"],
     );
+    // the footer fits without a horizontal scrollbar, with room for a classic vertical one (Qt WebEngine)
+    const fit = await lift.evaluate((el) => {
+      const f = el.querySelector("footer")!;
+      const style = getComputedStyle(f);
+      const need = [...f.children].reduce((s, c) => s + (c as HTMLElement).offsetWidth, 0)
+        + 2 * parseFloat(style.columnGap) + parseFloat(style.paddingLeft) + parseFloat(style.paddingRight);
+      return { scroll: el.scrollWidth, client: el.clientWidth, need };
+    });
+    expect(fit.scroll).toBeLessThanOrEqual(fit.client);
+    expect(fit.need + 15).toBeLessThanOrEqual(fit.client);
   });
 });
