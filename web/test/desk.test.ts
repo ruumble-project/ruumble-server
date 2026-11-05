@@ -76,9 +76,8 @@ describe("Ruumble Client: the Mumble log in the web UI (ADR-0024)", () => {
   it("has texts in both languages", () => {
     expect(de.desk.messageTo("Küche")).toBe("Nachricht an Küche");
     expect(en.desk.messageTo("Kitchen")).toBe("Message to Kitchen");
-    expect([de.desk.unread(1), de.desk.unread(3)]).toEqual(["1 neue Nachricht", "3 neue Nachrichten"]);
-    expect([en.desk.unread(1), en.desk.unread(3)]).toEqual(["1 new message", "3 new messages"]);
-    expect([de.desk.title, en.desk.title]).toEqual(["Ruumble in a box", "Ruumble in a box"]);
+    expect([de.box.title, en.box.title]).toEqual(["Ruumble in a box", "Ruumble in a box"]);
+    expect([de.box.roomTab("Küche"), en.box.roomTab("Kitchen")]).toEqual(["Protokoll und Chat von Küche", "Log and chat of Kitchen"]);
     expect([de.desk.filters.messages, en.desk.filters.notices]).toEqual(["Nachrichten", "Notices"]);
     expect(de.screens.deskOfflineText("Acme")).toBe("Verbinde Ruumble Client mit dem Server Acme.");
     expect(en.screens.deskOfflineText("Acme")).toBe("Connect Ruumble Client to the server Acme.");
@@ -153,10 +152,10 @@ describe("Ruumble Client: the connection to the client", () => {
     expect(desk.entries.map((e) => e.id)).toEqual([1, 2]);
     expect(desk.unread).toBe(1);
 
-    desk.toggle(); // open: everything seen
+    desk.setVisible(true); // open: everything seen
     expect(desk.unread).toBe(0);
     client.log({ id: 3, time: 3, kind: "text", text: "Ben: still there?" });
-    desk.close();
+    desk.setVisible(false);
     expect(desk.unread).toBe(0); // arrived while open
     client.log({ id: 4, time: 4, kind: "private", text: "Ben: psst" });
     client.log({ broken: true });
@@ -172,15 +171,15 @@ describe("Ruumble Client: the connection to the client", () => {
     const client = fakeClient([{ id: 1, time: 1, kind: "text", text: "Ben: hi" }]);
     const desk = new DeskState();
     desk.start(client.win);
-    desk.toggle();
+    desk.setVisible(true);
     expect(desk.newFrom).toBe(1);
-    desk.close();
+    desk.setVisible(false);
     client.log({ id: 2, time: 2, kind: "info", text: "Clara entered" });
     client.log({ id: 3, time: 3, kind: "text", text: "Clara: morning" });
-    desk.toggle();
+    desk.setVisible(true);
     expect(desk.newFrom).toBe(3);
-    desk.close();
-    desk.toggle(); // nothing unread any more: no line
+    desk.setVisible(false);
+    desk.setVisible(true); // nothing unread any more: no line
     expect(desk.newFrom).toBeNull();
 
     desk.query = "clara";

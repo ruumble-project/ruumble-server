@@ -1,6 +1,8 @@
 <script lang="ts">
   import DoorOpen from "@lucide/svelte/icons/door-open";
   import Eraser from "@lucide/svelte/icons/eraser";
+  import Inbox from "@lucide/svelte/icons/inbox";
+  import ScrollText from "@lucide/svelte/icons/scroll-text";
   import Tag from "@lucide/svelte/icons/tag";
   import MessagesSquare from "@lucide/svelte/icons/messages-square";
   import SendHorizontal from "@lucide/svelte/icons/send-horizontal";
@@ -8,23 +10,32 @@
   import X from "@lucide/svelte/icons/x";
   import { CHAT_LIMITS } from "@ruumble/protocol";
   import { t } from "../../i18n/index.svelte.ts";
-  import { initials } from "../../model/building.ts";
+  import { initials, ownPlace, ownRow } from "../../model/building.ts";
+  import { boxCorner } from "../../model/float.ts";
   import { buildDirectory } from "../../model/overview.ts";
   import { SHORTCUT_KEYS } from "../../shortcuts.ts";
   import type { RuumbleState } from "../../state.svelte.ts";
   import { untilTime } from "../../status.ts";
   import { reactionsOf, tintOf, type ChatItem } from "../../chat/model.ts";
+  import { ROOM_TAB } from "../../chat/state.svelte.ts";
+  import DeskLog from "../desk/DeskLog.svelte";
   import Avatar from "../Avatar.svelte";
   import ReactionPicker from "../board/ReactionPicker.svelte";
   import { REACTION_ICONS } from "../board/reactionIcons.ts";
 
-  // Direct chat (ADR-0021): a window docked at the bottom right, over the floor plan and the board, with one tab per
-  // person. The head of a conversation says where the other one is right now (from the snapshot), with the way to go
-  // there; below the messages, the reactions of the board (A1) and the invitation to the own room ("come over").
-  // Closed, the button in the top bar counts what is unread, and P brings the window back.
+  // Ruumble in a box (#10): one window over the floor plan for what is said. Inside Ruumble Client its first tab is the
+  // own room (Mumble's log and channel chat, DeskLog), then one tab per person for the direct chat (ADR-0021). The head
+  // of a conversation says where the other one is right now (from the snapshot), with the way to go there; below the
+  // messages, the reactions of the board (A1) and the invitation to the own room ("come over"). It docks away from the
+  // own room's row and from the floating board (boxCorner). Closed, the button in the top bar counts what is unread,
+  // and P brings the window back.
   let { app }: { app: RuumbleState } = $props();
 
   const chat = $derived(app.chat);
+  const onRoom = $derived(chat.room && chat.active === ROOM_TAB);
+  const roomName = $derived(app.building && app.snapshot ? (ownPlace(app.building, app.snapshot)?.name ?? "") : "");
+  const roomLabel = $derived(roomName ? t().box.roomTab(roomName) : t().box.roomTabPlain);
+  const corner = $derived(boxCorner(ownRow(app.floor), app.boardOpen && app.boardFloating && !app.readonly ? app.boardSide : null));
   const conversation = $derived(chat.conversation);
   /** everyone in the building with their place, as on the directory board */
   const people = $derived(
@@ -67,7 +78,7 @@
   $effect(() => {
     const { target } = chat.focus;
     if (!panel) return;
-    if (target === "composer" && input) input.focus();
+    if (target === "composer") (onRoom ? panel.querySelector<HTMLElement>("#box-room textarea") : input)?.focus();
     else panel.querySelector<HTMLElement>('[role="tab"][aria-selected="true"]')?.focus();
   });
 
@@ -118,15 +129,29 @@
 
 {#if chat.panel === "open"}
   <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
-  <section class="chat tint-{tint}" aria-label={t().chat.title} bind:this={panel} onkeydown={onpanelkey}>
+  <section class="chat tint-{tint}" class:top={corner.top} class:right={corner.right} aria-label={t().box.title} bind:this={panel} onkeydown={onpanelkey}>
     <header class="bar">
-      <MessagesSquare size={18} aria-hidden="true" />
-      <h2>{t().chat.title}</h2>
+      <Inbox size={18} aria-hidden="true" />
+      <h2>{t().box.title}</h2>
       <button type="button" class="bar-btn" aria-label={t().common.close} title={`${t().common.close} (P, Esc)`} onclick={() => chat.closePanel()}><X size={18} /></button>
     </header>
 
-    {#if chat.tabs.length}
+    {#if chat.order.length}
       <div class="tabs" role="tablist" aria-label={t().chat.tabs}>
+        {#if chat.room}
+          <!-- the own room: only an icon, its name in the tooltip -->
+          {@const unreadRoom = onRoom ? 0 : app.desk.unread}
+          {@const label = unreadRoom ? `${roomLabel}, ${t().chat.unread(unreadRoom)}` : roomLabel}
+          <div class="tab room-tab" class:active={onRoom}>
+            <button
+              type="button" role="tab" class="tab-btn" aria-selected={onRoom} aria-controls="box-room" tabindex={onRoom ? 0 : -1}
+              aria-label={label} title={roomLabel} onclick={() => chat.select(ROOM_TAB)} onkeydown={ontabkey}
+            >
+              <ScrollText size={18} aria-hidden="true" />
+              {#if unreadRoom}<span class="badge" aria-hidden="true">{unreadRoom}</span>{/if}
+            </button>
+          </div>
+        {/if}
         {#each chat.tabs as c (c.person)}
           {@const active = c.person === chat.active}
           <div class="tab tint-{tintOf(c.person)}" class:active>
@@ -144,7 +169,9 @@
       </div>
     {/if}
 
-    {#if conversation}
+    {#if onRoom}
+      <DeskLog {app} />
+    {:else if conversation}
       <div class="conversation" id="chat-conversation" role="tabpanel" aria-label={conversation.name}>
         <div class="who">
           {#if partner}
@@ -257,13 +284,17 @@
 
   .chat {
     --color-paper: var(--color-raised);
-    position: fixed; right: 32px; bottom: 24px; z-index: 20; width: 384px; height: min(580px, calc(100vh - 120px));
+    position: fixed; left: 32px; bottom: 24px; z-index: 20; width: 420px; height: min(520px, calc(100vh - 120px));
     display: flex; flex-direction: column; overflow: hidden; border-radius: 10px; background: var(--color-paper); color: var(--color-ink);
     box-shadow: 0 0 0 1px var(--color-raised-edge), 0 16px 48px rgb(0 56 105 / 0.28), 0 2px 6px rgb(0 56 105 / 0.15);
     animation: rise 200ms var(--ease-out) both;
   }
+  /* away from the own room's row and from the floating board (boxCorner) */
+  .chat.right { left: auto; right: 32px; }
+  .chat.top { top: calc(var(--topbar-height) + 30px); bottom: auto; animation-name: drop; }
   @keyframes rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
-  @media (prefers-reduced-motion: reduce) { .chat, .row { animation: none; } }
+  @keyframes drop { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: none; } }
+  @media (prefers-reduced-motion: reduce) { .chat, .chat.top, .row { animation: none; } }
 
   .bar { display: flex; align-items: center; gap: 8px; height: 44px; flex: none; padding: 0 6px 0 14px; background: var(--color-wall); color: var(--color-white); }
   h2 { margin: 0; flex: 1; font-size: 14px; font-weight: 700; letter-spacing: 0.02em; }
@@ -273,6 +304,8 @@
   .tabs { display: flex; gap: 2px; flex: none; padding: 6px 8px 0; overflow-x: auto; background: var(--color-blue-50); scrollbar-width: thin; }
   .tab { display: flex; align-items: center; flex: none; max-width: 160px; border-radius: 6px 6px 0 0; }
   .tab.active { background: var(--color-paper); box-shadow: inset 0 -3px 0 var(--tint-line); }
+  .room-tab { --tint-line: var(--color-ink); }
+  .room-tab .tab-btn { padding: 0 10px; }
   .tab-btn { display: flex; align-items: center; gap: 7px; min-width: 0; height: 38px; padding: 0 4px 0 9px; border: 0; background: transparent; color: var(--color-ink); font: inherit; font-size: 13px; font-weight: 600; cursor: pointer; }
   .tab:not(.active) .tab-btn:hover { color: var(--color-link); }
   .tab-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }

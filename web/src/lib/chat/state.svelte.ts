@@ -13,6 +13,9 @@ import {
 
 export type ChatPanel = "closed" | "open";
 
+/** the tab of the own room in Ruumble in a box (#10): Mumble's log and channel chat, only inside Ruumble Client */
+export const ROOM_TAB = "room";
+
 /** the notice of a new message while its conversation is not in view */
 export interface ChatToast {
   person: string;
@@ -59,9 +62,16 @@ export class ChatState {
    */
   focus = $state<{ target: "composer" | "tab"; tick: number }>({ target: "composer", tick: 0 });
 
+  /** the room tab is there (Ruumble Client's desk): first in the row, cannot be closed */
+  room = $state(false);
+
   tabs = $derived(openTabs(this.book));
   unread = $derived(unreadTotal(this.book));
-  conversation = $derived(this.active ? (this.book[this.active] ?? null) : null);
+  conversation = $derived(this.active && this.active !== ROOM_TAB ? (this.book[this.active] ?? null) : null);
+  /** the tabs in their order: the room first, then the people */
+  order = $derived([...(this.room ? [ROOM_TAB] : []), ...this.tabs.map((c) => c.person)]);
+  /** the room tab is in view: its log counts as seen */
+  roomInView = $derived(this.panel === "open" && this.active === ROOM_TAB);
 
   private toastTimer: ReturnType<typeof setTimeout> | null = null;
   private pruneTimer: ReturnType<typeof setInterval> | null = null;
@@ -98,8 +108,14 @@ export class ChatState {
     if (!me || me === this.me) return;
     this.me = me;
     this.book = prune(parseBook(read(storageKey(me)) ?? takeLegacy(me)), Date.now());
-    this.active = this.tabs[0]?.person ?? null;
+    this.active = this.tabs[0]?.person ?? this.fallback();
     this.save();
+  }
+
+  /** Ruumble Client's desk came (or went): the room tab with it */
+  setRoom(on: boolean): void {
+    this.room = on;
+    if (!on && this.active === ROOM_TAB) this.active = this.tabs[0]?.person ?? null;
   }
 
   /** this browser is no longer paired: every conversation is forgotten here */
@@ -142,30 +158,31 @@ export class ChatState {
     this.focusOn("composer");
   }
 
-  /** a tab clicked: ready to write there */
-  select(person: string): void {
-    this.show(person);
+  /** a tab clicked (a person, or the room tab): ready to write there */
+  select(tab: string): void {
+    this.show(tab);
     this.focusOn("composer");
   }
 
-  /** the tab `step` places further (shortcuts , and ., arrow keys on the tabs) */
+  /** the tab `step` places further, the room tab included (shortcuts , and ., arrow keys on the tabs) */
   cycle(step: number): void {
-    const next = adjacentTab(this.tabs, this.active, step);
+    const next = adjacentTab(this.order, this.active, step);
     if (!next) return;
     this.show(next);
     this.focusOn("tab");
   }
 
   close(person: string): void {
-    const next = tabAfterClose(this.tabs, person);
+    const next = tabAfterClose(this.tabs, person) ?? this.fallback();
     this.update(closeConversation(this.book, person));
     if (this.active === person) this.active = next;
-    if (!this.tabs.length) this.panel = "closed";
+    if (!this.tabs.length && !this.room) this.panel = "closed";
+    else this.focusOn("tab"); // the closed tab's button is gone: the focus to the tab now in view
   }
 
   /** "forget history": gone from this browser, the tab too */
   forget(person: string): void {
-    const next = tabAfterClose(this.tabs, person);
+    const next = tabAfterClose(this.tabs, person) ?? this.fallback();
     this.update(forget(this.book, person));
     if (this.active === person) this.active = next;
     const { [person]: _draft, ...drafts } = this.drafts;
@@ -178,12 +195,18 @@ export class ChatState {
     else this.reopen();
   }
 
-  /** open again where one left off: the last tab in view, else the first */
+  /** open again where one left off: the last tab in view, else the room tab, else the first person */
   private reopen(): void {
     this.panel = "open";
-    if (!this.active || !this.book[this.active]?.open) this.active = this.tabs[0]?.person ?? null;
-    if (this.active) this.update(markRead(this.book, this.active));
+    const stillThere = this.active === ROOM_TAB ? this.room : !!this.active && !!this.book[this.active]?.open;
+    if (!stillThere) this.active = this.fallback() ?? this.tabs[0]?.person ?? null;
+    if (this.active && this.active !== ROOM_TAB) this.update(markRead(this.book, this.active));
     this.focusOn("tab");
+  }
+
+  /** the room tab when it is there */
+  private fallback(): string | null {
+    return this.room ? ROOM_TAB : null;
   }
 
   closePanel(): void {
@@ -237,9 +260,9 @@ export class ChatState {
     return false;
   }
 
-  private show(person: string): void {
-    this.active = person;
-    this.update(markRead(this.book, person));
+  private show(tab: string): void {
+    this.active = tab;
+    if (tab !== ROOM_TAB) this.update(markRead(this.book, tab));
   }
 
   private focusOn(target: "composer" | "tab"): void {

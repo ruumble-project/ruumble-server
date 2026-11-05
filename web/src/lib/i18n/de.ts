@@ -438,9 +438,9 @@ export const de = {
     overview: "Gebäudeübersicht",
     status: "Mein Status",
     help: "Diese Übersicht",
-    chat: "Unter vier Augen: öffnen und schließen",
-    chatPrev: "Unter vier Augen: vorheriger Reiter",
-    chatNext: "Unter vier Augen: nächster Reiter",
+    chat: "Ruumble in a box: öffnen und schließen",
+    chatPrev: "Ruumble in a box: vorheriger Reiter",
+    chatNext: "Ruumble in a box: nächster Reiter",
     escape: "Dialog oder Gespräche schließen",
     note: "Kürzel wirken nicht beim Tippen und nicht in einem offenen Dialog.",
   },
@@ -644,12 +644,15 @@ export const de = {
     offline: "Keine Verbindung zum Ruumble-Dienst.",
   },
   /** Ruumble Client (ADR-0024): Mumble's log, channel chat and dialogs inside the Ruumble Client */
-  desk: {
+  /** Ruumble in a box (#10): one window for the room's log and chat and the quiet words */
+  box: {
     title: "Ruumble in a box",
-    button: "Ruumble in a box: Protokoll und Chat",
+    roomTab: (room: string) => `Protokoll und Chat von ${room}`,
+    roomTabPlain: "Protokoll und Chat",
+  },
+  desk: {
     /** the button on the screen shown while Mumble is offline: opens the City Map */
     connect: "Mit einem Server verbinden",
-    close: "Schließen",
     empty: "Noch nichts im Protokoll.",
     search: "Protokoll durchsuchen",
     filter: "Anzeigen",
@@ -659,7 +662,6 @@ export const de = {
     message: "Nachricht an den Kanal",
     messageTo: (room: string) => `Nachricht an ${room}`,
     send: "Senden",
-    unread: (n: number) => (n === 1 ? "1 neue Nachricht" : `${n} neue Nachrichten`),
     /** the footer of the elevator: Mumble's functions */
     functions: "Mumble",
     cityMap: "Stadtplan",

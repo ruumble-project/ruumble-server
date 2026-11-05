@@ -6,7 +6,7 @@ test.describe("A quiet word", () => {
   test.beforeEach(async ({ page }) => page.goto("/?fixture=sample&talking=0&debug"));
 
   const person = (page: Page, name: string) => page.locator(".floorplan").getByRole("img", { name: new RegExp(`^${name}`) });
-  const panel = (page: Page) => page.getByRole("region", { name: "A quiet word" });
+  const panel = (page: Page) => page.getByRole("region", { name: "Ruumble in a box" });
   const input = (page: Page, name: string) => panel(page).getByRole("textbox", { name: `Message to ${name}` });
 
   async function openFromCard(page: Page, name: string): Promise<void> {
@@ -23,6 +23,8 @@ test.describe("A quiet word", () => {
     await expect(panel(page)).toContainText("in the same room");
     await expect(panel(page)).toContainText("No messages with Clara yet.");
     await expect(input(page, "Clara")).toBeFocused();
+    // in a normal browser Ruumble in a box has no room tab: Mumble's log exists only inside Ruumble Client (#10)
+    await expect(panel(page).getByRole("tab")).toHaveCount(1);
   });
 
   test("write, get an answer and react to it", async ({ page }) => {
@@ -64,11 +66,11 @@ test.describe("A quiet word", () => {
     await page.getByRole("button", { name: "Someone sends me a direct message" }).click();
     const toast = page.getByRole("status").filter({ hasText: "Message from Ben" });
     await expect(toast).toContainText("Hi Anna, do you have a minute?");
-    await expect(page.getByRole("button", { name: "A quiet word, 1 unread message" })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Ruumble in a box, 1 unread message" })).toBeVisible();
     await toast.getByRole("button", { name: "Reply" }).click();
     await expect(toast).toHaveCount(0);
     await expect(panel(page).getByRole("tab", { name: "Ben" })).toHaveAttribute("aria-selected", "true");
-    await expect(page.getByRole("button", { name: "A quiet word", exact: true })).toHaveAttribute("aria-pressed", "true");
+    await expect(page.getByRole("button", { name: "Ruumble in a box", exact: true })).toHaveAttribute("aria-pressed", "true");
     await page.getByRole("button", { name: "Someone invites me over" }).click();
     await expect(panel(page)).toContainText("Ben invites you to Ben's office.");
     await panel(page).getByRole("button", { name: "Go to Ben's office" }).click();
@@ -80,12 +82,12 @@ test.describe("A quiet word", () => {
     await openFromCard(page, "Clara");
     await input(page, "Clara").fill("First");
     await page.keyboard.press("Enter");
-    await panel(page).getByRole("heading", { name: "A quiet word" }).click(); // out of the text field
+    await panel(page).getByRole("heading", { name: "Ruumble in a box" }).click(); // out of the text field
     await page.keyboard.press("h");
     await page.getByRole("dialog", { name: "Building overview" }).getByRole("button", { name: "Message to Ben" }).click();
     await expect(panel(page).getByRole("tab", { name: "Ben" })).toHaveAttribute("aria-selected", "true");
 
-    await panel(page).getByRole("heading", { name: "A quiet word" }).click(); // out of the text field
+    await panel(page).getByRole("heading", { name: "Ruumble in a box" }).click(); // out of the text field
     await page.keyboard.press(",");
     await expect(panel(page).getByRole("tab", { name: "Clara" })).toHaveAttribute("aria-selected", "true");
     await page.keyboard.press(".");
@@ -93,10 +95,10 @@ test.describe("A quiet word", () => {
 
     await input(page, "Ben").press("Escape");
     await expect(panel(page)).toHaveCount(0);
-    await expect(page.getByRole("button", { name: "A quiet word", exact: true })).toBeFocused();
+    await expect(page.getByRole("button", { name: "Ruumble in a box", exact: true })).toBeFocused();
     await page.keyboard.press("p");
     await expect(panel(page).getByRole("tab", { name: "Ben" })).toHaveAttribute("aria-selected", "true");
-    await panel(page).getByRole("heading", { name: "A quiet word" }).click();
+    await panel(page).getByRole("heading", { name: "Ruumble in a box" }).click();
     await page.keyboard.press("p");
     await expect(panel(page)).toHaveCount(0);
 

@@ -23,7 +23,6 @@
   import NoticesDialog from "./lib/ui/NoticesDialog.svelte";
   import StatusDialog from "./lib/ui/StatusDialog.svelte";
   import ChatPanel from "./lib/ui/chat/ChatPanel.svelte";
-  import DeskPanel from "./lib/ui/desk/DeskPanel.svelte";
   import ChatToast from "./lib/ui/chat/ChatToast.svelte";
   import TubeDialog from "./lib/ui/tube/TubeDialog.svelte";
   import TubePanel from "./lib/ui/tube/TubePanel.svelte";
@@ -66,6 +65,10 @@
     };
   });
 
+  // Ruumble in a box (#10): the room tab comes with Ruumble Client's desk, and its log counts as seen while it is in view
+  $effect(() => app.chat.setRoom(app.desk.available));
+  $effect(() => app.desk.setVisible(app.chat.roomInView));
+
   // the tab says where one is: "Let's talk · Ruumble"; without an own place just "Ruumble"
   $effect(() => {
     const place = building && app.snapshot ? ownPlace(building, app.snapshot) : null;
@@ -100,7 +103,7 @@
     } else if (shortcut === "overview") {
       e.preventDefault();
       app.openOverview();
-    } else if (shortcut === "chat" && app.me) {
+    } else if (shortcut === "chat" && (app.me || app.desk.available)) {
       e.preventDefault();
       app.chat.toggle();
     } else if ((shortcut === "chatPrev" || shortcut === "chatNext") && app.chat.panel === "open") {
@@ -174,9 +177,9 @@
     {#if app.noticesOpen}<NoticesDialog {app} />{/if}
     {#if app.helpOpen}<ShortcutsDialog onclose={() => (app.helpOpen = false)} />{/if}
     {#if app.overviewOpen && building}<BuildingOverview {app} {building} />{/if}
-    {#if app.desk.available && app.desk.open}<DeskPanel {app} />{/if}
+    <!-- Ruumble in a box (#10): the room's log inside Ruumble Client, the quiet words wherever one is paired -->
+    {#if app.me || app.desk.available}<ChatPanel {app} />{/if}
     {#if app.me}
-      <ChatPanel {app} />
       <ChatToast {app} />
       {#if app.tube.panel}<TubePanel {app} />{:else}<TubeToast {app} />{/if}
       {#if app.tube.draft}<TubeDialog {app} />{/if}

@@ -25,3 +25,12 @@ export function floatSide(room: Span | null, plan: Span, boardWidth: number, cur
   if (free[other] > free[current]) return other;
   return current;
 }
+
+/**
+ * Corner of Ruumble in a box (#10): it keeps clear of the own room and of the floating board. At the top when the own
+ * room is in the bottom row of the floor plan, else at the bottom; at the right when the floating board is on the left,
+ * else at the left. `board`: the side of the floating board, `null` while no board floats.
+ */
+export function boxCorner(ownRow: "top" | "bottom" | null, board: BoardSide | null): { top: boolean; right: boolean } {
+  return { top: ownRow === "bottom", right: board === "left" };
+}

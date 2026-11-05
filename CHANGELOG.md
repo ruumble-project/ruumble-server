@@ -8,8 +8,10 @@ All notable changes to Ruumble. The service and the web UI share one version; th
 
 ### Changed
 
-- Ruumble in a box (Ruumble Client) keeps clear of the own room: it docks at the top left when the own room is in the bottom row of the floor plan, otherwise at the bottom left as before
+- Ruumble in a box keeps clear of the own room: it docks at the top when the own room is in the bottom row of the floor plan, otherwise at the bottom as before
 - People in the corridor stand in its middle instead of next to its name on the left
+- A quiet word moved into Ruumble in a box: one window with a tab per person, and inside Ruumble Client first a tab (an icon) for the own room with Mumble's log and chat. One button at the top right, where the quiet word's button was, counts everything unread; P, comma, full stop and Escape work as before
+- Ruumble in a box keeps clear of the floating board too: at the right when the board floats on the left
 
 ## [0.35.0] - 2026-11-05
 

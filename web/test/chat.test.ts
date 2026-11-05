@@ -6,7 +6,7 @@ import {
   adjacentTab, closeConversation, forget, markRead, openConversation, openTabs, parseBook, prune, reactionsOf, receive, storageKey, tabAfterClose,
   tintOf, unreadTotal, type Book,
 } from "../src/lib/chat/model.ts";
-import { ChatState, chatErrorText } from "../src/lib/chat/state.svelte.ts";
+import { ChatState, ROOM_TAB, chatErrorText } from "../src/lib/chat/state.svelte.ts";
 
 const ME = "0000000000000001", ANNA = "00000000000000aa", BEN = "00000000000000bb";
 const DAY = CHAT_LIMITS.keepMs;
@@ -103,11 +103,15 @@ describe("direct chat: the conversations of the own user (ADR-0021)", () => {
   it("moving between tabs wraps around; after closing, the neighbour on the right, else on the left", () => {
     const book: Book = [ANNA, BEN, ME].reduce<Book>((b, p, i) => openConversation(b, p, p, i), {});
     const tabs = openTabs(book);
-    expect(adjacentTab(tabs, ANNA, 1)).toBe(BEN);
-    expect(adjacentTab(tabs, ANNA, -1)).toBe(ME);
-    expect(adjacentTab(tabs, ME, 1)).toBe(ANNA);
-    expect(adjacentTab(tabs, null, 1)).toBe(ANNA);
+    const order = tabs.map((c) => c.person);
+    expect(adjacentTab(order, ANNA, 1)).toBe(BEN);
+    expect(adjacentTab(order, ANNA, -1)).toBe(ME);
+    expect(adjacentTab(order, ME, 1)).toBe(ANNA);
+    expect(adjacentTab(order, null, 1)).toBe(ANNA);
     expect(adjacentTab([], ANNA, 1)).toBeNull();
+    // the room tab of Ruumble in a box comes first and is part of the round (#10)
+    expect(adjacentTab(["room", ...order], ME, 1)).toBe("room");
+    expect(adjacentTab(["room", ...order], "room", 1)).toBe(ANNA);
     expect(tabAfterClose(tabs, BEN)).toBe(ME);
     expect(tabAfterClose(tabs, ME)).toBe(BEN);
     expect(tabAfterClose(tabs.slice(0, 1), ANNA)).toBeNull();
@@ -234,6 +238,33 @@ describe("direct chat in the web UI (state)", () => {
     chat.open(ANNA, "Anna");
     chat.close(ANNA);
     expect(chat.panel).toBe("closed");
+  });
+
+  it("Ruumble in a box (#10): the room tab first, part of the round, never closed; the box stays open on it", () => {
+    const { chat } = setup();
+    chat.setRoom(true);
+    chat.toggle();
+    expect(chat.active).toBe(ROOM_TAB); // nobody to talk to yet: the room
+    expect(chat.roomInView).toBe(true);
+    expect(chat.conversation).toBeNull();
+    chat.open(ANNA, "Anna");
+    expect(chat.roomInView).toBe(false);
+    expect(chat.order).toEqual([ROOM_TAB, ANNA]);
+    chat.cycle(1);
+    expect(chat.active).toBe(ROOM_TAB);
+    chat.select(ANNA);
+    chat.close(ANNA);
+    expect(chat.active).toBe(ROOM_TAB); // the last person gone: back to the room, the box stays open
+    expect(chat.panel).toBe("open");
+    chat.toggle();
+    chat.toggle();
+    expect(chat.active).toBe(ROOM_TAB); // where one left off
+    chat.open(BEN, "Ben");
+    chat.forget(BEN);
+    expect(chat.active).toBe(ROOM_TAB);
+    chat.setRoom(false); // the client's desk went: so does the room tab
+    expect(chat.active).toBeNull();
+    expect(chat.order).toEqual([]);
   });
 
   it("what did not go out: a notice in words, the draft stays", async () => {

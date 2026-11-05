@@ -1,25 +1,21 @@
 <script lang="ts">
   import Search from "@lucide/svelte/icons/search";
   import SendHorizontal from "@lucide/svelte/icons/send-horizontal";
-  import X from "@lucide/svelte/icons/x";
   import { DESK_FILTERS, timeOf, type DeskFilter } from "../../desk/model.ts";
   import { locale, t } from "../../i18n/index.svelte.ts";
-  import { ownPlace, ownRow } from "../../model/building.ts";
+  import { ownPlace } from "../../model/building.ts";
   import type { RuumbleState } from "../../state.svelte.ts";
 
-  // Ruumble Client (ADR-0024): "Ruumble in a box", the Mumble client's log and channel chat in a window docked at the
-  // bottom left (the direct chat docks at the right), with a search, a filter by kind and a "New" line above what was
-  // unread. Mumble's functions are in the footer of the elevator (TopBar). Only exists inside the Ruumble Client.
+  // Ruumble Client (ADR-0024): the room tab of Ruumble in a box (#10), the Mumble client's log and channel chat with a
+  // search, a filter by kind and a "New" line above what was unread. The box around it (tabs, docking, Escape) is the
+  // ChatPanel. Mumble's functions are in the footer of the elevator (TopBar). Only exists inside the Ruumble Client.
   let { app }: { app: RuumbleState } = $props();
   const desk = $derived(app.desk);
   // the own place as the building names it ("Entrance", "Corridor", the room), not Mumble's channel name
   const room = $derived(app.building && app.snapshot ? (ownPlace(app.building, app.snapshot)?.name ?? "") : "");
   const searching = $derived(desk.query.trim() !== "");
-  // docked at the bottom left; when the own room is in the bottom row, at the top left, so it stays in view
-  const atTop = $derived(ownRow(app.floor) === "bottom");
 
   let list = $state<HTMLElement | null>(null);
-  let input = $state<HTMLTextAreaElement | null>(null);
 
   // on opening the "New" line in view, else the newest entry; later, new entries and a changed filter bring the newest
   // entry into view, unless a search is active
@@ -34,30 +30,23 @@
     else if (!opened || !searching) list.scrollTop = list.scrollHeight;
     opened = true;
   });
-  $effect(() => input?.focus());
 
   function onkeydown(e: KeyboardEvent): void {
     if (e.key === "Enter" && !e.shiftKey && !e.isComposing) {
       e.preventDefault();
       desk.send();
-    } else if (e.key === "Escape") {
-      e.preventDefault();
-      desk.close();
     }
   }
+  /** Escape in the search clears it first; with nothing to clear it closes the box (handled by the box) */
   function onsearchkey(e: KeyboardEvent): void {
-    if (e.key !== "Escape") return;
+    if (e.key !== "Escape" || !desk.query) return;
     e.preventDefault();
-    if (desk.query) desk.query = "";
-    else desk.close();
+    e.stopPropagation();
+    desk.query = "";
   }
 </script>
 
-<section class="desk" class:top={atTop} aria-label={t().desk.title}>
-  <div class="bar">
-    <h2>{t().desk.title}</h2>
-    <button type="button" class="bar-btn" aria-label={t().desk.close} title={t().desk.close} onclick={() => desk.close()}><X size={18} /></button>
-  </div>
+<div class="room-log" id="box-room" role="tabpanel" aria-label={room ? t().box.roomTab(room) : t().box.roomTabPlain}>
   <div class="tools">
     <label class="search">
       <Search size={16} aria-hidden="true" />
@@ -82,30 +71,17 @@
   </div>
   <div class="compose">
     <textarea
-      bind:this={input} bind:value={desk.draft} rows="1" maxlength="5000"
+      bind:value={desk.draft} rows="1" maxlength="5000"
       placeholder={room ? t().desk.messageTo(room) : t().desk.message} aria-label={room ? t().desk.messageTo(room) : t().desk.message}
       disabled={!app.me} {onkeydown}
     ></textarea>
     <button type="button" class="round solid" aria-label={t().desk.send} title={t().desk.send}
       disabled={!app.me || desk.sending || !desk.draft.trim()} onclick={() => desk.send()}><SendHorizontal size={18} /></button>
   </div>
-</section>
+</div>
 
 <style>
-  .desk {
-    --color-paper: var(--color-raised);
-    position: fixed; left: 32px; bottom: 24px; z-index: 20; width: 420px; height: min(520px, calc(100vh - 120px));
-    display: flex; flex-direction: column; overflow: hidden; border-radius: 10px; background: var(--color-paper); color: var(--color-ink);
-    box-shadow: 0 0 0 1px var(--color-raised-edge), 0 16px 48px rgb(0 56 105 / 0.28), 0 2px 6px rgb(0 56 105 / 0.15);
-    animation: rise 200ms var(--ease-out) both;
-  }
-  .desk.top { top: calc(var(--topbar-height) + 30px); bottom: auto; animation-name: drop; }
-  @keyframes drop { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: none; } }
-  @keyframes rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
-  @media (prefers-reduced-motion: reduce) { .desk, .desk.top { animation: none; } }
-
-  .bar { display: flex; align-items: center; gap: 2px; height: 44px; flex: none; padding: 0 6px 0 14px; background: var(--color-wall); color: var(--color-white); }
-  h2 { flex: 1; margin: 0 8px 0 0; font-size: 14px; font-weight: 700; letter-spacing: 0.02em; }
+  .room-log { flex: 1; min-height: 0; display: flex; flex-direction: column; }
   .tools { flex: none; display: flex; gap: 6px; padding: 8px 10px; border-bottom: 1px solid var(--color-blue-100); }
   .search {
     flex: 1; min-width: 0; display: flex; align-items: center; gap: 6px; height: 34px; padding: 0 10px; box-sizing: border-box;
@@ -120,8 +96,6 @@
   select:focus-visible { outline: 3px solid var(--color-sky); outline-offset: 1px; }
   .new-line { display: flex; align-items: center; gap: 8px; margin: 2px 0; color: var(--color-link); font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; }
   .new-line::before, .new-line::after { content: ""; flex: 1; height: 1px; background: currentColor; opacity: 0.6; }
-  .bar-btn { width: 36px; height: 36px; flex: none; display: grid; place-items: center; border: 0; border-radius: var(--radius-md); background: transparent; color: var(--color-plate-muted); cursor: pointer; }
-  .bar-btn:hover { background: rgb(255 255 255 / 0.12); color: var(--color-white); }
 
   .log { flex: 1; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; padding: 12px 14px; scrollbar-width: thin; }
   .entry { display: flex; gap: 8px; align-items: baseline; font-size: 13px; line-height: 1.45; }
@@ -149,5 +123,5 @@
   }
   .round:hover:not(:disabled) { background: var(--color-ink-soft); }
   .round:disabled { opacity: 0.45; cursor: default; }
-  .bar-btn:focus-visible, .round:focus-visible { outline: 3px solid var(--color-sky); outline-offset: 1px; }
+  .round:focus-visible { outline: 3px solid var(--color-sky); outline-offset: 1px; }
 </style>

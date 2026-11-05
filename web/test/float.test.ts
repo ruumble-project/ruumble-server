@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { floatSide } from "../src/lib/model/float.ts";
+import { boxCorner, floatSide } from "../src/lib/model/float.ts";
 
 const plan = { left: 0, right: 1000 };
 
@@ -24,5 +24,15 @@ describe("side of the floating board", () => {
   it("own room not on the shown floor: keeps its side", () => {
     expect(floatSide(null, plan, 340, "left")).toBe("left");
     expect(floatSide(null, plan, 340, "right")).toBe("right");
+  });
+});
+
+describe("corner of Ruumble in a box (#10)", () => {
+  it("away from the own room's row and from the floating board", () => {
+    expect(boxCorner("top", null)).toEqual({ top: false, right: false });
+    expect(boxCorner("bottom", null)).toEqual({ top: true, right: false });
+    expect(boxCorner(null, "right")).toEqual({ top: false, right: false });
+    expect(boxCorner("bottom", "left")).toEqual({ top: true, right: true });
+    expect(boxCorner("top", "left")).toEqual({ top: false, right: true });
   });
 });

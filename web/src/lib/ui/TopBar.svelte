@@ -15,7 +15,6 @@
   import Moon from "@lucide/svelte/icons/moon";
   import Package from "@lucide/svelte/icons/package";
   import Tag from "@lucide/svelte/icons/tag";
-  import MessagesSquare from "@lucide/svelte/icons/messages-square";
   import UserIcon from "@lucide/svelte/icons/user";
   import Users from "@lucide/svelte/icons/users";
   import AudioLines from "@lucide/svelte/icons/audio-lines";
@@ -34,9 +33,8 @@
   import Key from "./Key.svelte";
 
   // Top bar instead of the elevator column, made of signs: left the floor sign (opens the elevator, which shows
-  // everyone online in its head and, inside Ruumble Client, Mumble's functions in its footer) and the button of
-  // "Ruumble in a box" (Mumble's log and chat, only inside Ruumble Client), in the middle the sign of the own room, right the status,
-  // mute, deafen and the name badge (opens the user menu).
+  // everyone online in its head and, inside Ruumble Client, Mumble's functions in its footer), in the middle the sign
+  // of the own room, right tube mail, Ruumble in a box (#10), mute, deafen and the name badge (opens the user menu).
   let { app, building, floor }: { app: RuumbleState; building: Building; floor: Floor | null } = $props();
   // Ruumble Client: right click on the floor sign, a floor or the building opens Mumble's menu for that channel
   const admin = getDeskAdmin();
@@ -58,7 +56,7 @@
   const muted = $derived(me ? me.selfMute || me.selfDeaf : false);
   const deaf = $derived(me?.selfDeaf ?? false);
   const myStatus = $derived(me?.status ?? null);
-  const unread = $derived(app.chat.unread);
+  const unread = $derived(app.chat.unread + app.desk.unread);
   const parcels = $derived(app.tube.waiting);
   const sending = $derived(app.tube.progress);
   const tubeLabel = $derived(
@@ -197,17 +195,6 @@
         </nav>
       {/if}
     </div>
-    <!-- Ruumble Client (ADR-0024): "Ruumble in a box", Mumble's log and channel chat; only inside the Ruumble Client -->
-    {#if app.desk.available}
-      <button
-        type="button" class="tool desk" aria-pressed={app.desk.open}
-        aria-label={app.desk.unread ? `${t().desk.button}, ${t().desk.unread(app.desk.unread)}` : t().desk.button} title={t().desk.button}
-        onclick={() => app.desk.toggle()}
-      >
-        <Inbox size={20} />
-        {#if app.desk.unread}<span class="count" aria-hidden="true">{app.desk.unread > 99 ? "99+" : app.desk.unread}</span>{/if}
-      </button>
-    {/if}
     {#if app.readonly}<span class="note">{t().header.preview}</span>{/if}
     {#if hidden}<span class="note">{t().common.notShown}</span>{/if}
   </div>
@@ -242,13 +229,13 @@
       {/if}
       {#if parcels}<span class="count" aria-hidden="true">{parcels > 99 ? "99+" : parcels}</span>{/if}
     </button>
-    <!-- direct chat (ADR-0021): opens its window; the number of unread messages on it -->
+    <!-- Ruumble in a box (#10): the room's log and the quiet words in one window; everything unread on it -->
     <button
       type="button" class="tool chat" data-chat-button aria-pressed={app.chat.panel === "open"} aria-keyshortcuts="P"
-      aria-label={unread ? `${t().chat.title}, ${t().chat.unread(unread)}` : t().chat.title} title={`${t().chat.title} (P)`}
-      disabled={!me} onclick={() => app.chat.toggle()}
+      aria-label={unread ? `${t().box.title}, ${t().chat.unread(unread)}` : t().box.title} title={`${t().box.title} (P)`}
+      disabled={!me && !app.desk.available} onclick={() => app.chat.toggle()}
     >
-      <MessagesSquare size={20} />
+      <Inbox size={20} />
       {#if unread}<span class="count" aria-hidden="true">{unread > 99 ? "99+" : unread}</span>{/if}
     </button>
     <!-- mute and deafen belong together: one joined pair, set apart from tube mail and the direct chat -->
@@ -452,7 +439,7 @@
   .tool:hover { background: var(--color-blue-100); }
   .tool[aria-pressed="true"] { background: var(--color-ink); border-color: var(--color-ink); color: var(--color-paper); }
   .tool:disabled { opacity: 0.5; cursor: not-allowed; }
-  .chat, .tube, .desk { position: relative; }
+  .chat, .tube { position: relative; }
   /* own parcels on their way: a ring around the button that fills up */
   .ring { position: absolute; inset: -3px; width: calc(100% + 6px); height: calc(100% + 6px); transform: rotate(-90deg); pointer-events: none; overflow: visible; }
   .ring circle { fill: none; stroke: var(--color-blue-500); stroke-width: 3; stroke-linecap: round; transition: stroke-dasharray 400ms var(--ease-out); }
@@ -464,12 +451,12 @@
   .audio .tool:hover { background: var(--color-blue-100); }
   .audio .tool[aria-pressed="true"] { background: var(--color-ink); border-color: var(--color-ink); }
   .audio .tool:disabled:hover { background: var(--color-surface); }
-  .chat .count, .tube .count, .desk .count {
+  .chat .count, .tube .count {
     position: absolute; top: -6px; right: -6px; min-width: 18px; height: 18px; padding: 0 5px; border-radius: 9px; box-sizing: border-box;
     background: var(--color-ink); color: var(--color-paper); box-shadow: 0 0 0 2px var(--color-paper);
     font-size: 11px; font-weight: 700; line-height: 18px; text-align: center; font-variant-numeric: tabular-nums;
   }
-  .chat[aria-pressed="true"] .count, .tube[aria-pressed="true"] .count, .desk[aria-pressed="true"] .count { background: var(--color-paper); color: var(--color-ink); box-shadow: 0 0 0 2px var(--color-ink); }
+  .chat[aria-pressed="true"] .count, .tube[aria-pressed="true"] .count { background: var(--color-paper); color: var(--color-ink); box-shadow: 0 0 0 2px var(--color-ink); }
   .tool:disabled:hover { background: var(--color-paper); }
 
   /* name badge: white card with a yellow band, hanging on a clip */

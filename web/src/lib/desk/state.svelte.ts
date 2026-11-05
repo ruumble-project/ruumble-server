@@ -81,9 +81,11 @@ export class DeskState implements DeskAdmin {
     this.seenId = this.entries.at(-1)?.id ?? this.seenId;
   }
 
-  toggle(): void {
-    this.open = !this.open;
-    if (this.open) {
+  /** the room tab of Ruumble in a box came into view (it marks where the unread start) or went out of it (#10) */
+  setVisible(visible: boolean): void {
+    if (visible === this.open) return;
+    this.open = visible;
+    if (visible) {
       this.newFrom = firstUnreadId(this.entries, this.seenId);
       this.markSeen();
     }
@@ -96,10 +98,6 @@ export class DeskState implements DeskAdmin {
     } catch {
       // private mode or similar: then only applies until reload
     }
-  }
-
-  close(): void {
-    this.open = false;
   }
 
   /** the draft as a message to the own channel, like Mumble's chat bar */

@@ -74,18 +74,21 @@ test.describe("Ruumble in a box", () => {
     await page.goto("/?fixture=sample&talking=0");
   });
 
-  test("the button sits next to the floor sign, counts unread messages and opens the box with a New line", async ({ page }) => {
-    const button = page.getByRole("button", { name: "Ruumble in a box: log and chat, 2 new messages" });
+  test("one button at the top right counts everything unread; the room tab comes first, as an icon, with a New line", async ({ page }) => {
+    const button = page.getByRole("button", { name: "Ruumble in a box, 2 unread messages" });
     await expect(button).toBeVisible();
-    const sign = (await page.getByRole("button", { name: /choose floor$/ }).boundingBox())!;
-    const box = (await button.boundingBox())!;
-    expect(box.x).toBeGreaterThan(sign.x + sign.width);
-    expect(box.x - (sign.x + sign.width)).toBeLessThan(20);
+    // where the quiet word's button was: right of tube mail; nothing next to the floor sign any more
+    const tube = (await page.getByRole("button", { name: "Tube mail" }).boundingBox())!;
+    expect((await button.boundingBox())!.x).toBeGreaterThan(tube.x);
+    await expect(page.locator("header .left").getByRole("button", { name: /Ruumble in a box/ })).toHaveCount(0);
     await button.click();
     const panel = page.getByRole("region", { name: "Ruumble in a box" });
     await expect(panel.getByRole("heading", { name: "Ruumble in a box" })).toBeVisible();
-    await expect(panel.getByRole("tab")).toHaveCount(0);
-    await expect(page.getByRole("button", { name: "Ruumble in a box: log and chat" })).toHaveAttribute("aria-pressed", "true");
+    const room = panel.getByRole("tab", { name: "Log and chat of Let's talk" });
+    await expect(room).toHaveAttribute("aria-selected", "true");
+    await expect(room).toHaveText(""); // only an icon; the name is in the tooltip
+    await expect(room).toHaveAttribute("title", "Log and chat of Let's talk");
+    await expect(page.getByRole("button", { name: "Ruumble in a box", exact: true })).toHaveAttribute("aria-pressed", "true");
     // the line stands right above Ben's message, the first unread one
     const line = panel.getByRole("separator", { name: "New" });
     await expect(line).toBeVisible();
@@ -94,8 +97,30 @@ test.describe("Ruumble in a box", () => {
     expect((await panel.getByText("Me: anyone here?").boundingBox())!.y).toBeLessThan(lineY);
     // closed and opened again without anything unread: no line
     await panel.getByRole("button", { name: "Close" }).click();
-    await page.getByRole("button", { name: "Ruumble in a box: log and chat" }).click();
+    await page.getByRole("button", { name: "Ruumble in a box", exact: true }).click();
     await expect(panel.getByRole("separator", { name: "New" })).toHaveCount(0);
+  });
+
+  test("the quiet words live in the same box: a tab per person after the room, comma and full stop go round", async ({ page }) => {
+    await page.locator(".floorplan").getByRole("img", { name: /^Clara/ }).hover();
+    await page.getByRole("group", { name: "Clara" }).getByRole("button", { name: "Message to Clara" }).click();
+    const panel = page.getByRole("region", { name: "Ruumble in a box" });
+    const tabs = panel.getByRole("tab");
+    await expect(tabs).toHaveCount(2);
+    await expect(tabs.first()).toHaveAccessibleName("Log and chat of Let's talk, 2 unread messages");
+    await expect(panel.getByRole("tab", { name: "Clara" })).toHaveAttribute("aria-selected", "true");
+    await panel.getByRole("heading", { name: "Ruumble in a box" }).click(); // out of the text field
+    await page.keyboard.press(".");
+    await expect(tabs.first()).toHaveAttribute("aria-selected", "true");
+    await expect(panel.getByRole("log")).toBeVisible();
+    await page.keyboard.press(".");
+    await expect(panel.getByRole("tab", { name: "Clara" })).toHaveAttribute("aria-selected", "true");
+    // closing the last person goes back to the room; the box stays open
+    await panel.getByRole("button", { name: "Close the conversation with Clara" }).click();
+    await expect(tabs).toHaveCount(1);
+    await expect(tabs.first()).toHaveAttribute("aria-selected", "true");
+    await page.keyboard.press("Escape");
+    await expect(panel).toHaveCount(0);
   });
 
   test("search and filter work together, the filter is remembered", async ({ page }) => {
@@ -125,23 +150,35 @@ test.describe("Ruumble in a box", () => {
     await expect(panel.getByRole("searchbox", { name: "Search the log" })).toHaveValue("");
   });
 
-  test("the box keeps clear of the own room: at the bottom left, at the top left when the room is in the bottom row", async ({ page }) => {
+  test("the box keeps clear of the own room and the floating board", async ({ page }) => {
     await page.getByRole("button", { name: /^Ruumble in a box/ }).click();
     const box = page.getByRole("region", { name: "Ruumble in a box" });
     const plan = (await page.locator(".floorplan").boundingBox())!;
     // Anna is in "Let's talk", in the top row: the box stays at the bottom
-    await expect.poll(async () => (await box.boundingBox())!.y).toBeGreaterThan(plan.y + plan.height / 3);
+    await expect.poll(async () => { const b = (await box.boundingBox())!; return b.y + b.height; }).toBeGreaterThan(plan.y + plan.height - 20);
     await page.locator(".floorplan").getByRole("button", { name: /^Ben's office/ }).dblclick();
     await expect(page.getByRole("status", { name: /^You are here: Ben's office/ })).toBeVisible();
     // now in the bottom row: the box moves to the top, below the top bar
     await expect.poll(async () => (await box.boundingBox())!.y).toBeLessThan(plan.y + 20);
     await expect.poll(async () => (await box.boundingBox())!.y).toBeGreaterThanOrEqual(plan.y - 2); // after its animation
+    expect((await box.boundingBox())!.x).toBeLessThan(plan.x + 20);
+    // own room at the bottom right, floating board on the left: the box goes to the top right
+    await page.getByRole("button", { name: "Show board" }).click();
+    const boardPanel = page.getByRole("complementary", { name: "Board" });
+    await boardPanel.getByRole("button", { name: "View" }).click();
+    await boardPanel.getByRole("menuitemradio", { name: "Floating" }).click();
+    await page.keyboard.press("Escape");
+    await page.locator(".floorplan").getByRole("button", { name: /^Clara's office/ }).dispatchEvent("dblclick");
+    await expect(boardPanel).toHaveClass(/left/);
+    if (!(await box.isVisible())) await page.getByRole("button", { name: "Ruumble in a box", exact: true }).click();
+    await expect.poll(async () => { const b = (await box.boundingBox())!; return b.x + b.width; }).toBeGreaterThan(plan.x + plan.width - 20);
+    await expect.poll(async () => (await box.boundingBox())!.y).toBeLessThan(plan.y + 20);
   });
 
   test("the chat input sends to the own room", async ({ page }) => {
     await page.getByRole("button", { name: /^Ruumble in a box/ }).click();
     const input = page.getByRole("textbox", { name: "Message to Let's talk" });
-    await expect(input).toBeFocused();
+    await expect(page.getByRole("tab", { name: "Log and chat of Let's talk" })).toBeFocused(); // as with P: ready for , and .
     await input.fill("Hello room");
     await input.press("Enter");
     await expect(input).toHaveValue("");
@@ -176,7 +213,8 @@ test.describe("Ruumble in a box", () => {
   test("in German", async ({ page }) => {
     await page.evaluate(() => localStorage.setItem("ruumble.locale", "de"));
     await page.reload();
-    await expect(page.getByRole("button", { name: "Ruumble in a box: Protokoll und Chat, 2 neue Nachrichten" })).toBeVisible();
+    await page.getByRole("button", { name: "Ruumble in a box, 2 ungelesene Nachrichten" }).click();
+    await expect(page.getByRole("tab", { name: "Protokoll und Chat von Let's talk" })).toHaveAttribute("aria-selected", "true");
     const lift = await elevator(page);
     expect(await namesOf(lift.locator("footer").getByRole("button"))).toEqual(
       ["Stadtplan", "Konfiguration", "Assistent für Raumakustik", "Alle Mumble-Funktionen", "Verlassen"],

@@ -136,11 +136,11 @@ export function unreadTotal(book: Book): number {
 }
 
 /** the tab `step` places from `active` (wrapping around); the first one without an active tab */
-export function adjacentTab(tabs: readonly Conversation[], active: string | null, step: number): string | null {
+export function adjacentTab(tabs: readonly string[], active: string | null, step: number): string | null {
   if (!tabs.length) return null;
-  const at = tabs.findIndex((c) => c.person === active);
-  if (at < 0) return tabs[0]!.person;
-  return tabs[(((at + step) % tabs.length) + tabs.length) % tabs.length]!.person;
+  const at = tabs.indexOf(active ?? "");
+  if (at < 0) return tabs[0]!;
+  return tabs[(((at + step) % tabs.length) + tabs.length) % tabs.length]!;
 }
 
 /** the tab to show after `closed` was closed: the one to its right, else to its left */

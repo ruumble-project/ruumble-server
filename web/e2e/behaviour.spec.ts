@@ -16,7 +16,6 @@ test.describe("Sample building", () => {
     await expect(lift.getByText("Acme HQ")).toHaveCount(0);
     // Mumble's functions exist only inside Ruumble Client: no footer in a normal browser
     await expect(lift.locator("footer")).toHaveCount(0);
-    await expect(page.getByRole("button", { name: /^Ruumble in a box/ })).toHaveCount(0);
   });
 
   test("top bar: the elevator and the user menu open as dropdowns, Escape and a click elsewhere close them", async ({ page }) => {
@@ -394,7 +393,7 @@ test.describe("Tab title and shortcuts", () => {
   test("? lists the shortcuts, also from the user menu", async ({ page }) => {
     await page.keyboard.press("?");
     const dialog = page.getByRole("dialog", { name: "Keyboard shortcuts" });
-    const rows: [string, string][] = [["B", "Show and hide the board"], ["H", "Building overview"], ["S", "My status"], ["P", "A quiet word: open and close"], [",", "A quiet word: previous tab"], [".", "A quiet word: next tab"], ["?", "This list"], ["Esc", "Close a dialog or the conversations"]];
+    const rows: [string, string][] = [["B", "Show and hide the board"], ["H", "Building overview"], ["S", "My status"], ["P", "Ruumble in a box: open and close"], [",", "Ruumble in a box: previous tab"], [".", "Ruumble in a box: next tab"], ["?", "This list"], ["Esc", "Close a dialog or the conversations"]];
     for (const [key, what] of rows) {
       await expect(dialog.getByText(key, { exact: true })).toBeVisible();
       await expect(dialog.getByText(what, { exact: true })).toBeVisible();
