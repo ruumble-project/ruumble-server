@@ -6,6 +6,8 @@ All notable changes to Ruumble. The service and the web UI share one version; th
 
 ## [Unreleased]
 
+## [0.35.0] - 2026-11-05
+
 Plugin 0.5.0 (unchanged). Inside Ruumble Client, Mumble's log and chat become "Ruumble in a box" and Mumble's functions move into the elevator; the dialogs get one rule for their buttons, and the tube mail's send dialog is easier to follow. Nothing to do when updating.
 
 ### Added
@@ -449,6 +451,7 @@ Plugin 0.1.0 to 0.2.0.
 - Real Mumble avatars and presence (quiet, away, recording).
 - Docker image with the plugin bundle served under `/download`.
 
+[0.35.0]: https://github.com/ruumble-project/ruumble-server/releases/tag/v0.35.0
 [0.34.0]: https://github.com/ruumble-project/ruumble-server/releases/tag/v0.34.0
 [0.33.1]: https://github.com/KevinWebman/Ruumble-Desk/releases/tag/v0.33.1
 [0.33.0]: https://github.com/KevinWebman/Ruumble-Desk/releases/tag/v0.33.0
