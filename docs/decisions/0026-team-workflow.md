@@ -14,18 +14,19 @@ flow two people pick the same work, changes reach `main` without a second look, 
 | **Branches** | One branch per ticket from `main`, named `<issue>-<slug>`. No long-lived branches. |
 | **Commits** | English, one line, ending with `(#<issue>)`. |
 | **Pull requests** | Template with `Closes #<issue>`, checks and changelog line; CI must be green. |
-| **Review** | One approval by someone other than the author. |
+| **Review** | Optional inside the team; pull requests from outside the team are reviewed and merged by a team member. |
 | **Merge** | Squash and merge, so `main` keeps one line per change; the branch is deleted. |
-| **`main`** | Protected: no direct pushes, merges only through pull requests with green CI and an approval. |
+| **`main`** | Protected by a ruleset: no force pushes or deletion, pull requests with green CI. The team (roles admin, maintain, write) may bypass it: no approval, authors merge their own pull requests, small changes go directly. Outside contributors have no write access and come through forks, so the rules bind them. |
 | **Claude Code** | Follows the same flow; skills `/ticket` and `/new-ticket` in `.claude/skills/`; description in `docs/workflow.md`. |
-| **Releases** | Unchanged: only the maintainer, as in `docs/releasing.md`. The "Release <version>" commit of `tools/release.sh` (which runs every check) is pushed directly by the maintainer, who may bypass the branch protection for it. |
+| **Releases** | Unchanged: only the maintainer, as in `docs/releasing.md`. The "Release <version>" commit of `tools/release.sh` (which runs every check) is pushed directly. |
 
 ## Rejected options
-- **Direct commits to `main` for everyone.** Fast for one person, but no review and no place to discuss a change.
+- **A required approval for every pull request.** Safer, but the team is small and should not have to wait for each other (Kevin, 2026-11-05); outside contributions are reviewed anyway.
+- **No pull requests at all.** Fast, but no CI before the merge and no link between ticket and change.
 - **Git flow with `develop` and release branches.** More ceremony than a small team with continuous releases needs.
 - **Merge commits or rebase merges.** Keep every intermediate commit on `main`; squash keeps the one-line history.
 
 ## Consequences
 - `CLAUDE.md` and `CONTRIBUTING.md` describe this flow instead of direct commits.
 - The maintainer sets up branch protection and the labels on GitHub once.
-- The branch protection allows the maintainer to bypass it, only for release commits.
+- The ruleset lets the roles admin, maintain and write bypass it; outside contributors are limited because they have no write access.
