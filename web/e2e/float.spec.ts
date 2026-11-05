@@ -47,3 +47,19 @@ test("floating board: over the floor plan beside the own room, the choice is rem
   await page.getByRole("button", { name: "Show board" }).click();
   expect(await checked(page, "Integrated")).toBe("true"); // remembered
 });
+
+test("own room in the middle: the board stays on the right and Ruumble in a box on the left, however the window resizes", async ({ page }) => {
+  await page.goto("/?fixture=sample&talking=0");
+  await page.getByRole("button", { name: /^Ben's office/ }).dispatchEvent("dblclick"); // the middle of the bottom row
+  await expect(page.getByRole("button", { name: /^Ben's office – you are here/ })).toBeVisible();
+  await page.getByRole("button", { name: "Show board" }).click();
+  await view(page, "Floating");
+  await page.keyboard.press("p");
+  const chatBox = page.getByRole("region", { name: "Ruumble in a box" });
+  for (const width of [1600, 1440, 1280, 1180, 1100, 1000, 1280]) {
+    await page.setViewportSize({ width, height: 900 });
+    await expect(board(page)).not.toHaveClass(/left/);
+    await expect(chatBox).not.toHaveClass(/right/);
+  }
+});
+

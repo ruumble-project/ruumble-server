@@ -12,18 +12,15 @@ export interface Span {
 
 /**
  * `room`: the own room on the shown floor, `null` when it is not on it (other floor, corridor, entrance).
- * Keeps the current side while it still leaves the room free, so the board does not jump while rooms resize;
- * otherwise the side where the room is free, and if it fits on neither, the side with more room beside it.
+ * On the right, unless the room leaves room for the board only on its left (a room on the right side). A room in the
+ * middle, with room on both sides or on neither, keeps the board on the right (and Ruumble in a box on the left): the
+ * side never depends on how much of the room stays free, so it does not jump while the window or the rooms resize.
  */
-export function floatSide(room: Span | null, plan: Span, boardWidth: number, current: BoardSide): BoardSide {
-  if (!room) return current;
-  const free = { left: room.left - plan.left, right: plan.right - room.right };
-  const fits = (side: BoardSide) => free[side] >= boardWidth;
-  if (fits(current)) return current;
-  const other: BoardSide = current === "right" ? "left" : "right";
-  if (fits(other)) return other;
-  if (free[other] > free[current]) return other;
-  return current;
+export function floatSide(room: Span | null, plan: Span, boardWidth: number): BoardSide {
+  if (!room) return "right";
+  const fitsLeft = room.left - plan.left >= boardWidth;
+  const fitsRight = plan.right - room.right >= boardWidth;
+  return fitsLeft && !fitsRight ? "left" : "right";
 }
 
 /**

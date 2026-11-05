@@ -52,7 +52,7 @@
       const room = el.querySelector<HTMLElement>(".floorplan .mine");
       // the board keeps a wall's width of distance to the room
       const width = (board?.offsetWidth ?? 0) + parseFloat(getComputedStyle(el).paddingLeft);
-      app.boardSide = floatSide(room?.getBoundingClientRect() ?? null, el.getBoundingClientRect(), width, untrack(() => app.boardSide));
+      app.boardSide = floatSide(room?.getBoundingClientRect() ?? null, el.getBoundingClientRect(), width);
     };
     measure();
     window.addEventListener("resize", measure);
