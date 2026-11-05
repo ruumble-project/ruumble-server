@@ -3,7 +3,7 @@
 # (docs/operations/https.md, "On the internet": securing an exposed instance is up to its operator).
 services:
     ruumble:
-        image: ghcr.io/kevinwebman/ruumble:0.33.1
+        image: ghcr.io/ruumble-project/ruumble:0.34.0
         container_name: ruumble
         restart: unless-stopped
         deploy:

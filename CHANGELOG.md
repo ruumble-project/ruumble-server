@@ -6,6 +6,8 @@ All notable changes to Ruumble. The service and the web UI share one version; th
 
 ## [Unreleased]
 
+## [0.34.0] - 2026-11-05
+
 Plugin 0.5.0 (unchanged). Ruumble moves to the organization `ruumble-project`; the image is now `ghcr.io/ruumble-project/ruumble`.
 
 ### Changed
@@ -429,6 +431,7 @@ Plugin 0.1.0 to 0.2.0.
 - Real Mumble avatars and presence (quiet, away, recording).
 - Docker image with the plugin bundle served under `/download`.
 
+[0.34.0]: https://github.com/ruumble-project/ruumble-server/releases/tag/v0.34.0
 [0.33.1]: https://github.com/KevinWebman/Ruumble-Desk/releases/tag/v0.33.1
 [0.33.0]: https://github.com/KevinWebman/Ruumble-Desk/releases/tag/v0.33.0
 [0.32.1]: https://github.com/Skrrytch/Ruumble/releases/tag/v0.32.1
