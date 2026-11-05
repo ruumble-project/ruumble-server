@@ -70,9 +70,9 @@ test.describe("Tube mail", () => {
   test("rooms are a quick choice; a parcel can be withdrawn", async ({ page }) => {
     await button(page).click();
     await panel(page).getByRole("button", { name: "Send a file …" }).click();
-    await dialog(page).getByRole("button", { name: /^Let's talk/ }).click();
+    await dialog(page).getByRole("button", { name: "Everyone in Let's talk (1 person)" }).click();
     await expect(dialog(page).getByRole("checkbox", { name: /Clara/ })).toBeChecked();
-    await dialog(page).getByRole("button", { name: /^Let's talk/ }).click();
+    await dialog(page).getByRole("button", { name: "Everyone in Let's talk (1 person)" }).click();
     await expect(dialog(page).getByRole("checkbox", { name: /Clara/ })).not.toBeChecked();
     await dialog(page).getByRole("checkbox", { name: /Ben/ }).check();
     await dialog(page).locator('input[type="file"]').setInputFiles(pdf);

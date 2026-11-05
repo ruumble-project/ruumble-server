@@ -574,6 +574,7 @@ export const en: Messages = {
       limit: (max: string) => `Up to ${max}. The file stays in this tab until everyone has it.`,
       to: "To",
       rooms: "Rooms",
+      everyoneIn: (room: string, n: number) => `Everyone in ${room || "this room"} (${n === 1 ? "1 person" : `${n} people`})`,
       people: "People",
       noRuumble: "without Ruumble",
       nobody: "Nobody with Ruumble is in the building right now.",

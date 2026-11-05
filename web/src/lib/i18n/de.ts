@@ -611,6 +611,7 @@ export const de = {
       limit: (max: string) => `Bis ${max}. Die Datei bleibt in diesem Tab, bis alle sie haben.`,
       to: "An",
       rooms: "Räume",
+      everyoneIn: (room: string, n: number) => `Alle in ${room || "diesem Raum"} (${n === 1 ? "1 Person" : `${n} Personen`})`,
       people: "Personen",
       noRuumble: "ohne Ruumble",
       nobody: "Gerade ist niemand mit Ruumble im Haus.",

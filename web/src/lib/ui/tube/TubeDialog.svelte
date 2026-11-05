@@ -1,6 +1,7 @@
 <script lang="ts">
   import FileIcon from "@lucide/svelte/icons/file";
   import Package from "@lucide/svelte/icons/package";
+  import Users from "@lucide/svelte/icons/users";
   import { TUBE_LIMITS } from "@ruumble/protocol";
   import { formatSize } from "../../board/model.ts";
   import { t } from "../../i18n/index.svelte.ts";
@@ -73,8 +74,9 @@
           <div class="rooms" role="group" aria-label={t().tube.dialog.rooms}>
             {#each rooms as room (room.channelId)}
               {@const all = room.people.every((p) => draft.to.includes(p))}
-              <button type="button" class="chip" aria-pressed={all} onclick={() => app.tube.setRecipients(toggleRoom(draft.to, room))}>
-                {room.name}<span class="n">{room.people.length}</span>
+              {@const hint = t().tube.dialog.everyoneIn(room.name, room.people.length)}
+              <button type="button" class="chip" aria-pressed={all} aria-label={hint} title={hint} onclick={() => app.tube.setRecipients(toggleRoom(draft.to, room))}>
+                {room.name}<span class="n" aria-hidden="true"><Users size={13} />{room.people.length}</span>
               </button>
             {/each}
           </div>
@@ -129,7 +131,7 @@
   }
   .chip:hover { background: var(--tint); }
   .chip[aria-pressed="true"] { border-color: var(--ink); background: var(--ink); color: var(--paper); }
-  .chip .n { font-size: 12px; font-weight: 700; opacity: 0.7; font-variant-numeric: tabular-nums; }
+  .chip .n { display: inline-flex; align-items: center; gap: 3px; font-size: 12px; font-weight: 700; opacity: 0.7; font-variant-numeric: tabular-nums; }
   .people { max-height: 220px; overflow-y: auto; margin: 0; padding: 4px; list-style: none; border: 1px solid var(--control); border-radius: 6px; }
   .people label { display: flex; align-items: center; gap: 10px; min-height: 36px; padding: 0 8px; border-radius: 4px; cursor: pointer; }
   .people label:hover { background: var(--tint); }

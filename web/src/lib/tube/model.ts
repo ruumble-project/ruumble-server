@@ -103,14 +103,15 @@ export interface Candidate {
   place: string;
 }
 
-/** everyone with Ruumble apart from the own person, by name */
+/** everyone with Ruumble apart from the own person: those in the own room first, as the rooms, then by name */
 export function candidates(snapshot: Snapshot | null, me: string | null): Candidate[] {
   if (!snapshot) return [];
   const names = new Map(snapshot.channels.map((c) => [c.id, c.name]));
+  const own = snapshot.users.find((u) => u.session === snapshot.self?.session)?.channel ?? null;
   return snapshot.users
     .filter((u) => u.person && u.person !== me)
     .map((u) => ({ person: u.person!, name: u.name, channelId: u.channel, place: names.get(u.channel) ?? "" }))
-    .sort((a, b) => a.name.localeCompare(b.name));
+    .sort((a, b) => Number(b.channelId === own) - Number(a.channelId === own) || a.name.localeCompare(b.name));
 }
 
 /** people in the building without Ruumble: shown greyed, they cannot get tube mail */

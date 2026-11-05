@@ -7,6 +7,8 @@ import {
   togglePerson, toggleRoom, typeLabel, waiting, waitingCount, without, withoutRuumble, type Parcels,
 } from "../src/lib/tube/model.ts";
 import { TubeState, tubeErrorText } from "../src/lib/tube/state.svelte.ts";
+import { de } from "../src/lib/i18n/de.ts";
+import { en } from "../src/lib/i18n/en.ts";
 
 const ME = "0000000000000001", ANNA = "00000000000000aa", BEN = "00000000000000bb";
 const ID = "0123456789abcdef0123456789abcdef";
@@ -76,6 +78,9 @@ describe("tube mail: the parcels of the own person (ADR-0022)", () => {
     } as unknown as Snapshot;
     const list = candidates(snapshot, ME);
     expect(list.map((c) => `${c.name}@${c.place}`)).toEqual(["Anna@Lab", "Ben@Kitchen", "Cleo@"]);
+    // the own room first, as the rooms: in the kitchen, Ben comes before Anna
+    const inKitchen = { ...snapshot, users: snapshot.users.map((u) => (u.session === 1 ? { ...u, channel: 1 } : u)) } as Snapshot;
+    expect(candidates(inKitchen, ME).map((c) => c.name)).toEqual(["Ben", "Anna", "Cleo"]);
     expect(candidates(null, ME)).toEqual([]);
     expect(withoutRuumble(snapshot)).toEqual(["Dave"]);
     expect(withoutRuumble(null)).toEqual([]);
@@ -87,6 +92,11 @@ describe("tube mail: the parcels of the own person (ADR-0022)", () => {
     expect(picked).toEqual([BEN]);
     expect(togglePerson(togglePerson([], ANNA), BEN)).toEqual([ANNA, BEN]);
     expect(togglePerson([ANNA, BEN], ANNA)).toEqual([BEN]);
+    // a room as a quick choice says what it does
+    expect(en.tube.dialog.everyoneIn("Lab", 1)).toBe("Everyone in Lab (1 person)");
+    expect(en.tube.dialog.everyoneIn("", 3)).toBe("Everyone in this room (3 people)");
+    expect(de.tube.dialog.everyoneIn("Labor", 1)).toBe("Alle in Labor (1 Person)");
+    expect(de.tube.dialog.everyoneIn("", 2)).toBe("Alle in diesem Raum (2 Personen)");
   });
 });
 
