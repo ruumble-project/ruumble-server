@@ -6,6 +6,8 @@ All notable changes to Ruumble. The service and the web UI share one version; th
 
 ## [Unreleased]
 
+## [0.36.0] - 2026-11-05
+
 Plugin 0.5.0 (unchanged). Ruumble in a box becomes the one window for what is said: the quiet words move into it as tabs, next to the room's log in Ruumble Client. It docks where it covers neither the own room nor the board, and it shares one width and one look with the board. Nothing to do when updating; users press **T** instead of P for it.
 
 ### Changed
@@ -464,6 +466,7 @@ Plugin 0.1.0 to 0.2.0.
 - Real Mumble avatars and presence (quiet, away, recording).
 - Docker image with the plugin bundle served under `/download`.
 
+[0.36.0]: https://github.com/ruumble-project/ruumble-server/releases/tag/v0.36.0
 [0.35.0]: https://github.com/ruumble-project/ruumble-server/releases/tag/v0.35.0
 [0.34.0]: https://github.com/ruumble-project/ruumble-server/releases/tag/v0.34.0
 [0.33.1]: https://github.com/KevinWebman/Ruumble-Desk/releases/tag/v0.33.1
