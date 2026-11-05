@@ -13,6 +13,7 @@ import {
   floorLabels,
   homeFloor,
   ownPlace,
+  ownRow,
   initials,
   isMutedRoomName,
   roomGrow,
@@ -20,6 +21,8 @@ import {
   sortSiblings,
   splitRows,
   visibleChannels,
+  type Floor,
+  type Room,
 } from "../src/lib/model/building.ts";
 
 const fixture = (name: string): Snapshot =>
@@ -60,6 +63,17 @@ describe("Individual rules", () => {
     expect(splitRows([1, 2])).toEqual({ top: [1], bottom: [2] });
     expect(splitRows([1])).toEqual({ top: [1], bottom: [] });
     expect(splitRows([])).toEqual({ top: [], bottom: [] });
+  });
+
+  it("ownRow: the row of the floor plan that holds the own room", () => {
+    const room = (isSelf: boolean) => ({ isSelf }) as unknown as Room;
+    const floor = (...rooms: boolean[]) => ({ rooms: rooms.map(room) }) as unknown as Floor;
+    expect(ownRow(floor(true, false, false))).toBe("top");
+    expect(ownRow(floor(false, false, true))).toBe("bottom");
+    expect(ownRow(floor(false, true))).toBe("bottom"); // two rooms: one per row
+    expect(ownRow(floor(false, false))).toBeNull(); // in the corridor or on another floor
+    expect(ownRow(floor())).toBeNull();
+    expect(ownRow(null)).toBeNull();
   });
 
   it("initials keep emojis and combined characters whole", () => {

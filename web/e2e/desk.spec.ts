@@ -125,6 +125,19 @@ test.describe("Ruumble in a box", () => {
     await expect(panel.getByRole("searchbox", { name: "Search the log" })).toHaveValue("");
   });
 
+  test("the box keeps clear of the own room: at the bottom left, at the top left when the room is in the bottom row", async ({ page }) => {
+    await page.getByRole("button", { name: /^Ruumble in a box/ }).click();
+    const box = page.getByRole("region", { name: "Ruumble in a box" });
+    const plan = (await page.locator(".floorplan").boundingBox())!;
+    // Anna is in "Let's talk", in the top row: the box stays at the bottom
+    await expect.poll(async () => (await box.boundingBox())!.y).toBeGreaterThan(plan.y + plan.height / 3);
+    await page.locator(".floorplan").getByRole("button", { name: /^Ben's office/ }).dblclick();
+    await expect(page.getByRole("status", { name: /^You are here: Ben's office/ })).toBeVisible();
+    // now in the bottom row: the box moves to the top, below the top bar
+    await expect.poll(async () => (await box.boundingBox())!.y).toBeLessThan(plan.y + 20);
+    await expect.poll(async () => (await box.boundingBox())!.y).toBeGreaterThanOrEqual(plan.y - 2); // after its animation
+  });
+
   test("the chat input sends to the own room", async ({ page }) => {
     await page.getByRole("button", { name: /^Ruumble in a box/ }).click();
     const input = page.getByRole("textbox", { name: "Message to Let's talk" });

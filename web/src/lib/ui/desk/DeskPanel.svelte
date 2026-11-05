@@ -4,7 +4,7 @@
   import X from "@lucide/svelte/icons/x";
   import { DESK_FILTERS, timeOf, type DeskFilter } from "../../desk/model.ts";
   import { locale, t } from "../../i18n/index.svelte.ts";
-  import { ownPlace } from "../../model/building.ts";
+  import { ownPlace, ownRow } from "../../model/building.ts";
   import type { RuumbleState } from "../../state.svelte.ts";
 
   // Ruumble Client (ADR-0024): "Ruumble in a box", the Mumble client's log and channel chat in a window docked at the
@@ -15,6 +15,8 @@
   // the own place as the building names it ("Entrance", "Corridor", the room), not Mumble's channel name
   const room = $derived(app.building && app.snapshot ? (ownPlace(app.building, app.snapshot)?.name ?? "") : "");
   const searching = $derived(desk.query.trim() !== "");
+  // docked at the bottom left; when the own room is in the bottom row, at the top left, so it stays in view
+  const atTop = $derived(ownRow(app.floor) === "bottom");
 
   let list = $state<HTMLElement | null>(null);
   let input = $state<HTMLTextAreaElement | null>(null);
@@ -51,7 +53,7 @@
   }
 </script>
 
-<section class="desk" aria-label={t().desk.title}>
+<section class="desk" class:top={atTop} aria-label={t().desk.title}>
   <div class="bar">
     <h2>{t().desk.title}</h2>
     <button type="button" class="bar-btn" aria-label={t().desk.close} title={t().desk.close} onclick={() => desk.close()}><X size={18} /></button>
@@ -97,8 +99,10 @@
     box-shadow: 0 0 0 1px var(--color-raised-edge), 0 16px 48px rgb(0 56 105 / 0.28), 0 2px 6px rgb(0 56 105 / 0.15);
     animation: rise 200ms var(--ease-out) both;
   }
+  .desk.top { top: calc(var(--topbar-height) + 30px); bottom: auto; animation-name: drop; }
+  @keyframes drop { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: none; } }
   @keyframes rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
-  @media (prefers-reduced-motion: reduce) { .desk { animation: none; } }
+  @media (prefers-reduced-motion: reduce) { .desk, .desk.top { animation: none; } }
 
   .bar { display: flex; align-items: center; gap: 2px; height: 44px; flex: none; padding: 0 6px 0 14px; background: var(--color-wall); color: var(--color-white); }
   h2 { flex: 1; margin: 0 8px 0 0; font-size: 14px; font-weight: 700; letter-spacing: 0.02em; }

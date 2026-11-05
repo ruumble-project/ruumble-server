@@ -148,6 +148,18 @@ export function splitRows<T>(rooms: readonly T[]): { top: T[]; bottom: T[] } {
 }
 
 /**
+ * The row of the floor plan that holds the own room: "top" or "bottom"; null in the corridor, on another floor or
+ * without a floor. Panels docked at the side keep clear of it (Ruumble in a box).
+ */
+export function ownRow(floor: Floor | null): "top" | "bottom" | null {
+  if (!floor) return null;
+  const { top, bottom } = splitRows(floor.rooms);
+  if (top.some((r) => r.isSelf)) return "top";
+  if (bottom.some((r) => r.isSelf)) return "bottom";
+  return null;
+}
+
+/**
  * Width of the floor plan's rows relative to the visible width: 1 up to ROOMS_IN_VIEW rooms per row,
  * beyond that it grows so that on average ROOMS_IN_VIEW rooms are in view, and the plan scrolls sideways.
  */

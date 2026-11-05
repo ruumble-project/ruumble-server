@@ -6,6 +6,11 @@ All notable changes to Ruumble. The service and the web UI share one version; th
 
 ## [Unreleased]
 
+### Changed
+
+- Ruumble in a box (Ruumble Client) keeps clear of the own room: it docks at the top left when the own room is in the bottom row of the floor plan, otherwise at the bottom left as before
+- People in the corridor stand in its middle instead of next to its name on the left
+
 ## [0.35.0] - 2026-11-05
 
 Plugin 0.5.0 (unchanged). Inside Ruumble Client, Mumble's log and chat become "Ruumble in a box" and Mumble's functions move into the elevator; the dialogs get one rule for their buttons, and the tube mail's send dialog is easier to follow. Nothing to do when updating.
