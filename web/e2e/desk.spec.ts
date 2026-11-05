@@ -175,6 +175,26 @@ test.describe("Ruumble in a box", () => {
     await expect.poll(async () => (await box.boundingBox())!.y).toBeLessThan(plan.y + 20);
   });
 
+  test("the box covers at most the other row and the corridor, never the own row", async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    await page.getByRole("button", { name: /^Ruumble in a box/ }).click();
+    const box = page.getByRole("region", { name: "Ruumble in a box" });
+    const rect = (sel: string) => page.locator(sel).first().evaluate((el) => { const r = el.getBoundingClientRect(); return { top: r.top, bottom: r.bottom }; });
+    const edges = async () => { const b = (await box.boundingBox())!; return { top: b.y, bottom: b.y + b.height }; };
+    // in "Let's talk" (top row): from the bottom up to the corridor's top
+    const corridor = await rect(".floorplan .wrap-corridor");
+    await expect.poll(async () => Math.abs((await edges()).top - corridor.top)).toBeLessThan(3);
+    // in "Ben's office" (bottom row): from the top down to the corridor's bottom
+    await page.locator(".floorplan").getByRole("button", { name: /^Ben's office/ }).dblclick();
+    await expect(page.getByRole("status", { name: /^You are here: Ben's office/ })).toBeVisible();
+    await expect.poll(async () => Math.abs((await edges()).bottom - corridor.bottom)).toBeLessThan(3);
+    // in the corridor: only the bottom row
+    await page.locator(".floorplan .room.corridor").dblclick({ position: { x: 600, y: 30 } });
+    await expect(page.getByRole("status", { name: /^You are here: Corridor/ })).toBeVisible();
+    const bottomRow = await rect(".floorplan .row.bottom");
+    await expect.poll(async () => Math.abs((await edges()).top - bottomRow.top)).toBeLessThan(3);
+  });
+
   test("the chat input sends to the own room", async ({ page }) => {
     await page.getByRole("button", { name: /^Ruumble in a box/ }).click();
     const input = page.getByRole("textbox", { name: "Message to Let's talk" });

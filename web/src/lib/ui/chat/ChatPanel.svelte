@@ -11,7 +11,7 @@
   import { CHAT_LIMITS } from "@ruumble/protocol";
   import { t } from "../../i18n/index.svelte.ts";
   import { initials, ownPlace, ownRow } from "../../model/building.ts";
-  import { boxCorner } from "../../model/float.ts";
+  import { boxCorner, boxHeight, type OwnBand } from "../../model/float.ts";
   import { buildDirectory } from "../../model/overview.ts";
   import { SHORTCUT_KEYS } from "../../shortcuts.ts";
   import type { RuumbleState } from "../../state.svelte.ts";
@@ -36,6 +36,8 @@
   const roomName = $derived(app.building && app.snapshot ? (ownPlace(app.building, app.snapshot)?.name ?? "") : "");
   const roomLabel = $derived(roomName ? t().box.roomTab(roomName) : t().box.roomTabPlain);
   const corner = $derived(boxCorner(ownRow(app.floor), app.boardOpen && app.boardFloating && !app.readonly ? app.boardSide : null));
+  /** where the own user is on the shown floor: the box never covers that row (or the corridor) */
+  const band = $derived<OwnBand>(ownRow(app.floor) ?? (app.floor?.corridor.isSelf && app.floor.rooms.length ? "corridor" : null));
   const conversation = $derived(chat.conversation);
   /** everyone in the building with their place, as on the directory board */
   const people = $derived(
@@ -54,6 +56,30 @@
 
   let picker = $state<string | null>(null);
   let panel = $state<HTMLElement | null>(null);
+  /** the measured height (boxHeight); null: the usual height from the stylesheet */
+  let fit = $state<number | null>(null);
+  // measured again when the floor, the people or the window change and when the rooms have finished resizing
+  $effect(() => {
+    void [app.floor, app.snapshot, corner.top, band];
+    const el = panel;
+    if (!el) return;
+    const measure = () => {
+      const corridor = document.querySelector<HTMLElement>(".floorplan .wrap-corridor")?.getBoundingClientRect();
+      const bottomRow = document.querySelector<HTMLElement>(".floorplan .row.bottom")?.getBoundingClientRect();
+      const style = getComputedStyle(el);
+      // the fixed edge from the stylesheet, not the box's rect: that moves while it slides in
+      const edge = corner.top ? parseFloat(style.top) : innerHeight - parseFloat(style.bottom);
+      const bands = corridor && bottomRow ? { corridorTop: corridor.top, corridorBottom: corridor.bottom, bottomRowTop: bottomRow.top } : null;
+      fit = boxHeight(band, edge, bands, innerHeight);
+    };
+    measure();
+    addEventListener("resize", measure);
+    document.addEventListener("transitionend", measure);
+    return () => {
+      removeEventListener("resize", measure);
+      document.removeEventListener("transitionend", measure);
+    };
+  });
   let list = $state<HTMLElement | null>(null);
   let input = $state<HTMLTextAreaElement | null>(null);
   let now = $state(Date.now());
@@ -129,7 +155,7 @@
 
 {#if chat.panel === "open"}
   <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
-  <section class="chat tint-{tint}" class:top={corner.top} class:right={corner.right} aria-label={t().box.title} bind:this={panel} onkeydown={onpanelkey}>
+  <section class="chat tint-{tint}" class:top={corner.top} class:right={corner.right} style:height={fit ? `${fit}px` : undefined} aria-label={t().box.title} bind:this={panel} onkeydown={onpanelkey}>
     <header class="bar">
       <Inbox size={18} aria-hidden="true" />
       <h2>{t().box.title}</h2>
@@ -284,10 +310,17 @@
 
   .chat {
     --color-paper: var(--color-raised);
-    position: fixed; left: 32px; bottom: 24px; z-index: 20; width: 420px; height: min(520px, calc(100vh - 120px));
+    position: fixed; left: 32px; bottom: 24px; z-index: 20; height: min(520px, calc(100vh - 120px));
+    /* as wide as the board (--board-width, growing like it on wide windows; 100cqw = the app's content width) */
+    width: calc(var(--board-width) + max(0px, (100cqw - (var(--board-grow-from) - 64px)) / 2));
     display: flex; flex-direction: column; overflow: hidden; border-radius: 10px; background: var(--color-paper); color: var(--color-ink);
     box-shadow: 0 0 0 1px var(--color-raised-edge), 0 16px 48px rgb(0 56 105 / 0.28), 0 2px 6px rgb(0 56 105 / 0.15);
     animation: rise 200ms var(--ease-out) both;
+  }
+  /* Chromium 102 (Ruumble Client) has no cqw: a var() width with it is only dropped when computed and would leave the
+     width on auto, so the plain width comes from here */
+  @supports not (width: 1cqw) {
+    .chat { width: var(--board-width); }
   }
   /* away from the own room's row and from the floating board (boxCorner) */
   .chat.right { left: auto; right: 32px; }
