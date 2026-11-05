@@ -89,12 +89,13 @@ test.describe("Ruumble in a box", () => {
     await expect(room).toHaveText(""); // only an icon; the name is in the tooltip
     await expect(room).toHaveAttribute("title", "Log and chat of Let's talk");
     await expect(page.getByRole("button", { name: "Ruumble in a box", exact: true })).toHaveAttribute("aria-pressed", "true");
-    // the line stands right above Ben's message, the first unread one
+    // the line stands right above Ben's message, the first unread one (checked in the document order in one step:
+    // pixel positions move while the box slides in and the log scrolls to the line)
     const line = panel.getByRole("separator", { name: "New" });
     await expect(line).toBeVisible();
-    const lineY = (await line.boundingBox())!.y;
-    expect((await panel.getByText("Ben: Coffee in the kitchen").boundingBox())!.y).toBeGreaterThan(lineY);
-    expect((await panel.getByText("Me: anyone here?").boundingBox())!.y).toBeLessThan(lineY);
+    expect(await line.evaluate((el) => [el.previousElementSibling?.textContent ?? "", el.nextElementSibling?.textContent ?? ""])).toEqual([
+      expect.stringContaining("Me: anyone here?"), expect.stringContaining("Ben: Coffee in the kitchen"),
+    ]);
     // closed and opened again without anything unread: no line
     await panel.getByRole("button", { name: "Close" }).click();
     await page.getByRole("button", { name: "Ruumble in a box", exact: true }).click();
