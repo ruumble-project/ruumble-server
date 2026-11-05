@@ -40,6 +40,12 @@ Do not edit the service/web version or the image tags by hand. Doing only part o
 
 Choosing the number ([Semantic Versioning](https://semver.org/)): patch (`0.28.1 → 0.28.2`) for fixes and small behaviour changes, minor (`0.28.2 → 0.29.0`) for new features. Anything an operator has to do when updating (new env var, migration, new Mumble permission) goes into the changelog section.
 
+### When to release, and the client's version
+
+- **A release only when something changed that users or operators notice**: the web UI, the service, the plugin, the image or the Compose templates. Changes to docs, tickets, CI, `CLAUDE.md` or the Claude skills get no release; they reach everyone through `main`. A release without changes would only restart servers that update automatically (Watchtower on `latest` or `<major>.<minor>`).
+- **Server and client have their own versions** ([ADR-0025](decisions/0025-separate-repos.md)). Ruumble Client is released from ruumble-client with its own number, and the two numbers do not have to match: never bump the server only to match the client, or the other way round.
+- **Compatibility does not come from the numbers**: a client works with older and newer services (the `desk` contract only grows), and the client's changelog names the server version it is built with ("Built with Ruumble 0.34.0", its `server/` submodule). When a server release changes something the client uses, the client moves its submodule and releases as well.
+
 ## During development
 
 Every user-visible change adds a line to `CHANGELOG.md` under `## [Unreleased]`, in the existing style (`### Added` / `### Changed` / `### Fixed`, a bold short title, then one or two sentences). Do **not** create a `## [<version>]` section yourself and do not bump versions in feature commits; `tools/release.sh` refuses to run if the section already exists.
