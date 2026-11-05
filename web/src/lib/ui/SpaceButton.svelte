@@ -336,7 +336,13 @@
   /* the width follows the people in the room (roomGrow): changes glide; names stay readable */
   .wrap-room { min-width: 190px; transition: flex-grow var(--dur-slow) var(--ease-out); container-type: inline-size; }
   .content { display: contents; }
-  .room.corridor .content { position: sticky; left: 22px; display: flex; align-items: center; gap: 24px; min-width: 0; }
+  /* corridor: the label on the left (it stays in view while the floor plan scrolls sideways), the people in the middle,
+     the right part for the binders and the plant */
+  .room.corridor .content {
+    flex: 1; display: grid; grid-template-columns: minmax(120px, 1fr) auto minmax(0, 1fr); align-items: center; gap: 24px; min-width: 0;
+  }
+  .room.corridor .content .label { position: sticky; left: 22px; justify-self: start; }
+  .room.corridor .content .people { grid-column: 2; justify-content: center; }
   .wrap-corridor { flex: none; }
   .wrap-open { flex-grow: 1; }
   .room {
