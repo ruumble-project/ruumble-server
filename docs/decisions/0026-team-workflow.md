@@ -1,6 +1,6 @@
 # ADR-0026: Team workflow with tickets, branches and pull requests
 
-Status: proposed (2026-11-05)
+Status: accepted (2026-11-05, Kevin)
 
 ## Context
 Until now one person committed directly to `main` after running the checks locally. With the move to the organization

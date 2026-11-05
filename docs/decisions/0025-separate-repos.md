@@ -1,6 +1,6 @@
 # ADR-0025: Server and client in separate repositories
 
-Status: proposed (2026-11-05)
+Status: accepted (2026-11-05, Kevin)
 
 ## Context
 Since 0.33.0 Ruumble (service, web UI, plugin) and Ruumble Desk (the Mumble 1.6 client with Ruumble built in) lived in
