@@ -32,6 +32,8 @@ test.describe("Tube mail", () => {
     await dialog(page).getByRole("textbox", { name: "Note (optional)" }).fill("Page 3 is new");
     // "receiving · N %" shows only between two pieces (a few hundred ms): watch every frame from the start,
     // expect() polls too coarsely and can miss it
+    // the main action at the bottom right, "Cancel" before it (#8)
+    await expect(dialog(page).locator("footer").getByRole("button")).toHaveText(["Cancel", "Send to 1 person"]);
     const receiving = page.waitForFunction(() => /receiving · \d+ %/.test(document.body.innerText), null, { polling: "raf", timeout: 10_000 });
     await dialog(page).getByRole("button", { name: "Send to 1 person" }).click();
     await expect(dialog(page)).toHaveCount(0);

@@ -63,7 +63,10 @@
 <CareShell title={t().tube.dialog.title} level="tube" narrow onclose={() => app.tube.closeDraft()}
   houseRule={t().tube.dialog.limit(formatSize(TUBE_LIMITS.fileBytes))} status={app.tube.error ? { text: app.tube.error, error: true } : null}>
   {#snippet glyph()}<span class="glyph"><Package size={30} /></span>{/snippet}
-  <form bind:this={form} onsubmit={submit}>
+  {#snippet actions()}
+    <button type="submit" form="tube-form" class="btn primary" disabled={!ready} aria-describedby={missing ? "tube-missing" : undefined}>{t().tube.dialog.send(draft.to.length)}</button>
+  {/snippet}
+  <form id="tube-form" bind:this={form} onsubmit={submit}>
     <input bind:this={picker} id="tube-file" class="picker" type="file" onchange={pick} tabindex="-1" aria-hidden="true" />
     {#if draft.file}
       <div class="file" class:dragging role="group" aria-label={draft.file.name} ondragover={over} ondragleave={() => (dragging = false)} ondrop={drop}>
@@ -115,10 +118,8 @@
       <textarea id="tube-note" rows="2" maxlength={TUBE_LIMITS.noteChars} placeholder={t().tube.dialog.notePlaceholder} value={draft.note} oninput={(e) => app.tube.setNote(e.currentTarget.value)}></textarea>
     </div>
 
-    <div class="row">
-      <button type="submit" class="btn primary" disabled={!ready} aria-describedby={missing ? "tube-missing" : undefined}>{t().tube.dialog.send(draft.to.length)}</button>
-      {#if missing}<span id="tube-missing" class="muted">{missing}</span>{/if}
-    </div>
+    <!-- what is still missing, right above the send button in the footer -->
+    {#if missing}<p id="tube-missing" class="muted missing">{missing}</p>{/if}
   </form>
 </CareShell>
 
@@ -157,6 +158,6 @@
   .without { opacity: 0.8; }
   .field { display: flex; flex-direction: column; }
   textarea { padding: 8px 10px; border: 1px solid var(--control); border-radius: 4px; font: inherit; color: var(--ink); background: var(--paper); resize: vertical; }
-  .row { display: flex; align-items: center; gap: 8px 12px; flex-wrap: wrap; }
+  .missing { text-align: right; }
   .btn.compact { height: 32px; padding: 0 12px; font-size: 13px; }
 </style>

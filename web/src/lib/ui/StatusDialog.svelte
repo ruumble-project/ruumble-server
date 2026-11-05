@@ -50,6 +50,9 @@
   status={app.statusError && app.status ? { text: statusErrorText(app.statusError), error: true } : null}
 >
   {#snippet glyph()}<span class="glyph"><Tag size={30} /></span>{/snippet}
+  {#snippet actions()}
+    <button type="submit" form="status-form" class="btn primary" disabled={!app.status || !valid || app.statusBusy}>{t().status.set}</button>
+  {/snippet}
   <p class="intro">{t().status.intro}</p>
   {#if !app.status}
     {#if app.statusError}<p class="error" role="alert">{statusErrorText(app.statusError)}</p>{:else}<p class="intro">{t().status.loading}</p>{/if}
@@ -60,7 +63,7 @@
         <button type="button" class="clear" aria-label={t().status.clear} title={t().status.clear} disabled={app.statusBusy} onclick={() => void app.saveStatus(null)}><Eraser size={20} /></button>
       </div>
     {/if}
-    <form onsubmit={submit}>
+    <form id="status-form" onsubmit={submit}>
       <div class="field grow">
         <label for="status-text">{t().status.label}</label>
         <input id="status-text" type="text" bind:this={input} bind:value={text} maxlength={STATUS_LIMITS.textChars} placeholder={t().status.placeholder} autocomplete="off" disabled={app.statusBusy} aria-describedby={text.length >= COUNT_FROM ? "status-count" : undefined} />
@@ -75,9 +78,6 @@
             <option value={minutes === null ? "never" : String(minutes)}>{minutes === null ? t().status.never : t().status.after(minutes)}</option>
           {/each}
         </select>
-      </div>
-      <div class="row">
-        <button type="submit" class="btn primary" disabled={!valid || app.statusBusy}>{t().status.set}</button>
       </div>
     </form>
     {#if app.status.recent.length}
@@ -117,7 +117,6 @@
   input { width: 100%; box-sizing: border-box; }
   .count { align-self: flex-end; font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
   .count.full { color: var(--danger); font-weight: 700; }
-  .row { display: flex; gap: 8px; flex-wrap: wrap; }
   section h3 { margin-bottom: 8px; }
   .recent { display: flex; flex-wrap: wrap; gap: 8px; margin: 0; padding: 0; list-style: none; }
   .chip {

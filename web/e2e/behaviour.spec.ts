@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, test, type Page } from "@playwright/test";
 import { currentFloor, elevator, gotoFloor, userMenu } from "./topbar.ts";
 
 test.describe("Sample building", () => {
@@ -403,5 +403,38 @@ test.describe("Tab title and shortcuts", () => {
     await expect(dialog).toHaveCount(0);
     await (await userMenu(page)).getByRole("button", { name: /Keyboard shortcuts/ }).click();
     await expect(dialog).toBeVisible();
+  });
+});
+
+// one rule for the dialogs on the care frame (#8): only a button that does something is filled; a form dialog has its
+// main action at the bottom right with "Cancel" before it, the others end in an outlined "Close"
+test.describe("Dialog footer", () => {
+  test.beforeEach(async ({ page }) => page.goto("/?fixture=sample&talking=0"));
+
+  const footerButtons = (dialog: ReturnType<Page["getByRole"]>) => dialog.locator("footer").getByRole("button");
+
+  test("a form dialog: Cancel and the main action at the bottom right; Cancel discards", async ({ page }) => {
+    await page.keyboard.press("s");
+    const dialog = page.getByRole("dialog", { name: "My status" });
+    await expect(footerButtons(dialog)).toHaveText(["Cancel", "Set status"]);
+    await expect(footerButtons(dialog).last()).toHaveClass(/primary/);
+    await expect(footerButtons(dialog).first()).not.toHaveClass(/primary/);
+    // the main action stands at the right edge of the footer
+    const footer = (await dialog.locator("footer").boundingBox())!;
+    const set = (await footerButtons(dialog).last().boundingBox())!;
+    expect(footer.x + footer.width - (set.x + set.width)).toBeLessThan(30);
+    await dialog.getByLabel("Status", { exact: true }).fill("Not this one");
+    await footerButtons(dialog).first().click();
+    await expect(dialog).toHaveCount(0);
+    await expect(page.getByRole("button", { name: "My status" })).toHaveAttribute("aria-pressed", "false");
+  });
+
+  test("other dialogs end in an outlined Close", async ({ page }) => {
+    await (await userMenu(page)).getByRole("button", { name: "My keys" }).click();
+    const dialog = page.getByRole("dialog", { name: "My keys" });
+    await expect(footerButtons(dialog)).toHaveText(["Close"]);
+    await expect(footerButtons(dialog)).not.toHaveClass(/primary/);
+    await footerButtons(dialog).click();
+    await expect(dialog).toHaveCount(0);
   });
 });

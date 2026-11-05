@@ -17,6 +17,8 @@
   // The frame of the care dialogs, the building maintenance, "my keys" and the status (design handoff "Hausmeister"): header
   // with site plan, title, plate, breadcrumb and summary, the yellow mark and the dot raster; the body; a grey footer
   // with the house rules or a status line after an action. A confirmation opens in its own popup above (ConfirmDialog).
+  // Only a button that does something is filled: a form dialog passes its main action as `actions`, which stands at the
+  // bottom right with "Cancel" before it; the other dialogs end in an outlined "Close" (#8).
   let {
     title,
     level,
@@ -32,6 +34,7 @@
     confirm = null,
     oncancelconfirm,
     narrow = false,
+    actions,
     children,
   }: {
     title: string;
@@ -50,6 +53,8 @@
     oncancelconfirm?: () => void;
     /** a small dialog (the status) */
     narrow?: boolean;
+    /** the main action of a form dialog (a submit button with `form=`), at the bottom right */
+    actions?: Snippet;
     children: Snippet;
   } = $props();
 
@@ -122,7 +127,10 @@
     {:else}
       <span></span>
     {/if}
-    <button type="button" class="btn primary close" onclick={onclose}>{t().common.close}</button>
+    <div class="actions">
+      <button type="button" class="btn secondary close" onclick={onclose}>{actions ? t().common.cancel : t().common.close}</button>
+      {#if actions}{@render actions()}{/if}
+    </div>
   </footer>
 
   {#if confirm}
@@ -167,6 +175,7 @@
   main { flex: 1; min-height: 0; overflow-y: auto; padding: 16px 24px; display: flex; flex-direction: column; gap: 18px; }
   main.confirming :global(.faded) { opacity: 0.45; }
   .bar { flex: none; display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 12px 24px; border-top: 1px solid var(--line); background: var(--surface); }
+  .actions { display: flex; gap: 8px; flex: none; }
   .rule, .status { display: flex; gap: 8px; align-items: center; font-size: 12px; color: var(--ink-2); min-width: 0; }
   .status { font-size: 13px; font-weight: 700; color: var(--ink); }
   .status.error { color: var(--danger); }
