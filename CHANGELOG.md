@@ -10,6 +10,7 @@ All notable changes to Ruumble. The service and the web UI share one version; th
 
 - Ruumble Client: Mumble's log and chat are now "Ruumble in a box", opened with a button next to the floor sign; a search, a filter (all, messages, notices) and a "New" line above the unread messages help to find things
 - Ruumble Client: Mumble's functions moved from the log's header to the bottom of the elevator, with labels: City Map, configuration, room acoustics assistant, all Mumble functions and Leave
+- Tube mail: the send dialog shows its errors itself instead of behind it, says what is missing before a file can go, explains what a room picks, lists the people in the own room first and starts with the focus on the file
 - Tube mail has a parcel as its icon instead of a file with an arrow, so it stands apart from "Ruumble in a box"
 - The elevator shows everyone online in its head, next to "Elevator"; the server's name is no longer shown there (it stays on the roof of the building overview)
 

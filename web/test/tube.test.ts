@@ -161,8 +161,12 @@ describe("tube mail in the web UI (state)", () => {
   it("a broken piece stops the upload; a file too large or empty is refused; a refused offer keeps nothing", async () => {
     const { tube, pieces, notices } = setup({ pieceFails: true });
     tube.compose(file(0));
-    expect(notices.at(-1)).toBe("The file is empty.");
+    // in the dialog, which covers the page's notices; the file is not taken
+    expect(tube.error).toBe("The file is empty.");
+    expect(tube.draft?.file).toBeNull();
+    expect(notices).toEqual([]);
     tube.setFile(file(3));
+    expect(tube.error).toBeNull();
     tube.setRecipients([ANNA]);
     await tube.send();
     await tube.pull(Object.keys(tube.parcels)[0]!, ANNA, 0);
@@ -170,7 +174,10 @@ describe("tube mail in the web UI (state)", () => {
     const refused = setup({ fail: "rate-limited" });
     refused.tube.compose(file(3), [ANNA]);
     expect(await refused.tube.send()).toBe(false);
-    expect(refused.notices).toEqual(["Too much tube mail in a short time – please wait a moment."]);
+    expect(refused.tube.error).toBe("Too much tube mail in a short time – please wait a moment.");
+    expect(refused.notices).toEqual([]);
+    refused.tube.closeDraft();
+    expect(refused.tube.error).toBeNull();
     expect(refused.held).toEqual([]);
     expect(await refused.tube.withdraw(ID)).toBe(false);
   });

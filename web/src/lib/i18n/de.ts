@@ -605,7 +605,8 @@ export const de = {
     sending: (percent: number) => `Rohrpost unterwegs · ${percent} %`,
     dialog: {
       title: "Datei schicken",
-      choose: "Datei wählen",
+      choose: "Wähle zuerst eine Datei.",
+      choosePeople: "Wähle mindestens eine Person.",
       change: "Andere Datei",
       drop: "Datei hierher ziehen oder wählen",
       limit: (max: string) => `Bis ${max}. Die Datei bleibt in diesem Tab, bis alle sie haben.`,

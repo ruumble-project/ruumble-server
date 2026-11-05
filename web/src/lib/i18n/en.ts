@@ -568,7 +568,9 @@ export const en: Messages = {
     sending: (percent: number) => `Tube mail on its way · ${percent} %`,
     dialog: {
       title: "Send a file",
-      choose: "Choose a file",
+      /** next to the greyed send button: what is still missing */
+      choose: "Choose a file first.",
+      choosePeople: "Choose at least one person.",
       change: "Another file",
       drop: "Drop a file here or choose one",
       limit: (max: string) => `Up to ${max}. The file stays in this tab until everyone has it.`,

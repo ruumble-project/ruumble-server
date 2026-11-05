@@ -45,6 +45,9 @@ export class TubeState {
   /** a new received parcel shown as a notice */
   toast = $state<string | null>(null);
   busy = $state(false);
+  /** why the send dialog cannot go on (file empty or too large, offer refused): shown in the dialog, which covers the
+   * page's notices */
+  error = $state<string | null>(null);
   /** the own person (snapshot `person`) */
   me = $state<string | null>(null);
 
@@ -107,12 +110,16 @@ export class TubeState {
   /** the send dialog, with a file (dropped on a room) and people already chosen */
   compose(file: File | null = null, to: string[] = []): void {
     this.panel = false;
+    this.error = null;
     this.draft = { file, to, note: "" };
-    if (file) this.checkFile(file);
+    if (file && !this.checkFile(file)) this.draft = { ...this.draft, file: null };
   }
 
   setFile(file: File): void {
-    if (this.draft && this.checkFile(file)) this.draft = { ...this.draft, file };
+    if (this.draft && this.checkFile(file)) {
+      this.error = null;
+      this.draft = { ...this.draft, file };
+    }
   }
 
   setRecipients(to: string[]): void {
@@ -125,12 +132,14 @@ export class TubeState {
 
   closeDraft(): void {
     this.draft = null;
+    this.error = null;
   }
 
   /** offer the drafted file; true once it went out */
   async send(): Promise<boolean> {
     const d = this.draft;
     if (!d?.file || !d.to.length || !this.checkFile(d.file)) return false;
+    this.error = null;
     const id = newParcelId();
     this.busy = true;
     this.files.set(id, d.file);
@@ -138,7 +147,7 @@ export class TubeState {
     this.busy = false;
     if (!r.ok) {
       this.files.delete(id);
-      this.host.notice(tubeErrorText(r.error));
+      this.problem(tubeErrorText(r.error));
       return false;
     }
     this.receive(r.value);
@@ -239,8 +248,14 @@ export class TubeState {
 
   private checkFile(file: File): boolean {
     const problem = fileProblem(file.size);
-    if (problem) this.host.notice(problem === "empty" ? t().tube.errors.empty : t().tube.errors.tooLarge);
+    if (problem) this.problem(problem === "empty" ? t().tube.errors.empty : t().tube.errors.tooLarge);
     return !problem;
+  }
+
+  /** in the send dialog while it is open, otherwise as the page's notice */
+  private problem(text: string): void {
+    if (this.draft) this.error = text;
+    else this.host.notice(text);
   }
 
   private async ask(request: Promise<{ ok: true } | { ok: false; error: BoardErrorCode }>): Promise<boolean> {

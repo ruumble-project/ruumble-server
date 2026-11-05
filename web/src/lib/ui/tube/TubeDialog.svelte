@@ -19,6 +19,8 @@
   const rooms = $derived(roomChoices(people, app.me?.channel ?? null));
   const others = $derived(withoutRuumble(app.snapshot));
   const ready = $derived(!!draft.file && draft.to.length > 0 && !app.tube.busy);
+  // what is still missing before it can go
+  const missing = $derived(!draft.file ? t().tube.dialog.choose : draft.to.length === 0 ? t().tube.dialog.choosePeople : "");
   let picker = $state<HTMLInputElement | null>(null);
   let dragging = $state(false);
   let form = $state<HTMLFormElement | null>(null);
@@ -58,7 +60,8 @@
   }
 </script>
 
-<CareShell title={t().tube.dialog.title} level="tube" narrow onclose={() => app.tube.closeDraft()} houseRule={t().tube.dialog.limit(formatSize(TUBE_LIMITS.fileBytes))}>
+<CareShell title={t().tube.dialog.title} level="tube" narrow onclose={() => app.tube.closeDraft()}
+  houseRule={t().tube.dialog.limit(formatSize(TUBE_LIMITS.fileBytes))} status={app.tube.error ? { text: app.tube.error, error: true } : null}>
   {#snippet glyph()}<span class="glyph"><Package size={30} /></span>{/snippet}
   <form bind:this={form} onsubmit={submit}>
     <input bind:this={picker} id="tube-file" class="picker" type="file" onchange={pick} tabindex="-1" aria-hidden="true" />
@@ -113,7 +116,8 @@
     </div>
 
     <div class="row">
-      <button type="submit" class="btn primary" disabled={!ready}>{t().tube.dialog.send(draft.to.length)}</button>
+      <button type="submit" class="btn primary" disabled={!ready} aria-describedby={missing ? "tube-missing" : undefined}>{t().tube.dialog.send(draft.to.length)}</button>
+      {#if missing}<span id="tube-missing" class="muted">{missing}</span>{/if}
     </div>
   </form>
 </CareShell>
@@ -153,6 +157,6 @@
   .without { opacity: 0.8; }
   .field { display: flex; flex-direction: column; }
   textarea { padding: 8px 10px; border: 1px solid var(--control); border-radius: 4px; font: inherit; color: var(--ink); background: var(--paper); resize: vertical; }
-  .row { display: flex; gap: 8px; flex-wrap: wrap; }
+  .row { display: flex; align-items: center; gap: 8px 12px; flex-wrap: wrap; }
   .btn.compact { height: 32px; padding: 0 12px; font-size: 13px; }
 </style>

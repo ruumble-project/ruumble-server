@@ -20,7 +20,13 @@ test.describe("Tube mail", () => {
     await expect(dialog(page).getByRole("checkbox", { name: /Ben/ })).not.toBeChecked();
     await expect(dialog(page)).toContainText("David, Felix, Hanna – without Ruumble");
     await expect(dialog(page).getByRole("button", { name: "Send to 1 person" })).toBeDisabled(); // no file yet
+    await expect(dialog(page).getByText("Choose a file first.")).toBeVisible();
+    // an empty file is refused in the dialog itself, not behind it
+    await dialog(page).locator('input[type="file"]').setInputFiles({ name: "empty.txt", mimeType: "text/plain", buffer: Buffer.alloc(0) });
+    await expect(dialog(page).getByRole("alert")).toHaveText("The file is empty.");
     await dialog(page).locator('input[type="file"]').setInputFiles(pdf);
+    await expect(dialog(page).getByRole("alert")).toHaveCount(0);
+    await expect(dialog(page).getByText("Choose a file first.")).toHaveCount(0);
     await expect(dialog(page)).toContainText("report.pdf");
     await expect(dialog(page)).toContainText("PDF · 1.4 MB");
     await dialog(page).getByRole("textbox", { name: "Note (optional)" }).fill("Page 3 is new");
@@ -78,8 +84,10 @@ test.describe("Tube mail", () => {
     await expect(dialog(page).getByRole("checkbox", { name: /Clara/ })).toBeChecked();
     await dialog(page).getByRole("button", { name: "Everyone in Let's talk (1 person)" }).click();
     await expect(dialog(page).getByRole("checkbox", { name: /Clara/ })).not.toBeChecked();
-    await dialog(page).getByRole("checkbox", { name: /Ben/ }).check();
     await dialog(page).locator('input[type="file"]').setInputFiles(pdf);
+    await expect(dialog(page).getByText("Choose at least one person.")).toBeVisible();
+    await dialog(page).getByRole("checkbox", { name: /Ben/ }).check();
+    await expect(dialog(page).getByText("Choose at least one person.")).toHaveCount(0);
     await dialog(page).getByRole("button", { name: "Send to 1 person" }).click();
     await panel(page).getByRole("button", { name: "Withdraw" }).click();
     await expect(panel(page)).toContainText("withdrawn");
