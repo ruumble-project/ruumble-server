@@ -73,7 +73,7 @@ A Mumble 1.6 client with Ruumble built in (Ruumble's plugin core compiled into M
 - **Engine floor: Chromium 102.** Ruumble Client shows the web UI in Qt WebEngine 6.4 (Chromium 102). CSS or browser APIs newer than that need a fallback (a plain declaration before the new one, `@supports`, or a polyfill loaded only where missing, like the popover polyfill in `web/src/main.ts`); `web/vite.config.ts` builds for `chrome102`. Check such changes in the Desk with `test/run-desk.sh` and `test/cdp.mjs` of the client repo.
 - Everything in the repo is English: code, comments, log messages, test titles and data, commits, PRs and docs. German appears only as the German translation of UI, plugin and notice texts and in the tests that check it.
 - Versioning and releases: follow `docs/releasing.md` exactly. Feature commits add lines under `## [Unreleased]` in `CHANGELOG.md` and never bump versions; `tools/release.sh <version>` bumps `bridge/package.json` and `web/package.json` (one shared version), the image tags and the changelog and commits `Release <version>`; the plugin version lives in `plugin/CMakeLists.txt` (`project(... VERSION ...)`). Pushing the tag `v<version>` after CI is green runs `.github/workflows/release.yml`, which alone creates the GHCR image and the GitHub release; never create a release by hand.
-- **Team workflow** (`docs/workflow.md`, ADR-0026): every change starts with a GitHub issue, gets a branch `<issue>-<slug>` from `main`, commits in English, one line, ending with `(#<issue>)`, and reaches `main` only through a pull request (template, `Closes #<issue>`, green CI, squash merge; no approval needed inside the team, see "Team and GitHub"). Run `pnpm lint && pnpm test && pnpm build` (plus e2e or plugin tests when touched) before pushing. Claude commits on the ticket branch; it pushes and opens the pull request only when asked (the `/ticket` skill counts as asked; personal settings that forbid pushing win). Decisions with wider impact get an ADR in `docs/decisions/` (short MADR; ADRs Claude decides are marked "proposed"). When code diverges from an ADR, add a "Current state" note instead of rewriting it.
+- **Team workflow** (`docs/workflow.md`, ADR-0026, section "Team and GitHub" below): tickets for the overview, the team commits and pushes to `main` directly after `pnpm lint && pnpm test && pnpm build` (plus e2e or plugin tests when touched), pull requests only when someone wants a second look or for outside contributors. Decisions with wider impact get an ADR in `docs/decisions/` (short MADR; ADRs Claude decides are marked "proposed"). When code diverges from an ADR, add a "Current state" note instead of rewriting it.
 
 ## Team and GitHub (read before any git or gh action)
 
@@ -81,22 +81,25 @@ Several people work on this repo, each with their own Claude Code; these rules h
 personal settings say about style. The full flow is `docs/workflow.md`.
 
 - **Start of a session**: `gh auth status` (the skills need the GitHub CLI; if it is not logged in, ask the person to
-  run `gh auth login`), `git status`, and which branch is checked out. Work on `main` only to pull it.
-- **One ticket, one branch**: `<issue>-<slug>` from an up-to-date `main`. No ticket yet: offer `/new-ticket` first.
-  Skills: `/ticket <n>` works an issue to a pull request, `/new-ticket` writes one.
-- **`main` is protected** by a ruleset: no force pushes, no deletion, merges through a pull request with the
-  required checks green (`Lint, Test, Build (Node)`, `Web UI in the browser (Playwright)`, `Build and test plugin (C++)`,
-  `Cross-build and test plugin for Windows (MinGW, Wine)`, `Mumble interfaces unchanged`). Only squash merge is allowed: the pull
-  request title becomes the one commit on `main` (body left empty), so the title is one line in English without a
-  number: GitHub adds the pull request number, `Closes #<issue>` in the body links the ticket. Merged branches are deleted automatically.
-- **Who the rules bind**: the team (roles admin, maintain, write: Kevin, Simon, Bert) may bypass the ruleset: no
-  approval is needed, authors merge their own pull requests, small obvious changes may go to `main` directly. Outside
-  contributors have no write access: they work from a fork, and their pull requests need the checks and a team member
-  to merge.
-- **Claude does not use the bypass**: it works on a branch and opens a pull request, even when the account could push
-  to `main`. Merging (one click once CI is green) or a direct push is done by the person. Never force-push.
-- **Pushing and pull requests** only when the person asks (the `/ticket` skill counts as asked). Never merge a pull
-  request, approve your own, or close someone else's ticket; that is for people.
+  run `gh auth login`), `git status`, the checked-out branch, and `git pull --ff-only` on `main`.
+- **Tickets** keep the overview: work that takes more than a few minutes has a GitHub issue; offer `/new-ticket` when
+  there is none. Skills: `/ticket <n>` works an issue to a commit on `main`, `/new-ticket` writes one.
+- **The team works on `main` directly** (Kevin, Simon, Bert; GitHub roles admin, maintain, write): pull, commit, run
+  the checks (`pnpm lint && pnpm test && pnpm build` (plus e2e or plugin tests when touched)), push. No pull request and no approval needed. Commits are one line in English, ending
+  with `(#<issue>)`; the commit that completes a ticket ends with `(fixes #<issue>)`, so GitHub closes it. CI runs on
+  every push to `main`; if it turns red, fixing it comes first.
+- **Pull requests are optional** inside the team: open one when the person wants a second look (bigger changes,
+  something risky), on a branch `<issue>-<slug>`; the author merges with *Squash and merge* once CI is green (the
+  title, one line without a number, becomes the commit; GitHub adds the PR number). Several people working on the
+  same ticket at once also use a branch.
+- **What GitHub enforces** (ruleset on `main`): no force pushes, no deletion of `main`; everyone else (outside
+  contributors without write access, working from a fork) needs a pull request with the required checks green
+  (`Lint, Test, Build (Node)`, `Web UI in the browser (Playwright)`, `Build and test plugin (C++)`,
+  `Cross-build and test plugin for Windows (MinGW, Wine)`, `Mumble interfaces unchanged`) and a team member to merge it. The team roles bypass this.
+- **Claude** pushes to `main` when it works for a team member and the checks pass; it never force-pushes and never
+  rewrites published history. Pushing counts as asked when the person asked for the change or used `/ticket`;
+  personal settings that forbid pushing win (then name the commands instead). A rejected push means the account is not
+  in the team: push a branch and open a pull request instead.
 - **Labels**: `bug`, `enhancement`, `task` (kind), `client`, `web`, `service`, `plugin`, `ops` (part), `needs-decision`
   and `blocked` (do not start), `good first issue`. Ask before working on a ticket assigned to someone else.
 - **Writing style** in everything committed: English, no em or en dashes (use a hyphen with spaces, a colon or a new

@@ -30,3 +30,9 @@ flow two people pick the same work, changes reach `main` without a second look, 
 - `CLAUDE.md` and `CONTRIBUTING.md` describe this flow instead of direct commits.
 - The maintainer sets up branch protection and the labels on GitHub once.
 - The ruleset lets the roles admin, maintain and write bypass it; outside contributors are limited because they have no write access.
+
+## Current state (2026-11-05)
+Changed the same day by Kevin: the team (Kevin, Simon, Bert) works on `main` directly, without pull requests or
+approvals; pull requests are optional for bigger changes and required only for outside contributors, whom the ruleset
+binds. Tickets stay for the overview; a commit ending with `(fixes #<issue>)` closes its ticket. Claude Code follows
+the same rule (`CLAUDE.md`, "Team and GitHub").
