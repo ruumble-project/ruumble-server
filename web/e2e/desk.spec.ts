@@ -179,6 +179,10 @@ test.describe("Ruumble in a box", () => {
     if (!(await box.isVisible())) await page.getByRole("button", { name: "Ruumble in a box", exact: true }).click();
     await expect.poll(async () => { const b = (await box.boundingBox())!; return b.x + b.width; }).toBeGreaterThan(plan.x + plan.width - 20);
     await expect.poll(async () => (await box.boundingBox())!.y).toBeLessThan(plan.y + 20);
+    // the board hidden: the box stays where it is, on the other side of where the board would be
+    await boardPanel.getByRole("button", { name: "Hide board" }).click();
+    await expect(boardPanel).toHaveCount(0);
+    await expect(box).toHaveClass(/right/);
   });
 
   test("the box covers the other row and the corridor, stops short of the own row and floats 5 px past the plan's wall", async ({ page }) => {

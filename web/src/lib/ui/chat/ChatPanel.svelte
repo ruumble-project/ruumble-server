@@ -38,9 +38,10 @@
   const roomLabel = $derived(roomName ? t().box.roomTab(roomName) : t().box.roomTabPlain);
   /** where the own user is on the shown floor: the box keeps clear of that row (or the corridor) */
   const band = $derived(ownBand(app.floor));
-  // at the top when the own room is in the bottom row; at the right when the floating board is on the left
+  // at the top when the own room is in the bottom row; at the right when the floating board is, or would be when shown,
+  // on the left (a docked board is always on the right), so the box does not move when the board is hidden
   const atTop = $derived(band === "bottom");
-  const atRight = $derived(app.boardOpen && app.boardFloating && !app.readonly && app.boardSide === "left");
+  const atRight = $derived(app.boardFloating && !app.readonly && app.boardSide === "left");
   const conversation = $derived(chat.conversation);
   /** everyone in the building with their place, as on the directory board */
   const people = $derived(

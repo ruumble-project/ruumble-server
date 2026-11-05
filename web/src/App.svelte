@@ -44,14 +44,25 @@
   // change, when the window resizes and when the rooms have finished resizing (they animate their width).
   let plan = $state<HTMLElement | null>(null);
   $effect(() => {
-    if (!plan || !app.boardOpen || !app.boardFloating || app.readonly) return;
-    void [app.floor, app.snapshot];
+    // also while the board is hidden: Ruumble in a box docks on the other side of where the board is or would be (#10)
+    if (!plan || !app.boardFloating || app.readonly) return;
+    void [app.floor, app.snapshot, app.boardOpen];
     const el = plan;
-    const measure = () => {
+    /** the board's width, measured from the token while it is hidden */
+    const boardWidth = (): number => {
       const board = el.querySelector<HTMLElement>("#board-panel");
+      if (board) return board.offsetWidth;
+      const probe = document.createElement("div");
+      probe.style.cssText = "position: absolute; visibility: hidden; width: var(--board-width)";
+      el.append(probe);
+      const width = probe.offsetWidth;
+      probe.remove();
+      return width;
+    };
+    const measure = () => {
       const room = el.querySelector<HTMLElement>(".floorplan .mine");
       // the board keeps a wall's width of distance to the room
-      const width = (board?.offsetWidth ?? 0) + parseFloat(getComputedStyle(el).paddingLeft);
+      const width = boardWidth() + parseFloat(getComputedStyle(el).paddingLeft);
       app.boardSide = floatSide(room?.getBoundingClientRect() ?? null, el.getBoundingClientRect(), width);
     };
     measure();
