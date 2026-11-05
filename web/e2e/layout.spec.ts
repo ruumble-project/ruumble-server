@@ -83,7 +83,7 @@ test("layout matches the prototype (sample building, DEVELOPMENT floor)", async 
 test("width: scales down to 1000 px, a wider window is used in full, the open board grows beyond 1440 px", async ({ page }) => {
   await page.goto("/?fixture=sample&talking=0");
   const width = async (selector: string) => (await page.locator(selector).boundingBox())!.width;
-  for (const [window, board] of [[1000, 340], [1280, 340], [1440, 340], [1920, 340 + 240], [2560, 340 + 560]] as const) {
+  for (const [window, board] of [[1000, 380], [1280, 380], [1440, 380], [1920, 380 + 240], [2560, 380 + 560]] as const) {
     await page.setViewportSize({ width: window, height: 900 });
     expect(await width(".app")).toBeCloseTo(window, 0);
     await page.getByRole("button", { name: "Show board" }).click();

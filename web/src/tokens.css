@@ -84,7 +84,7 @@
 
   /* Layout: the app scales down to this width (narrower windows scroll); a wider window is used in full */
   --app-min-width: 1000px;
-  --board-width: 340px;        /* open board up to this window width; it gets half of every pixel beyond */
+  --board-width: 380px;        /* open board and Ruumble in a box up to this window width; they get half of every pixel beyond */
   --board-grow-from: 1440px;
   /* Height: the window may shrink until every room still holds two rows of people (shorter windows scroll).
      Rooms (design "Grundriss: Flurseite"): far wall 12, people, 8, the door strip with door, plant, board and plate */
