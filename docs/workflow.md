@@ -72,6 +72,15 @@ sentence:
 Both need the GitHub CLI: `sudo apt install gh` (or see https://cli.github.com), then `gh auth login`.
 For a review, Claude's built-in `/code-review <PR number>` works on any pull request.
 
+What every Claude instance gets from the repo, so all colleagues work the same way:
+
+- `CLAUDE.md`, section "Team and GitHub": the rules of this flow and what GitHub enforces (protected `main`, required
+  checks, squash merge, labels, never the admin bypass).
+- `.claude/settings.json`: shared permissions. Reading git history, tickets, pull requests and workflow runs works
+  without asking; force pushes, pushes to `main`, merging and approving pull requests are denied. Personal additions
+  go into `.claude/settings.local.json` (not committed) or `~/.claude/settings.json`.
+- `.claude/skills/`: `/ticket`, `/new-ticket`, `/update-all`.
+
 Personal settings (`~/.claude/CLAUDE.md`) may be stricter, e.g. "never push": then Claude stops before pushing and
 names the commands instead.
 

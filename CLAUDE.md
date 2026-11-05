@@ -74,3 +74,27 @@ A Mumble 1.6 client with Ruumble built in (Ruumble's plugin core compiled into M
 - Everything in the repo is English: code, comments, log messages, test titles and data, commits, PRs and docs. German appears only as the German translation of UI, plugin and notice texts and in the tests that check it.
 - Versioning and releases: follow `docs/releasing.md` exactly. Feature commits add lines under `## [Unreleased]` in `CHANGELOG.md` and never bump versions; `tools/release.sh <version>` bumps `bridge/package.json` and `web/package.json` (one shared version), the image tags and the changelog and commits `Release <version>`; the plugin version lives in `plugin/CMakeLists.txt` (`project(... VERSION ...)`). Pushing the tag `v<version>` after CI is green runs `.github/workflows/release.yml`, which alone creates the GHCR image and the GitHub release; never create a release by hand.
 - **Team workflow** (`docs/workflow.md`, ADR-0026): every change starts with a GitHub issue, gets a branch `<issue>-<slug>` from `main`, commits in English, one line, ending with `(#<issue>)`, and reaches `main` only through a pull request (template, `Closes #<issue>`, green CI, one approval, squash merge). Never commit to `main` directly (only the maintainer's release commit). Run `pnpm lint && pnpm test && pnpm build` (plus e2e or plugin tests when touched) before pushing. Claude commits on the ticket branch; it pushes and opens the pull request only when asked (the `/ticket` skill counts as asked; personal settings that forbid pushing win). Decisions with wider impact get an ADR in `docs/decisions/` (short MADR; ADRs Claude decides are marked "proposed"). When code diverges from an ADR, add a "Current state" note instead of rewriting it.
+
+## Team and GitHub (read before any git or gh action)
+
+Several people work on this repo, each with their own Claude Code; these rules hold for every instance, whatever the
+personal settings say about style. The full flow is `docs/workflow.md`.
+
+- **Start of a session**: `gh auth status` (the skills need the GitHub CLI; if it is not logged in, ask the person to
+  run `gh auth login`), `git status`, and which branch is checked out. Work on `main` only to pull it.
+- **One ticket, one branch**: `<issue>-<slug>` from an up-to-date `main`. No ticket yet: offer `/new-ticket` first.
+  Skills: `/ticket <n>` works an issue to a pull request, `/new-ticket` writes one.
+- **`main` is protected** by a ruleset: no direct pushes, no force pushes, no deletion; merges only through a pull
+  request with one approval and the required checks green (`Lint, Test, Build (Node)`, `Web UI in the browser (Playwright)`, `Build and test plugin (C++)`,
+  `Cross-build and test plugin for Windows (MinGW, Wine)`, `Mumble interfaces unchanged`). Only squash merge is allowed: the pull
+  request title becomes the one commit on `main` (body left empty), so the title is one line in English ending with
+  `(#<issue>)`. Merged branches are deleted automatically.
+- **Never use the admin bypass**, even if the account has it. Only the maintainer's release commit (`tools/release.sh`)
+  goes to `main` directly. If a push to `main` is rejected, that is the rule working: push a branch and open a pull
+  request instead.
+- **Pushing and pull requests** only when the person asks (the `/ticket` skill counts as asked). Never merge a pull
+  request, approve your own, or close someone else's ticket; that is for people.
+- **Labels**: `bug`, `enhancement`, `task` (kind), `client`, `web`, `service`, `plugin`, `ops` (part), `needs-decision`
+  and `blocked` (do not start), `good first issue`. Ask before working on a ticket assigned to someone else.
+- **Writing style** in everything committed: English, no em or en dashes (use a hyphen with spaces, a colon or a new
+  sentence), commit messages one line without trailers.

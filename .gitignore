@@ -8,3 +8,4 @@ build-win/
 coverage/
 .idea/
 dist-demo/
+.claude/settings.local.json
