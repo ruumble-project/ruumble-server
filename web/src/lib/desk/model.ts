@@ -35,9 +35,11 @@ export function mergeEntries(current: readonly DeskEntry[], incoming: readonly D
   return all.length > max ? all.slice(all.length - max) : all;
 }
 
-/** messages from others newer than the last one seen: what the button counts */
+/** a message from someone else after the last one seen: what the button counts and the "New" line marks */
+const unseen = (e: DeskEntry, seenId: number) => e.id > seenId && (e.kind === "text" || e.kind === "private");
+
 export function unreadCount(entries: readonly DeskEntry[], seenId: number): number {
-  return entries.filter((e) => e.id > seenId && (e.kind === "text" || e.kind === "private")).length;
+  return entries.filter((e) => unseen(e, seenId)).length;
 }
 
 /** what the box shows: everything, only chat messages, or only Mumble's notices */
@@ -45,7 +47,7 @@ export type DeskFilter = "all" | "messages" | "notices";
 
 export const DESK_FILTERS: readonly DeskFilter[] = ["all", "messages", "notices"];
 
-const MESSAGE_KINDS: readonly DeskKind[] = ["text", "private", "own"];
+const MESSAGE_KINDS: ReadonlySet<DeskKind> = new Set(["text", "private", "own"]);
 
 /** a remembered filter, or "all" for anything else */
 export function parseFilter(raw: unknown): DeskFilter {
@@ -53,23 +55,28 @@ export function parseFilter(raw: unknown): DeskFilter {
 }
 
 /** the entries that match the filter and contain the search text anywhere, ignoring case */
-export function visibleEntries(entries: readonly DeskEntry[], query: string, filter: DeskFilter): DeskEntry[] {
+export function visibleEntries(entries: readonly DeskEntry[], query: string, filter: DeskFilter): readonly DeskEntry[] {
   const needle = query.trim().toLocaleLowerCase();
+  if (!needle && filter === "all") return entries;
   return entries.filter((e) => {
-    if (filter === "messages" && !MESSAGE_KINDS.includes(e.kind)) return false;
-    if (filter === "notices" && MESSAGE_KINDS.includes(e.kind)) return false;
+    if (filter !== "all" && MESSAGE_KINDS.has(e.kind) !== (filter === "messages")) return false;
     return !needle || e.text.toLocaleLowerCase().includes(needle);
   });
 }
 
 /** where the "New" line goes: the first message from others after the last one seen, or null when there is none */
 export function firstUnreadId(entries: readonly DeskEntry[], seenId: number): number | null {
-  return entries.find((e) => e.id > seenId && (e.kind === "text" || e.kind === "private"))?.id ?? null;
+  return entries.find((e) => unseen(e, seenId))?.id ?? null;
 }
+
+/** one formatter per language: a new one for each of up to 500 lines costs more than the formatting */
+const clocks = new Map<string, Intl.DateTimeFormat>();
 
 /** "09:41" in the viewer's time */
 export function timeOf(time: number, locale: string): string {
-  return new Date(time).toLocaleTimeString(locale, { hour: "2-digit", minute: "2-digit" });
+  let clock = clocks.get(locale);
+  if (!clock) clocks.set(locale, (clock = new Intl.DateTimeFormat(locale, { hour: "2-digit", minute: "2-digit" })));
+  return clock.format(time);
 }
 
 /** the text of a chat message ready to send: trimmed, empty means nothing to send */

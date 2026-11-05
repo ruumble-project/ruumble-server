@@ -144,7 +144,7 @@ describe("direct chat: the conversations of the own user (ADR-0021)", () => {
 
 describe("direct chat in the web UI (state)", () => {
   /** a service that answers every send with the message, from ME */
-  function setup(fail: Parameters<typeof chatErrorText>[0] | null = null) {
+  function setup(fail: Parameters<typeof chatErrorText>[0] | null = null, room = false) {
     const sent: ChatSend[] = [];
     const notices: string[] = [];
     const adapter = {
@@ -160,7 +160,7 @@ describe("direct chat in the web UI (state)", () => {
         },
       },
     } as unknown as MumbleAdapter;
-    const chat = new ChatState(adapter, { notice: (t) => notices.push(t), arrived: () => {} });
+    const chat = new ChatState(adapter, { notice: (t) => notices.push(t), arrived: () => {}, room: () => room });
     chat.identify(ME);
     return { chat, sent, notices };
   }
@@ -241,14 +241,12 @@ describe("direct chat in the web UI (state)", () => {
   });
 
   it("Ruumble in a box (#10): the room tab first, part of the round, never closed; the box stays open on it", () => {
-    const { chat } = setup();
-    chat.setRoom(true);
+    const { chat } = setup(null, true);
     chat.toggle();
     expect(chat.active).toBe(ROOM_TAB); // nobody to talk to yet: the room
-    expect(chat.roomInView).toBe(true);
     expect(chat.conversation).toBeNull();
     chat.open(ANNA, "Anna");
-    expect(chat.roomInView).toBe(false);
+    expect(chat.active).toBe(ANNA);
     expect(chat.order).toEqual([ROOM_TAB, ANNA]);
     chat.cycle(1);
     expect(chat.active).toBe(ROOM_TAB);
@@ -262,9 +260,7 @@ describe("direct chat in the web UI (state)", () => {
     chat.open(BEN, "Ben");
     chat.forget(BEN);
     expect(chat.active).toBe(ROOM_TAB);
-    chat.setRoom(false); // the client's desk went: so does the room tab
-    expect(chat.active).toBeNull();
-    expect(chat.order).toEqual([]);
+    expect(setup().chat.order).toEqual([]); // in a normal browser there is no room tab
   });
 
   it("what did not go out: a notice in words, the draft stays", async () => {

@@ -13,7 +13,7 @@ import {
   floorLabels,
   homeFloor,
   ownPlace,
-  ownRow,
+  ownBand,
   initials,
   isMutedRoomName,
   roomGrow,
@@ -65,15 +65,16 @@ describe("Individual rules", () => {
     expect(splitRows([])).toEqual({ top: [], bottom: [] });
   });
 
-  it("ownRow: the row of the floor plan that holds the own room", () => {
-    const room = (isSelf: boolean) => ({ isSelf }) as unknown as Room;
-    const floor = (...rooms: boolean[]) => ({ rooms: rooms.map(room) }) as unknown as Floor;
-    expect(ownRow(floor(true, false, false))).toBe("top");
-    expect(ownRow(floor(false, false, true))).toBe("bottom");
-    expect(ownRow(floor(false, true))).toBe("bottom"); // two rooms: one per row
-    expect(ownRow(floor(false, false))).toBeNull(); // in the corridor or on another floor
-    expect(ownRow(floor())).toBeNull();
-    expect(ownRow(null)).toBeNull();
+  it("ownBand: where the own user is on the floor plan", () => {
+    const floor = (corridor: boolean, ...rooms: boolean[]) =>
+      ({ corridor: { isSelf: corridor }, rooms: rooms.map((isSelf) => ({ isSelf }) as unknown as Room) }) as unknown as Floor;
+    expect(ownBand(floor(false, true, false, false))).toBe("top");
+    expect(ownBand(floor(false, false, false, true))).toBe("bottom");
+    expect(ownBand(floor(false, false, true))).toBe("bottom"); // two rooms: one per row
+    expect(ownBand(floor(true, false, false))).toBe("corridor");
+    expect(ownBand(floor(false, false, false))).toBeNull(); // on another floor
+    expect(ownBand(floor(true))).toBeNull(); // an open floor: no rows to keep clear of
+    expect(ownBand(null)).toBeNull();
   });
 
   it("initials keep emojis and combined characters whole", () => {

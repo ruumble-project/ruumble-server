@@ -147,8 +147,6 @@ describe("Ruumble Client: the connection to the client", () => {
     const desk = new DeskState();
     desk.start(client.win);
     expect(desk.available).toBe(true);
-    expect(desk.version).toBe("1.6.0");
-    expect(desk.server).toBe("127.0.0.1:64738");
     expect(desk.entries.map((e) => e.id)).toEqual([1, 2]);
     expect(desk.unread).toBe(1);
 
@@ -161,9 +159,6 @@ describe("Ruumble Client: the connection to the client", () => {
     client.log({ broken: true });
     expect(desk.entries).toHaveLength(4);
     expect(desk.unread).toBe(1);
-
-    client.serverChange("");
-    expect(desk.server).toBe("");
   });
 
   it("on opening marks where the unread messages start; the filter is remembered, the search is not", () => {

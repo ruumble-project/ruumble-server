@@ -514,7 +514,6 @@ export const de = {
   },
   /** "Unter vier Augen", the direct chat (ADR-0021): private messages between two people, wherever they are in the building */
   chat: {
-    title: "Unter vier Augen",
     /** the button in the person card */
     button: "Unter vier Augen schreiben",
     label: (name: string) => `Nachricht an ${name}`,
@@ -643,13 +642,13 @@ export const de = {
     "sender-away": "Der Absender ist gerade nicht erreichbar.",
     offline: "Keine Verbindung zum Ruumble-Dienst.",
   },
-  /** Ruumble Client (ADR-0024): Mumble's log, channel chat and dialogs inside the Ruumble Client */
   /** Ruumble in a box (#10): one window for the room's log and chat and the quiet words */
   box: {
     title: "Ruumble in a box",
     roomTab: (room: string) => `Protokoll und Chat von ${room}`,
     roomTabPlain: "Protokoll und Chat",
   },
+  /** Ruumble Client (ADR-0024): Mumble's log, channel chat and dialogs inside the Ruumble Client */
   desk: {
     /** the button on the screen shown while Mumble is offline: opens the City Map */
     connect: "Mit einem Server verbinden",

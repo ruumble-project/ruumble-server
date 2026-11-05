@@ -134,7 +134,7 @@
             <span class="elevator-icon"><ArrowDownUp size={18} /></span>{t().core.elevator}
             <!-- everyone online, opens the building overview: cross-section and directory board (ADR-0019) -->
             <!-- right click in Ruumble Client: Mumble's menu of the whole building (the root channel: add a floor) -->
-            <button type="button" class="overview-link" title={`${t().overview.open} (H)`} onclick={() => { open = null; app.openOverview(); }} oncontextmenu={(e) => contextMenu(admin, e, 0)}>
+            <button type="button" class="overview-link" title={`${t().overview.open} (H)`} onclick={() => act(() => app.openOverview())} oncontextmenu={(e) => contextMenu(admin, e, 0)}>
               <span class="online"><span class="dot" aria-hidden="true"></span>{t().header.online(building.online)}</span>
               <Building2 size={15} aria-hidden="true" />
             </button>

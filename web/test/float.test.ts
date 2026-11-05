@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { BOX_MIN_HEIGHT, BOX_OVERHANG, boxCorner, boxHeight, floatSide } from "../src/lib/model/float.ts";
+import { BOX_MIN_HEIGHT, BOX_OVERHANG, boxHeight, floatSide } from "../src/lib/model/float.ts";
 
 const plan = { left: 0, right: 1000 };
 
@@ -18,16 +18,6 @@ describe("side of the floating board", () => {
 
   it("own room not on the shown floor: on the right", () => {
     expect(floatSide(null, plan, 340)).toBe("right");
-  });
-});
-
-describe("corner of Ruumble in a box (#10)", () => {
-  it("away from the own room's row and from the floating board", () => {
-    expect(boxCorner("top", null)).toEqual({ top: false, right: false });
-    expect(boxCorner("bottom", null)).toEqual({ top: true, right: false });
-    expect(boxCorner(null, "right")).toEqual({ top: false, right: false });
-    expect(boxCorner("bottom", "left")).toEqual({ top: true, right: true });
-    expect(boxCorner("top", "left")).toEqual({ top: false, right: true });
   });
 });
 

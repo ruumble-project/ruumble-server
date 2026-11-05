@@ -342,7 +342,7 @@
     flex: 1; display: grid; grid-template-columns: minmax(120px, 1fr) auto minmax(0, 1fr); align-items: center; gap: 24px; min-width: 0;
   }
   .room.corridor .content .label { position: sticky; left: 22px; justify-self: start; }
-  .room.corridor .content .people { grid-column: 2; justify-content: center; }
+  .room.corridor .content .people { justify-content: center; }
   .wrap-corridor { flex: none; }
   .wrap-open { flex-grow: 1; }
   .room {

@@ -65,10 +65,6 @@
     };
   });
 
-  // Ruumble in a box (#10): the room tab comes with Ruumble Client's desk, and its log counts as seen while it is in view
-  $effect(() => app.chat.setRoom(app.desk.available));
-  $effect(() => app.desk.setVisible(app.chat.roomInView));
-
   // the tab says where one is: "Let's talk · Ruumble"; without an own place just "Ruumble"
   $effect(() => {
     const place = building && app.snapshot ? ownPlace(building, app.snapshot) : null;

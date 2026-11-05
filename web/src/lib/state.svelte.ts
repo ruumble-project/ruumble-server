@@ -178,6 +178,7 @@ export class RuumbleState {
       arrived: (name, seen, text) => {
         if (!seen || !this.notices.foreground()) this.notices.notify("message", name, text);
       },
+      room: () => this.desk.available,
     });
     this.tube = new TubeState(adapter, {
       notice: (text) => this.setNotice({ text }),

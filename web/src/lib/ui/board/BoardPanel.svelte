@@ -1,9 +1,9 @@
 <script lang="ts">
   import ChevronLeft from "@lucide/svelte/icons/chevron-left";
   import ChevronRight from "@lucide/svelte/icons/chevron-right";
-  import ListFilter from "@lucide/svelte/icons/list-filter";
   import Pin from "@lucide/svelte/icons/pin";
   import Search from "@lucide/svelte/icons/search";
+  import FilterMenu from "../FilterMenu.svelte";
   import SlidersHorizontal from "@lucide/svelte/icons/sliders-horizontal";
   import X from "@lucide/svelte/icons/x";
   import type { Post } from "@ruumble/protocol";
@@ -37,20 +37,6 @@
   const posts = $derived(board ? filterPosts(board.posts, app.boardFilter, app.boardQuery) : []);
   const narrowed = $derived(app.boardFilter !== "all" || app.boardQuery.trim() !== "");
 
-  // filter menu: closes on choice, Escape and a click elsewhere
-  let filterOpen = $state(false);
-  let filterButton = $state<HTMLButtonElement | null>(null);
-  $effect(() => {
-    if (!filterOpen) return;
-    const close = (e: MouseEvent) => { if (!(e.target as HTMLElement).closest(".filter")) filterOpen = false; };
-    window.addEventListener("click", close);
-    return () => window.removeEventListener("click", close);
-  });
-  function choose(f: BoardFilter): void {
-    app.boardFilter = f;
-    filterOpen = false;
-    filterButton?.focus();
-  }
   // view menu: docked or floating board, normal or compact posts; stays open while choosing, so the effect is visible
   // and the other setting is one click away; closes on a click elsewhere and Escape
   let viewOpen = $state(false);
@@ -173,24 +159,7 @@
         <Search size={16} aria-hidden="true" />
         <input type="search" bind:value={app.boardQuery} placeholder={t().board.searchPlaceholder(board.posts.length)} aria-label={t().board.search} />
       </label>
-      <div class="filter">
-        <button
-          type="button" class="tool" bind:this={filterButton} class:active={app.boardFilter !== "all"} aria-haspopup="menu" aria-expanded={filterOpen}
-          aria-label={t().board.filterLabel} title={t().board.filterLabel} onclick={() => (filterOpen = !filterOpen)}
-        >
-          <ListFilter size={18} aria-hidden="true" />
-          {#if app.boardFilter !== "all"}<span class="dot" aria-hidden="true"></span>{/if}
-        </button>
-        {#if filterOpen}
-          <div class="menu" role="menu" tabindex="-1" onkeydown={(e) => { if (e.key === "Escape") { filterOpen = false; filterButton?.focus(); } }}>
-            {#each FILTERS as f, i (f)}
-              <button type="button" role="menuitemradio" aria-checked={app.boardFilter === f} onclick={() => choose(f)} {@attach (el) => { if (i === 0) el.focus(); }}>
-                {t().board.filters[f]}
-              </button>
-            {/each}
-          </div>
-        {/if}
-      </div>
+      <FilterMenu options={FILTERS} value={app.boardFilter} text={(f) => t().board.filters[f]} label={t().board.filterLabel} onchoose={(f) => (app.boardFilter = f)} />
     {:else}
       <span class="title">{t().board.title}</span>
     {/if}
@@ -298,8 +267,8 @@
 <style>
   /* its own tint (light: lightly blue), so the board stands out from the floor plan; cards and fields on it in --color-card */
   .board { --board-bg: var(--color-board); --color-paper: var(--color-card); position: relative; flex-shrink: 0;
-    /* grows on wide windows, as wide as Ruumble in a box (tokens.css) */
-    width: var(--panel-width); display: flex; flex-direction: column; background: var(--board-bg); min-height: 0; }
+    /* as wide as Ruumble in a box (tokens.css) */
+    width: var(--board-width); display: flex; flex-direction: column; background: var(--board-bg); min-height: 0; }
   /* floating over the floor plan, framed by a wall like a room */
   .board.floating {
     position: absolute; z-index: 4; top: var(--wall); bottom: var(--wall); right: var(--wall);
@@ -313,9 +282,7 @@
   .search:focus-within { outline: 3px solid var(--color-sky); outline-offset: 0; }
   .search input { flex: 1; min-width: 0; border: 0; outline: 0; background: none; font: inherit; font-size: 14px; color: var(--color-ink); }
   .tool { position: relative; width: 36px; height: 36px; border: 1px solid var(--color-blue-300); border-radius: var(--radius-md); background: var(--color-paper); color: var(--color-ink); display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; }
-  .tool.active { border-color: var(--color-ink); background: var(--color-blue-100); }
-  .dot { position: absolute; top: 5px; right: 5px; width: 7px; height: 7px; border-radius: 50%; background: var(--color-ink); }
-  .filter, .view { position: relative; }
+  .view { position: relative; }
   .view .menu { min-width: 230px; }
   .menu-title { padding: 6px 10px 2px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--color-blue-700); }
   .menu [role="group"] { display: flex; flex-direction: column; }

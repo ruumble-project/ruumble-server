@@ -31,6 +31,8 @@ export interface ChatHost {
   notice(text: string): void;
   /** a message from someone else arrived; `seen` when its conversation is in view */
   arrived(name: string, seen: boolean, text: string): void;
+  /** the room tab is there: Ruumble Client's desk (Mumble's log and channel chat) */
+  room?(): boolean;
 }
 
 /** plain text for a message that did not go out */
@@ -63,15 +65,14 @@ export class ChatState {
   focus = $state<{ target: "composer" | "tab"; tick: number }>({ target: "composer", tick: 0 });
 
   /** the room tab is there (Ruumble Client's desk): first in the row, cannot be closed */
-  room = $state(false);
+  room = $derived(this.hasRoom());
 
   tabs = $derived(openTabs(this.book));
   unread = $derived(unreadTotal(this.book));
-  conversation = $derived(this.active && this.active !== ROOM_TAB ? (this.book[this.active] ?? null) : null);
+  /** the person in view; null on the room tab ("room" is never a person id, those are hex) */
+  conversation = $derived(this.active ? (this.book[this.active] ?? null) : null);
   /** the tabs in their order: the room first, then the people */
   order = $derived([...(this.room ? [ROOM_TAB] : []), ...this.tabs.map((c) => c.person)]);
-  /** the room tab is in view: its log counts as seen */
-  roomInView = $derived(this.panel === "open" && this.active === ROOM_TAB);
 
   private toastTimer: ReturnType<typeof setTimeout> | null = null;
   private pruneTimer: ReturnType<typeof setInterval> | null = null;
@@ -108,14 +109,8 @@ export class ChatState {
     if (!me || me === this.me) return;
     this.me = me;
     this.book = prune(parseBook(read(storageKey(me)) ?? takeLegacy(me)), Date.now());
-    this.active = this.tabs[0]?.person ?? this.fallback();
+    this.active = this.tabs[0]?.person ?? this.order[0] ?? null;
     this.save();
-  }
-
-  /** Ruumble Client's desk came (or went): the room tab with it */
-  setRoom(on: boolean): void {
-    this.room = on;
-    if (!on && this.active === ROOM_TAB) this.active = this.tabs[0]?.person ?? null;
   }
 
   /** this browser is no longer paired: every conversation is forgotten here */
@@ -173,7 +168,7 @@ export class ChatState {
   }
 
   close(person: string): void {
-    const next = tabAfterClose(this.tabs, person) ?? this.fallback();
+    const next = tabAfterClose(this.tabs, person) ?? this.roomTab();
     this.update(closeConversation(this.book, person));
     if (this.active === person) this.active = next;
     if (!this.tabs.length && !this.room) this.panel = "closed";
@@ -182,7 +177,7 @@ export class ChatState {
 
   /** "forget history": gone from this browser, the tab too */
   forget(person: string): void {
-    const next = tabAfterClose(this.tabs, person) ?? this.fallback();
+    const next = tabAfterClose(this.tabs, person) ?? this.roomTab();
     this.update(forget(this.book, person));
     if (this.active === person) this.active = next;
     const { [person]: _draft, ...drafts } = this.drafts;
@@ -198,14 +193,17 @@ export class ChatState {
   /** open again where one left off: the last tab in view, else the room tab, else the first person */
   private reopen(): void {
     this.panel = "open";
-    const stillThere = this.active === ROOM_TAB ? this.room : !!this.active && !!this.book[this.active]?.open;
-    if (!stillThere) this.active = this.fallback() ?? this.tabs[0]?.person ?? null;
-    if (this.active && this.active !== ROOM_TAB) this.update(markRead(this.book, this.active));
+    if (!this.active || !this.order.includes(this.active)) this.active = this.order[0] ?? null;
+    if (this.active) this.update(markRead(this.book, this.active)); // the room tab: no conversation, nothing changes
     this.focusOn("tab");
   }
 
+  private hasRoom(): boolean {
+    return this.host.room?.() ?? false;
+  }
+
   /** the room tab when it is there */
-  private fallback(): string | null {
+  private roomTab(): string | null {
     return this.room ? ROOM_TAB : null;
   }
 
@@ -262,7 +260,7 @@ export class ChatState {
 
   private show(tab: string): void {
     this.active = tab;
-    if (tab !== ROOM_TAB) this.update(markRead(this.book, tab));
+    this.update(markRead(this.book, tab)); // the room tab: no conversation, nothing changes
   }
 
   private focusOn(target: "composer" | "tab"): void {

@@ -23,16 +23,7 @@ export function floatSide(room: Span | null, plan: Span, boardWidth: number): Bo
   return fitsLeft && !fitsRight ? "left" : "right";
 }
 
-/**
- * Corner of Ruumble in a box (#10): it keeps clear of the own room and of the floating board. At the top when the own
- * room is in the bottom row of the floor plan, else at the bottom; at the right when the floating board is on the left,
- * else at the left. `board`: the side of the floating board, `null` while no board floats.
- */
-export function boxCorner(ownRow: "top" | "bottom" | null, board: BoardSide | null): { top: boolean; right: boolean } {
-  return { top: ownRow === "bottom", right: board === "left" };
-}
-
-/** where the own user is on the shown floor plan: a room in the top or bottom row, the corridor, or none of them */
+/** where the own user is on the shown floor plan (ownBand in model/building.ts) */
 export type OwnBand = "top" | "bottom" | "corridor" | null;
 
 /** vertical edges of the floor plan's corridor and bottom row, in px from the top of the window */

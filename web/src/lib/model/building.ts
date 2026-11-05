@@ -148,15 +148,15 @@ export function splitRows<T>(rooms: readonly T[]): { top: T[]; bottom: T[] } {
 }
 
 /**
- * The row of the floor plan that holds the own room: "top" or "bottom"; null in the corridor, on another floor or
- * without a floor. Panels docked at the side keep clear of it (Ruumble in a box).
+ * Where the own user is on the shown floor plan: a room in the "top" or "bottom" row or the "corridor"; null on
+ * another floor, on an open floor or without a floor. Ruumble in a box keeps clear of it (#10).
  */
-export function ownRow(floor: Floor | null): "top" | "bottom" | null {
-  if (!floor) return null;
+export function ownBand(floor: Floor | null): "top" | "bottom" | "corridor" | null {
+  if (!floor?.rooms.length) return null;
   const { top, bottom } = splitRows(floor.rooms);
   if (top.some((r) => r.isSelf)) return "top";
   if (bottom.some((r) => r.isSelf)) return "bottom";
-  return null;
+  return floor.corridor.isSelf ? "corridor" : null;
 }
 
 /**

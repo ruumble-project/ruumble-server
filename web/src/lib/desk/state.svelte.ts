@@ -38,8 +38,6 @@ export class DeskState implements DeskAdmin {
   available = $state(false);
   open = $state(false);
   entries = $state<DeskEntry[]>([]);
-  server = $state("");
-  version = $state("");
   draft = $state("");
   sending = $state(false);
   /** search text and filter of the box; the filter is remembered in this browser, the search is not */
@@ -62,9 +60,6 @@ export class DeskState implements DeskAdmin {
       if (!desk) return;
       this.desk = desk;
       this.available = true;
-      this.version = desk.version;
-      this.server = desk.server;
-      desk.serverChanged.connect(() => (this.server = desk.server));
       desk.logged.connect((raw) => this.add([raw]));
       desk.history((list) => this.add(list));
     });

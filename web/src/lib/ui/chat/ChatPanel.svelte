@@ -10,8 +10,8 @@
   import X from "@lucide/svelte/icons/x";
   import { CHAT_LIMITS } from "@ruumble/protocol";
   import { t } from "../../i18n/index.svelte.ts";
-  import { initials, ownPlace, ownRow } from "../../model/building.ts";
-  import { boxCorner, boxHeight, type OwnBand } from "../../model/float.ts";
+  import { initials, ownBand, ownPlace } from "../../model/building.ts";
+  import { boxHeight } from "../../model/float.ts";
   import { buildDirectory } from "../../model/overview.ts";
   import { SHORTCUT_KEYS } from "../../shortcuts.ts";
   import type { RuumbleState } from "../../state.svelte.ts";
@@ -27,17 +27,19 @@
   // own room (Mumble's log and channel chat, DeskLog), then one tab per person for the direct chat (ADR-0021). The head
   // of a conversation says where the other one is right now (from the snapshot), with the way to go there; below the
   // messages, the reactions of the board (A1) and the invitation to the own room ("come over"). It docks away from the
-  // own room's row and from the floating board (boxCorner). Closed, the button in the top bar counts what is unread,
-  // and P brings the window back.
+  // own room's row and from the floating board, and covers at most the other row and the corridor (boxHeight). Closed,
+  // the button in the top bar counts what is unread, and T brings the window back.
   let { app }: { app: RuumbleState } = $props();
 
   const chat = $derived(app.chat);
   const onRoom = $derived(chat.room && chat.active === ROOM_TAB);
   const roomName = $derived(app.building && app.snapshot ? (ownPlace(app.building, app.snapshot)?.name ?? "") : "");
   const roomLabel = $derived(roomName ? t().box.roomTab(roomName) : t().box.roomTabPlain);
-  const corner = $derived(boxCorner(ownRow(app.floor), app.boardOpen && app.boardFloating && !app.readonly ? app.boardSide : null));
-  /** where the own user is on the shown floor: the box never covers that row (or the corridor) */
-  const band = $derived<OwnBand>(ownRow(app.floor) ?? (app.floor?.corridor.isSelf && app.floor.rooms.length ? "corridor" : null));
+  /** where the own user is on the shown floor: the box keeps clear of that row (or the corridor) */
+  const band = $derived(ownBand(app.floor));
+  // at the top when the own room is in the bottom row; at the right when the floating board is on the left
+  const atTop = $derived(band === "bottom");
+  const atRight = $derived(app.boardOpen && app.boardFloating && !app.readonly && app.boardSide === "left");
   const conversation = $derived(chat.conversation);
   /** everyone in the building with their place, as on the directory board */
   const people = $derived(
@@ -58,26 +60,37 @@
   let panel = $state<HTMLElement | null>(null);
   /** the measured height (boxHeight); null: the usual height from the stylesheet */
   let fit = $state<number | null>(null);
-  // measured again when the floor, the people or the window change and when the rooms have finished resizing
+  // measured when the box opens, the own place or the shown floor changes, and whenever the floor plan changes its size
+  // (the window, the docked board): the corridor and the bottom row only move then
+  const floorId = $derived(app.floor?.channelId ?? null);
   $effect(() => {
-    void [app.floor, app.snapshot, corner.top, band];
     const el = panel;
-    if (!el) return;
+    const own = band;
+    const top = atTop;
+    void floorId;
+    const plan = el && own ? document.querySelector<HTMLElement>(".floorplan") : null;
+    if (!el || !plan) {
+      fit = null;
+      return;
+    }
+    let frame = 0;
     const measure = () => {
-      const corridor = document.querySelector<HTMLElement>(".floorplan .wrap-corridor")?.getBoundingClientRect();
-      const bottomRow = document.querySelector<HTMLElement>(".floorplan .row.bottom")?.getBoundingClientRect();
-      const style = getComputedStyle(el);
-      // the fixed edge from the stylesheet, not the box's rect: that moves while it slides in
-      const edge = corner.top ? parseFloat(style.top) : innerHeight - parseFloat(style.bottom);
-      const bands = corridor && bottomRow ? { corridorTop: corridor.top, corridorBottom: corridor.bottom, bottomRowTop: bottomRow.top } : null;
-      fit = boxHeight(band, edge, bands, innerHeight);
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() => {
+        const corridor = plan.querySelector(".wrap-corridor")?.getBoundingClientRect();
+        const bottomRow = plan.querySelector(".row.bottom")?.getBoundingClientRect();
+        const style = getComputedStyle(el);
+        // the fixed edge from the stylesheet, not the box's rect: that moves while it slides in
+        const edge = top ? parseFloat(style.top) : innerHeight - parseFloat(style.bottom);
+        const bands = corridor && bottomRow ? { corridorTop: corridor.top, corridorBottom: corridor.bottom, bottomRowTop: bottomRow.top } : null;
+        fit = boxHeight(own, edge, bands, innerHeight);
+      });
     };
-    measure();
-    addEventListener("resize", measure);
-    document.addEventListener("transitionend", measure);
+    const observer = new ResizeObserver(measure); // reports once right away, then on every change of size
+    observer.observe(plan);
     return () => {
-      removeEventListener("resize", measure);
-      document.removeEventListener("transitionend", measure);
+      observer.disconnect();
+      cancelAnimationFrame(frame);
     };
   });
   let list = $state<HTMLElement | null>(null);
@@ -155,7 +168,7 @@
 
 {#if chat.panel === "open"}
   <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
-  <section class="chat tint-{tint}" class:top={corner.top} class:right={corner.right} style:height={fit ? `${fit}px` : undefined} aria-label={t().box.title} bind:this={panel} onkeydown={onpanelkey}>
+  <section class="chat tint-{tint}" class:top={atTop} class:right={atRight} style:height={fit ? `${fit}px` : undefined} aria-label={t().box.title} bind:this={panel} onkeydown={onpanelkey}>
     <header class="bar">
       <Inbox size={18} aria-hidden="true" />
       <h2>{t().box.title}</h2>
@@ -196,7 +209,7 @@
     {/if}
 
     {#if onRoom}
-      <DeskLog {app} />
+      <DeskLog {app} room={roomName} label={roomLabel} />
     {:else if conversation}
       <div class="conversation" id="chat-conversation" role="tabpanel" aria-label={conversation.name}>
         <div class="who">
@@ -311,18 +324,17 @@
   .chat {
     --color-paper: var(--color-raised);
     position: fixed; left: 32px; bottom: 24px; z-index: 20; height: min(520px, calc(100vh - 120px));
-    /* as wide as the board, growing like it on wide windows (tokens.css) */
-    width: var(--panel-width);
+    /* as wide as the board (tokens.css) */
+    width: var(--board-width);
     display: flex; flex-direction: column; overflow: hidden; border-radius: 10px; background: var(--color-paper); color: var(--color-ink);
     box-shadow: 0 0 0 1px var(--color-raised-edge), 0 16px 48px rgb(0 56 105 / 0.28), 0 2px 6px rgb(0 56 105 / 0.15);
     animation: rise 200ms var(--ease-out) both;
   }
-  /* away from the own room's row and from the floating board (boxCorner) */
+  /* away from the own room's row and from the floating board */
   .chat.right { left: auto; right: 32px; }
   .chat.top { top: calc(var(--topbar-height) + 30px); bottom: auto; animation-name: drop; }
   @keyframes rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
   @keyframes drop { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: none; } }
-  @media (prefers-reduced-motion: reduce) { .chat, .chat.top, .row { animation: none; } }
 
   .bar { display: flex; align-items: center; gap: 8px; height: 44px; flex: none; padding: 0 6px 0 14px; background: var(--color-wall); color: var(--color-white); }
   h2 { margin: 0; flex: 1; font-size: 14px; font-weight: 700; letter-spacing: 0.02em; }
@@ -395,22 +407,23 @@
   .picker { width: 100%; max-width: 300px; }
   .first { margin: auto; font-size: 13px; color: var(--color-blue-700); text-align: center; }
 
-  .compose { flex: none; display: flex; flex-direction: column; gap: 4px; padding: 10px 10px 8px; border-top: 1px solid var(--color-blue-100); }
-  .compose-row { display: flex; align-items: flex-end; gap: 6px; }
-  /* input and buttons as on the board (Composer): square corners, the send button dark and a little wider */
-  textarea {
+  /* the input row of a tab, the room tab (DeskLog) included: as on the board (Composer), square corners and the send
+     button dark and a little wider */
+  .chat :global(.compose) { flex: none; display: flex; flex-direction: column; gap: 4px; padding: 10px 10px 8px; border-top: 1px solid var(--color-blue-100); }
+  .chat :global(.compose-row) { display: flex; align-items: flex-end; gap: 6px; }
+  .chat :global(textarea) {
     flex: 1; min-width: 0; min-height: 40px; max-height: 132px; box-sizing: border-box; padding: 9px 10px; border: 1px solid var(--color-blue-300);
     border-radius: var(--radius-md); background: var(--color-paper); color: var(--color-ink); font: inherit; font-size: 14px; line-height: 20px; resize: none;
   }
-  textarea:focus-visible { outline: 3px solid var(--color-sky); outline-offset: 0; }
-  .round {
+  .chat :global(textarea):focus-visible { outline: 3px solid var(--color-sky); outline-offset: 0; }
+  .chat :global(.round) {
     width: 40px; height: 40px; flex: none; display: grid; place-items: center; border: 1px solid var(--color-blue-300); border-radius: var(--radius-md);
     background: var(--color-paper); color: var(--color-ink); cursor: pointer;
   }
-  .round:hover:not(:disabled) { background: var(--color-blue-100); }
-  .round.solid { width: 44px; border: 0; background: var(--color-ink); color: var(--color-paper); }
-  .round.solid:hover:not(:disabled) { background: var(--color-ink-soft); }
-  .round:disabled { opacity: 0.45; cursor: default; }
+  .chat :global(.round):hover:not(:disabled) { background: var(--color-blue-100); }
+  .chat :global(.round.solid) { width: 44px; border: 0; background: var(--color-ink); color: var(--color-paper); }
+  .chat :global(.round.solid):hover:not(:disabled) { background: var(--color-ink-soft); }
+  .chat :global(.round):disabled { opacity: 0.45; cursor: default; }
   .chars { align-self: flex-end; padding-right: 92px; font-size: 11px; color: var(--color-blue-700); }
   .chars.over { color: var(--color-alert); font-weight: 700; }
   .away-note { margin: 0; padding: 8px 10px; border-radius: var(--radius-md); background: var(--color-surface); font-size: 13px; color: var(--color-blue-700); }
@@ -422,7 +435,7 @@
   .empty :global(svg) { color: var(--color-blue-300); }
 
 
-  .bar-btn:focus-visible, .tab-btn:focus-visible, .tab-close:focus-visible, .go:focus-visible, .icon-btn:focus-visible, .chip:focus-visible, .round:focus-visible {
+  .bar-btn:focus-visible, .tab-btn:focus-visible, .tab-close:focus-visible, .go:focus-visible, .icon-btn:focus-visible, .chip:focus-visible, .chat :global(.round:focus-visible) {
     outline: 3px solid var(--color-sky); outline-offset: 1px;
   }
   .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }

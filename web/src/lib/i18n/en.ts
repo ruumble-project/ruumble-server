@@ -483,7 +483,6 @@ export const en: Messages = {
     unreachable: (name: string) => `${name} cannot be reached right now.`,
   },
   chat: {
-    title: "A quiet word",
     button: "Have a quiet word",
     label: (name: string) => `Message to ${name}`,
     tabs: "Conversations",
