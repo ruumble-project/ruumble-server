@@ -6,18 +6,18 @@ All notable changes to Ruumble. The service and the web UI share one version; th
 
 ## [Unreleased]
 
+Plugin 0.5.0 (unchanged). Ruumble in a box becomes the one window for what is said: the quiet words move into it as tabs, next to the room's log in Ruumble Client. It docks where it covers neither the own room nor the board, and it shares one width and one look with the board. Nothing to do when updating; users press **T** instead of P for it.
+
 ### Changed
 
-- Ruumble in a box keeps clear of the own room: it docks at the top when the own room is in the bottom row of the floor plan, otherwise at the bottom as before
-- People in the corridor stand in its middle instead of next to its name on the left
-- A quiet word moved into Ruumble in a box: one window with a tab per person, and inside Ruumble Client first a tab (an icon) for the own room with Mumble's log and chat. One button at the top right, where the quiet word's button was, counts everything unread
-- Ruumble in a box keeps clear of the floating board too: at the right when the board floats on the left, also while the board is hidden, so the box does not change sides when the board is shown or hidden
-- Ruumble in a box fits its height to the floor plan: it covers the other row of rooms and most of the corridor (in the corridor only the bottom row) and stops 16 px short of the own row; it reaches 5 px past the floor plan's outer wall, so it is seen to float over the plan
-- The board and Ruumble in a box have the same width, between 300 px (narrow windows) and 500 px (from 2000 px wide), also in Ruumble Client; the board was 340 px, the box 420 px
+- **Ruumble in a box holds the quiet words:** one window with a tab per person and, inside Ruumble Client, first a tab (an icon) for the own room with Mumble's log and chat. One button at the top right, where the quiet word's button was, counts everything unread
+- **Keyboard:** **T** ("talk") opens and closes Ruumble in a box and, on a person in the directory board, starts a quiet word (was P); **B** stays the board
+- **Where the box docks:** at the top when the own room is in the bottom row of the floor plan, else at the bottom; on the other side of the floating board (also while the board is hidden), else at the left. It covers the other row of rooms and most of the corridor but stops 16 px short of the own row, and reaches 5 px past the floor plan's outer wall, so it is seen to float
+- **The floating board** stays on the right unless the own room leaves room for it only on the left; with the own room in the middle it no longer swaps sides while the window resizes
+- **One width for board and box:** between 300 px (narrow windows) and 500 px (from 2000 px wide), also in Ruumble Client; the board was 340 px, the box 420 px
+- **One look for board and box:** the same search field, the filter as a menu button, square input fields and the dark send button; the room's input says "Message in <room>"
 - A quiet word: no line of keyboard hints below the input any more (they are in the list of shortcuts, ?)
-- Keyboard: **T** ("talk") opens and closes Ruumble in a box and, on a person in the directory board, starts a quiet word (was P); **B** stays the board
-- The floating board stays on the right (and Ruumble in a box on the left) unless the own room leaves room for it only on the left; with the own room in the middle it no longer swaps sides while the window resizes
-- Ruumble in a box looks like the board: the same search field, the filter as a menu button, square input fields and the dark send button
+- People in the corridor stand in its middle instead of next to its name on the left
 
 ## [0.35.0] - 2026-11-05
 
