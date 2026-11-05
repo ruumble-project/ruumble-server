@@ -12,7 +12,7 @@ All notable changes to Ruumble. The service and the web UI share one version; th
 - People in the corridor stand in its middle instead of next to its name on the left
 - A quiet word moved into Ruumble in a box: one window with a tab per person, and inside Ruumble Client first a tab (an icon) for the own room with Mumble's log and chat. One button at the top right, where the quiet word's button was, counts everything unread; P, comma, full stop and Escape work as before
 - Ruumble in a box keeps clear of the floating board too: at the right when the board floats on the left
-- Ruumble in a box fits its height to the floor plan: it covers at most the other row of rooms and the corridor, never the row the own room is in (in the corridor only the bottom row)
+- Ruumble in a box fits its height to the floor plan: it covers the other row of rooms and the corridor (in the corridor only the bottom row) and reaches a little past that edge, so it floats over the plan without covering the people in the own room
 - The board and Ruumble in a box have the same width: 380 px (the board was 340 px, the box 420 px), both growing alike on wide windows, now also in Ruumble Client
 - The floating board stays on the right (and Ruumble in a box on the left) unless the own room leaves room for it only on the left; with the own room in the middle it no longer swaps sides while the window resizes
 - Ruumble in a box looks like the board: the same search field, the filter as a menu button, square input fields and the dark send button
