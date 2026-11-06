@@ -6,6 +6,8 @@ All notable changes to Ruumble. The service and the web UI share one version; th
 
 ## [Unreleased]
 
+## [0.39.0] - 2026-11-06
+
 ### Added
 
 - **A newer Ruumble Client:** inside an older Ruumble Client a red dot on the name badge and an entry at the top of the user menu point to the new client release. The service asks GitHub every 6 hours for the latest release and passes it on in `/api/version` (`client`); the web UI may only talk to its own service (ADR-0011). Operators switch it off with `CLIENT_RELEASE_CHECK=off`. Needs Ruumble Client 0.39.0 or newer (`desk.clientVersion`) (#18)
@@ -498,6 +500,7 @@ Plugin 0.1.0 to 0.2.0.
 - Real Mumble avatars and presence (quiet, away, recording).
 - Docker image with the plugin bundle served under `/download`.
 
+[0.39.0]: https://github.com/ruumble-project/ruumble-server/releases/tag/v0.39.0
 [0.38.0]: https://github.com/ruumble-project/ruumble-server/releases/tag/v0.38.0
 [0.37.0]: https://github.com/ruumble-project/ruumble-server/releases/tag/v0.37.0
 [0.36.0]: https://github.com/ruumble-project/ruumble-server/releases/tag/v0.36.0

@@ -25,7 +25,7 @@ services:
             - 64738:64738/udp
 
     ruumble:
-        image: ghcr.io/ruumble-project/ruumble:0.38.0
+        image: ghcr.io/ruumble-project/ruumble:0.39.0
         container_name: ruumble
         restart: unless-stopped
         depends_on:
