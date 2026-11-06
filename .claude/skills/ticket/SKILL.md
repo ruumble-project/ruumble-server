@@ -47,7 +47,7 @@ The working tree must be clean first; if not, show it and ask.
 - Tests first where it fits (bug: a failing test that reproduces it). Keep coverage thresholds.
 - `CHANGELOG.md`: a line under `## [Unreleased]` for anything a user or operator notices, in the existing style.
 - `docs/whats-new/next.md`: for anything a **user** notices, the user-facing line (English, simple words, New / Better /
-  Fixed, `` `server update` `` when it needs the server), with a small screenshot where it helps (`docs/releasing.md`).
+  Fixed, the orange `server update` badge when it needs the server, see `docs/releasing.md`), with a small screenshot where it helps (`docs/releasing.md`).
 - Docs: user guide, operations or development guide when behaviour or setup changes; an ADR (status "proposed") for a
   wider decision.
 

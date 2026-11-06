@@ -15,7 +15,8 @@ const next = readFileSync(file("next.md"), "utf8");
 
 // next.md: the instructions (an HTML comment), the legend, then the changes
 const comment = /^<!--[\s\S]*?-->\n*/.exec(next)?.[0] ?? "";
-const LEGEND = "Changes marked `server update` reach you once the Ruumble server you use is updated.";
+const BADGE = "![server update](https://img.shields.io/badge/-server%20update-e67e22)";
+const LEGEND = `Changes marked ${BADGE} reach you once the Ruumble server you use is updated.`;
 const body = next.slice(comment.length).replace(LEGEND, "").trim();
 if (!/^(###|- )/m.test(body)) {
   console.log(`whats-new: no user-visible changes in next.md, no page for ${version}`);
@@ -43,7 +44,7 @@ if (previous && existsSync(file(`${previous}.md`))) {
 }
 
 // the overview: newest on top, with the headings of the larger changes as the highlights
-const highlights = [...body.matchAll(/^### (.+)$/gm)].map((m) => m[1].replace(/\s*`[^`]*`\s*/g, "").trim());
+const highlights = [...body.matchAll(/^### (.+)$/gm)].map((m) => m[1].replace(/\s*!\[[^\]]*\]\([^)]*\)\s*/g, "").trim());
 const line = `- [${version}](${version}.md) · ${when}${highlights.length ? ` · ${highlights.join(", ")}` : ""}`;
 const MARK = "<!-- versions: tools/release.sh adds a line here for every release with a page -->";
 if (!readme.includes(MARK)) throw new Error("README.md has lost its versions marker");

@@ -54,7 +54,7 @@ Every change a **user** notices also goes into **`docs/whats-new/next.md`**, the
 
 - **English, simple words**: what the user can do or see now, not how it was built; no technical terms, no ticket numbers.
 - **Sections** `## New`, `## Better`, `## Fixed`; a short `###` heading per larger change, one line per small one.
-- **Server and Ruumble Client are not told apart.** A change that reaches users only once the server is updated (the web UI, the service) ends with the label `` `server update` ``.
+- **Server and Ruumble Client are not told apart.** A change that reaches users only once the server is updated (the web UI, the service) ends with the orange badge `![server update](https://img.shields.io/badge/-server%20update-e67e22)` (it reads well in the light and the dark GitHub theme).
 - **Small screenshots** where they help to understand the change: add a shot to `web/scripts/whats-new-shots.mjs` and run `pnpm -F @ruumble/web whats-new-shots <name>`; the pictures land in `docs/whats-new/images/next/` (light theme, English, cropped to what changed).
 - A change only operators or developers notice stays out (it is in the changelog).
 
