@@ -26,6 +26,7 @@
   import ChatPanel from "./lib/ui/chat/ChatPanel.svelte";
   import ChatToast from "./lib/ui/chat/ChatToast.svelte";
   import TubeDialog from "./lib/ui/tube/TubeDialog.svelte";
+  import KeyDialog from "./lib/ui/desk/KeyDialog.svelte";
   import TubePanel from "./lib/ui/tube/TubePanel.svelte";
   import TubeToast from "./lib/ui/tube/TubeToast.svelte";
 
@@ -180,6 +181,7 @@
     {#if app.maintenanceOpen}<MaintenanceDialog {app} />{/if}
     {#if app.statusOpen}<StatusDialog {app} />{/if}
     {#if app.noticesOpen}<NoticesDialog {app} />{/if}
+    {#if app.desk.transmit?.keyDialogOpen}<KeyDialog transmit={app.desk.transmit} />{/if}
     {#if app.helpOpen}<ShortcutsDialog onclose={() => (app.helpOpen = false)} />{/if}
     {#if app.editChannelId !== null}
       {@const editing = app.snapshot?.channels.find((c) => c.id === app.editChannelId)}

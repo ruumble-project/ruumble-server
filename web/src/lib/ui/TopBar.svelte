@@ -37,6 +37,12 @@
   import Pencil from "@lucide/svelte/icons/pencil";
   import Sparkles from "@lucide/svelte/icons/sparkles";
   import CircleArrowDown from "@lucide/svelte/icons/circle-arrow-down";
+  import CircleDot from "@lucide/svelte/icons/circle-dot";
+  import Lock from "@lucide/svelte/icons/lock";
+  import Monitor from "@lucide/svelte/icons/monitor";
+  import TriangleAlert from "@lucide/svelte/icons/triangle-alert";
+  import { keyText } from "../desk/transmit.ts";
+  import TransmitMenu from "./desk/TransmitMenu.svelte";
 
   // Top bar instead of the elevator column, made of signs: left the floor sign (opens the elevator, which shows
   // everyone online in its head and, inside Ruumble Client, Mumble's functions in its footer), in the middle the sign
@@ -92,8 +98,59 @@
   });
   const canEdit = $derived(!!here && here.space.canTend && app.desk.available && app.desk.canEditChannels);
 
+  // how the user transmits, inside a Ruumble Client that knows it (#9 in ruumble-client): in push-to-talk the microphone
+  // is the talk button (hold = talk, double click = keep open), mute moves into the menu below the small tab next to it
+  const transmit = $derived(app.desk.transmit);
+  const ptt = $derived(transmit?.mode === "ptt");
+  /** transmitting, or the page's own press already down: the button, the line under the bar and the avatar react */
+  const onAir = $derived(!!transmit && !!me && !muted && (transmit.transmitting || (ptt && (transmit.pressing || transmit.latched))));
+  const micTitle = $derived.by(() => {
+    if (!transmit || !ptt) return t().core.mute;
+    if (muted) return t().transmit.mutedHint;
+    if (transmit.latched) return t().transmit.latchedHint;
+    if (!transmit.key.set) return t().transmit.holdNoKey;
+    const key = keyText(transmit.key, t().transmit.keyNames);
+    return transmit.key.scope === "window" ? t().transmit.holdWindow(key) : t().transmit.hold(key);
+  });
+  const keyProblem = $derived(ptt && !!transmit && (!transmit.key.set || transmit.key.scope === "window"));
+  // the bound key while it only works in the window (Wayland): the page listens for it itself
+  $effect(() => {
+    const tr = transmit;
+    if (!tr?.listensInWindow) return;
+    return tr.listen(window);
+  });
+
+  // a press on the microphone: held with pointer capture, so letting go anywhere counts. A muted or latched microphone
+  // does not talk on a press; its click unmutes or closes it (also a click without a press, e.g. from a screen reader)
+  function micDown(e: PointerEvent): void {
+    if (!transmit || !ptt || !me || e.button !== 0 || muted || transmit.latched) return;
+    try {
+      (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+    } catch {
+      // a pointer the browser no longer knows: then pointerup on the button itself still lets go
+    }
+    transmit.pressMouse(true);
+  }
+  function micUp(): void {
+    transmit?.pressMouse(false);
+  }
+  function micClick(): void {
+    if (!transmit || !ptt) {
+      void app.toggleMute();
+      return;
+    }
+    if (transmit.latched) transmit.setLatched(false);
+    else if (muted) void app.toggleMute();
+  }
+  function micKey(e: KeyboardEvent, down: boolean): void {
+    if (!transmit || !ptt || (e.key !== " " && e.key !== "Enter")) return;
+    if (down && e.repeat) return e.preventDefault();
+    if (!down || (!muted && !transmit.latched)) transmit.pressMouse(down);
+  }
+
   // one dropdown at a time; closes on a choice, Escape (focus back to its button) and a click elsewhere
-  let open = $state<"floors" | "user" | "room" | null>(null);
+  let open = $state<"floors" | "user" | "room" | "transmit" | null>(null);
+  let modeButton = $state<HTMLButtonElement | null>(null);
   let floorsButton = $state<HTMLButtonElement | null>(null);
   let userButton = $state<HTMLButtonElement | null>(null);
   let roomButton = $state<HTMLButtonElement | null>(null);
@@ -104,7 +161,7 @@
     const onkeydown = (e: KeyboardEvent) => {
       if (e.key !== "Escape") return;
       open = null;
-      (which === "floors" ? floorsButton : which === "room" ? roomButton : userButton)?.focus();
+      (which === "floors" ? floorsButton : which === "room" ? roomButton : which === "transmit" ? modeButton : userButton)?.focus();
     };
     window.addEventListener("click", onclick);
     window.addEventListener("keydown", onkeydown);
@@ -113,7 +170,7 @@
       window.removeEventListener("keydown", onkeydown);
     };
   });
-  const toggle = (which: "floors" | "user" | "room") => (open = open === which ? null : which);
+  const toggle = (which: "floors" | "user" | "room" | "transmit") => (open = open === which ? null : which);
 
   /** a button in the elevator's footer: closes the elevator, then does its thing */
   function act(run: () => void): void {
@@ -131,7 +188,7 @@
   }
 </script>
 
-<header class="topbar" class:raised={open !== null}>
+<header class="topbar" class:raised={open !== null} class:talking={onAir}>
   <div class="left">
     <div class="dropdown" data-dropdown="floors">
       <!-- the floor sign: a plate with the floor and its people, the elevator buttons on the right -->
@@ -297,9 +354,42 @@
     </button>
     <!-- mute and deafen belong together: one joined pair, set apart from tube mail and the direct chat -->
     <div class="audio" role="group" aria-label={t().core.audio}>
-    <button type="button" class="tool" aria-pressed={muted} aria-label={t().core.mute} title={t().core.mute} disabled={!me} onclick={() => app.toggleMute()}>
+    <button
+      type="button" class="tool mic" class:on={onAir && ptt} class:voice={onAir && !ptt} aria-pressed={ptt ? undefined : muted}
+      aria-label={micTitle} title={micTitle} disabled={!me} data-mic
+      onpointerdown={micDown} onpointerup={micUp} onpointercancel={micUp} onlostpointercapture={micUp} onclick={micClick}
+      ondblclick={() => { if (transmit && ptt && !muted && !transmit.latched) transmit.setLatched(true); }}
+      onkeydown={(e) => micKey(e, true)} onkeyup={(e) => micKey(e, false)}
+    >
+      {#if transmit && ptt}<span class="fill" aria-hidden="true"><i style:height={`${onAir ? transmit.level * 100 : 0}%`}></i></span>{/if}
       {#if muted}<MicOff size={20} />{:else}<Mic size={20} />{/if}
+      {#if transmit && !muted}
+        <span class="mode-badge" class:locked={ptt && transmit.latched} class:warn={keyProblem && !transmit.latched} aria-hidden="true">
+          {#if ptt && transmit.latched}<Lock size={10} strokeWidth={2.5} />
+          {:else if ptt && !transmit.key.set}<TriangleAlert size={10} strokeWidth={2.5} />
+          {:else if ptt && transmit.key.scope === "window"}<Monitor size={10} strokeWidth={2.5} />
+          {:else if ptt}<Keyboard size={10} strokeWidth={2.5} />
+          {:else if transmit.mode === "continuous"}<CircleDot size={10} strokeWidth={2.5} />
+          {:else}<AudioLines size={10} strokeWidth={2.5} />{/if}
+        </span>
+      {/if}
     </button>
+    {#if transmit}
+      <div class="dropdown mode" data-dropdown="transmit">
+        <button
+          type="button" class="tool mode-tab" bind:this={modeButton} aria-expanded={open === "transmit"} aria-controls="transmit-menu"
+          aria-label={t().transmit.modeTab} title={t().transmit.modeIs(t().transmit.modes[transmit.mode])} onclick={() => toggle("transmit")}
+        >
+          <ChevronDown size={14} />
+        </button>
+        {#if open === "transmit"}
+          <TransmitMenu
+            {transmit} {muted} ontogglemute={() => void app.toggleMute()} onsettings={() => app.desk.openSettings()}
+            onwizard={() => app.desk.openAudioWizard()} onclose={() => (open = null)}
+          />
+        {/if}
+      </div>
+    {/if}
     <button type="button" class="tool" aria-pressed={deaf} aria-label={t().core.deaf} title={t().core.deaf} disabled={!me} onclick={() => app.toggleDeaf()}>
       {#if deaf}<HeadphoneOff size={20} />{:else}<Headphones size={20} />{/if}
     </button>
@@ -537,8 +627,45 @@
   /* mute and deafen: a joined pair with a little room before it */
   .audio { display: flex; margin-left: 10px; border-radius: var(--radius-md); box-shadow: 0 1px 0 rgb(0 56 105 / 0.12); }
   .audio .tool { border-radius: 0; background: var(--color-surface); }
-  .audio .tool:first-child { border-radius: var(--radius-md) 0 0 var(--radius-md); }
-  .audio .tool:last-child { border-left: 0; border-radius: 0 var(--radius-md) var(--radius-md) 0; }
+  .audio > .tool:first-child { border-radius: var(--radius-md) 0 0 var(--radius-md); }
+  .audio > .tool:last-child { border-left: 0; border-radius: 0 var(--radius-md) var(--radius-md) 0; }
+  /* the small tab for the transmit mode between microphone and headphones (#9 in ruumble-client) */
+  .audio .mode { display: flex; }
+  .audio .mode-tab { width: 20px; border-left: 0; color: var(--color-blue-700); }
+  .audio .mode-tab :global(svg) { transition: transform var(--dur) var(--ease-out); }
+  .audio .mode-tab[aria-expanded="true"] :global(svg) { transform: rotate(180deg); }
+  /* the microphone: a sign of the mode in its corner; in push-to-talk it fills sky blue while talking, pulses like the
+     talking ring at the avatars, and the level rises inside it */
+  .mic { position: relative; touch-action: none; user-select: none; -webkit-user-select: none; }
+  .mic :global(svg) { position: relative; }
+  .mic .fill { position: absolute; inset: 0; overflow: hidden; border-radius: inherit; pointer-events: none; }
+  .mic .fill i { position: absolute; left: 0; right: 0; bottom: 0; height: 0; background: rgb(255 255 255 / 0.3); transition: height 70ms linear; }
+  .mode-badge {
+    position: absolute; right: 2px; bottom: 2px; width: 14px; height: 14px; border-radius: 4px; display: flex; align-items: center; justify-content: center;
+    background: var(--color-paper); color: var(--color-link); box-shadow: 0 0 0 1px var(--color-blue-300);
+  }
+  .mode-badge.warn { background: var(--color-brass); color: var(--color-white); box-shadow: 0 0 0 1px var(--color-brass); }
+  .mode-badge.locked { background: var(--color-ink); color: var(--color-paper); box-shadow: 0 0 0 1px var(--color-ink); }
+  .audio .tool.mic.on { z-index: 1; border-color: var(--color-sky); background: var(--color-sky); color: var(--color-white); }
+  .mic.on::after {
+    content: ""; position: absolute; inset: -6px; border: 2px solid var(--color-sky); border-radius: 8px; pointer-events: none;
+    animation: mic-pulse 1.1s var(--ease-out) infinite;
+  }
+  .mic.on .mode-badge { color: var(--color-sky); box-shadow: 0 0 0 1px var(--color-sky); }
+  .mic.on .mode-badge.locked { background: var(--color-ink); color: var(--color-paper); }
+  .mic.voice { box-shadow: inset 0 0 0 2px var(--color-sky); }
+  @keyframes mic-pulse { from { opacity: 0.9; transform: scale(0.92); } to { opacity: 0; transform: scale(1.3); } }
+  /* while transmitting the line under the whole bar lights up: visible from the corner of the eye */
+  .topbar::after {
+    content: ""; position: absolute; left: 0; right: 0; bottom: -3px; height: 3px; border-radius: 2px; background: var(--color-sky);
+    box-shadow: 0 0 12px 1px var(--color-sky); opacity: 0; pointer-events: none; transition: opacity 120ms linear;
+  }
+  .topbar.talking::after { opacity: 1; animation: bar-glow 1.1s ease-in-out infinite alternate; }
+  @keyframes bar-glow { from { opacity: 0.45; } to { opacity: 1; } }
+  @media (prefers-reduced-motion: reduce) {
+    .mic.on::after, .topbar.talking::after { animation: none; }
+    .mic .fill i { transition: none; }
+  }
   .audio .tool:hover { background: var(--color-blue-100); }
   .audio .tool[aria-pressed="true"] { background: var(--color-ink); border-color: var(--color-ink); }
   .audio .tool:disabled:hover { background: var(--color-surface); }

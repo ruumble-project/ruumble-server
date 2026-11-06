@@ -735,6 +735,53 @@ export const de = {
     leave: "Verlassen",
     leaveHint: "Gebäude verlassen (Verbindung zum Server trennen)",
   },
+  /** how the user transmits, inside Ruumble Client (#9 in ruumble-client) */
+  transmit: {
+    modeTab: "Sendeart wählen",
+    modeIs: (mode: string) => `Sendeart: ${mode}`,
+    menuTitle: "Wie du sendest",
+    modes: { vad: "Sprachaktivierung", ptt: "Push-to-Talk", continuous: "Dauerhaft offen" },
+    modeHints: {
+      vad: "Sendet, sobald du sprichst.",
+      ptt: "Sendet nur, solange du die Sprechtaste hältst.",
+      continuous: "Sendet immer, bis du stummschaltest.",
+    },
+    key: "Sprechtaste",
+    noKey: "keine",
+    change: "Ändern",
+    setKey: "Festlegen",
+    global: "Wirkt überall, auch wenn Ruumble im Hintergrund ist.",
+    window: "Wirkt nur, solange Ruumble im Vordergrund ist: Unter Wayland sieht Ruumble keine Tasten anderer Fenster. Das Mikrofon gedrückt halten geht immer.",
+    keepOpen: "Mikro offen halten",
+    mutedSwitch: "Stumm: Die Taste sendet nicht",
+    doublePush: "Zweimal kurz drücken hält das Mikro offen",
+    audioCue: "Signalton beim Drücken und Loslassen",
+    level: "Mikrofon",
+    moreSettings: "Weitere Audio-Einstellungen",
+    /** the microphone's tooltip and name in push-to-talk */
+    hold: (key: string) => `Gedrückt halten zum Sprechen (${key}). Doppelklick rastet ein.`,
+    holdWindow: (key: string) => `Gedrückt halten zum Sprechen (${key}, nur im Fenster). Doppelklick rastet ein.`,
+    holdNoKey: "Gedrückt halten zum Sprechen. Noch keine Sprechtaste festgelegt.",
+    latchedHint: "Mikro offen: Klick schließt es",
+    mutedHint: "Stumm: Klick hebt es auf",
+    talking: "Du sprichst",
+    /** the key dialog */
+    dialogTitle: "Sprechtaste festlegen",
+    dialogIntro: "Drück die Taste oder Maustaste, mit der du sprechen willst. Halten heißt sprechen, loslassen heißt stumm.",
+    listening: "Ruumble hört zu",
+    suggestions: "Vorschläge:",
+    warn: "Diese Taste bekommt auch das Programm im Vordergrund. Nimm lieber eine, die allein nichts tut: Buchstaben, Leertaste und Enter tippst du sonst beim Sprechen mit.",
+    windowNote: "Unter Wayland wirkt die Taste nur, solange Ruumble im Vordergrund ist.",
+    accept: (key: string) => `${key} übernehmen`,
+    failed: "Die Taste ließ sich nicht festlegen. Drück sie bitte noch einmal.",
+    houseRule: "Esc bricht ab. Die Taste steht auch in Mumbles Einstellungen unter „Tastenkürzel“.",
+    keyNames: {
+      ControlLeft: "Strg links", ControlRight: "Strg rechts", ShiftLeft: "Umschalt links", ShiftRight: "Umschalt rechts",
+      AltLeft: "Alt", AltRight: "Alt Gr", MetaLeft: "Super links", MetaRight: "Super rechts", Space: "Leertaste",
+      Enter: "Enter", Pause: "Pause", ScrollLock: "Rollen", CapsLock: "Feststelltaste", MouseBack: "Maustaste zurück",
+      MouseForward: "Maustaste vor", MouseMiddle: "Mittlere Maustaste",
+    },
+  },
 };
 
 export type Messages = typeof de;

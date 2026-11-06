@@ -5,6 +5,7 @@
  * chrome of its own. In a normal browser nothing of this exists and `available` stays false.
  */
 import type { DeskAdmin } from "./admin.ts";
+import { DeskTransmit, hasTransmit } from "./transmit.svelte.ts";
 import {
   firstUnreadId, mergeEntries, outgoing, parseEntry, parseFilter, unreadCount, visibleEntries, type DeskEntry, type DeskFilter,
 } from "./model.ts";
@@ -61,6 +62,8 @@ export class DeskState implements DeskAdmin {
   canManageChannels = $state(false);
   /** Ruumble Client's own version; null in a browser, an older client or when unknown (#18) */
   clientVersion = $state<string | null>(null);
+  /** how the user transmits (#9 in ruumble-client); null in a browser and with older clients */
+  transmit = $state<DeskTransmit | null>(null);
 
   readonly unread = $derived(this.open ? 0 : unreadCount(this.entries, this.seenId));
   readonly visible = $derived(visibleEntries(this.entries, this.query, this.filter));
@@ -77,6 +80,7 @@ export class DeskState implements DeskAdmin {
       this.canEditChannels = typeof desk.updateChannel === "function" && typeof desk.channelProperties === "function";
       this.clientVersion = typeof desk.clientVersion === "string" && desk.clientVersion !== "unknown" ? desk.clientVersion : null;
       this.canManageChannels = this.canEditChannels && typeof desk.createChannel === "function" && typeof desk.removeChannel === "function";
+      if (hasTransmit(desk)) this.transmit = new DeskTransmit(desk);
       desk.logged.connect((raw) => this.add([raw]));
       desk.history((list) => this.add(list));
     });

@@ -10,3 +10,11 @@
 -->
 
 Changes marked ![server update](https://img.shields.io/badge/-server%20update-e67e22) reach you once the Ruumble server you use is updated.
+
+## New
+
+### Push to talk, right in the top bar ![server update](https://img.shields.io/badge/-server%20update-e67e22)
+
+In Ruumble Client, a small tab next to the microphone lets you choose how you transmit: voice activation, push to talk or always on. With push to talk, the microphone becomes your talk button: hold it to talk, let go to go quiet, double-click to keep it open. While you talk, the button turns blue and the line under the top bar lights up, so you always know when others can hear you.
+
+The first time you choose push to talk, Ruumble asks for a talk key and suggests Right Ctrl. On X11 desktops the key works everywhere, even while another window is in front. On Wayland it works while Ruumble Client is in front. You need the new Ruumble Client for this.
