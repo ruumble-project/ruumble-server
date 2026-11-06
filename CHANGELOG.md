@@ -6,6 +6,11 @@ All notable changes to Ruumble. The service and the web UI share one version; th
 
 ## [Unreleased]
 
+### Changed
+
+- **"Do not disturb" is now called "Notices muted"** ("Hinweise stumm"), which is what it does: Ruumble's sounds, cues and desktop notifications stay quiet in this browser and are only counted, a nudge still rings through. Voice and everything else are unchanged, and others do not see it
+- **Muted notices show at the own avatar:** while they are muted, a crossed-out bell sits at the bottom left of the avatar on the name badge, opposite the status tag; a click on it turns notices back on (#12)
+
 ## [0.36.0] - 2026-11-05
 
 Plugin 0.5.0 (unchanged). Ruumble in a box becomes the one window for what is said: the quiet words move into it as tabs, next to the room's log in Ruumble Client. It docks where it covers neither the own room nor the board, and it shares one width and one look with the board. Nothing to do when updating; users press **T** instead of P for it.

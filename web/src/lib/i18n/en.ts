@@ -142,10 +142,12 @@ export const en: Messages = {
   },
   notices: {
     menu: "Notices …",
-    doNotDisturb: "Do not disturb",
+    doNotDisturb: "Notices muted",
+    doNotDisturbOn: "Notices are muted: only a nudge rings through",
+    doNotDisturbOff: "Turn notices back on",
     title: "Notices",
     intro: "How Ruumble draws your attention to what happens in the room. Applies to this browser only.",
-    doNotDisturbHint: "Do not disturb: everything stays quiet, only a nudge still rings through.",
+    doNotDisturbHint: "Notices muted: everything stays quiet and is only counted, only a nudge still rings through.",
     kinds: {
       entered: "Someone enters the room",
       nudge: "You are nudged",

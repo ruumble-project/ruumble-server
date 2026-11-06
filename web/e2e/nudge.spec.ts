@@ -46,11 +46,28 @@ test.describe("Nudge", () => {
     await expect(page.getByRole("dialog", { name: "Notices" }).getByLabel("You are nudged")).toHaveValue("off");
   });
 
-  test("do not disturb is a switch in the user menu", async ({ page }) => {
-    const dnd = (await userMenu(page)).getByRole("button", { name: /Do not disturb/ });
+  test("muting notices is a switch in the user menu", async ({ page }) => {
+    const dnd = (await userMenu(page)).getByRole("button", { name: /Notices muted/ });
     await expect(dnd).toHaveAttribute("aria-pressed", "false");
     await dnd.click();
     await expect(dnd).toHaveAttribute("aria-pressed", "true");
+  });
+
+  test("muted notices show as a sign at the own avatar, which turns them back on", async ({ page }) => {
+    const sign = page.getByRole("button", { name: "Notices are muted: only a nudge rings through" });
+    await expect(sign).toHaveCount(0);
+    const dnd = (await userMenu(page)).getByRole("button", { name: /Notices muted/ });
+    await dnd.click();
+    await page.keyboard.press("Escape");
+    await expect(sign).toBeVisible();
+    await expect(sign).toHaveAttribute("title", /Turn notices back on/);
+    // the sign and the status tag at the same avatar do not cover each other
+    const a = (await sign.boundingBox())!;
+    const b = (await page.getByRole("button", { name: "My status" }).boundingBox())!;
+    expect(a.x + a.width <= b.x || b.x + b.width <= a.x || a.y + a.height <= b.y || b.y + b.height <= a.y).toBe(true);
+    await sign.click();
+    await expect(sign).toHaveCount(0);
+    await expect((await userMenu(page)).getByRole("button", { name: /Notices muted/ })).toHaveAttribute("aria-pressed", "false");
   });
 
   test("someone coming into the room shows a short cue, which the notices dialog can switch off", async ({ page }) => {

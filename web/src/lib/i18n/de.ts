@@ -140,10 +140,13 @@ export const de = {
   },
   notices: {
     menu: "Hinweise …",
-    doNotDisturb: "Nicht stören",
+    doNotDisturb: "Hinweise stumm",
+    /** the sign at the own avatar on the name badge while notices are muted, and what a click on it does */
+    doNotDisturbOn: "Hinweise sind stumm: nur ein Anstupser klingelt durch",
+    doNotDisturbOff: "Hinweise wieder einschalten",
     title: "Hinweise",
     intro: "Wie Ruumble auf Ereignisse im Raum aufmerksam macht. Gilt nur für diesen Browser.",
-    doNotDisturbHint: "Nicht stören: alles bleibt leise, nur ein Anstupser klingelt durch.",
+    doNotDisturbHint: "Hinweise stumm: alles bleibt leise und wird nur gezählt, nur ein Anstupser klingelt durch.",
     kinds: {
       entered: "Jemand betritt den Raum",
       nudge: "Du wirst angestupst",

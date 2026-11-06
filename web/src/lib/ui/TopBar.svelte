@@ -63,6 +63,7 @@
   const tubeLabel = $derived(
     [t().tube.title, parcels ? t().tube.waiting(parcels) : "", sending !== null ? t().tube.sending(Math.round(sending * 100)) : ""].filter(Boolean).join(", "),
   );
+  const dnd = $derived(app.notices.settings.doNotDisturb);
   const myAvatar = $derived(me ? app.avatarOf(me.name) : null);
   let avatarBroken = $state<string | null>(null); // URL that could not be loaded → initials
   const hidden = $derived(building.self?.kind === "hidden");
@@ -257,6 +258,14 @@
         <span class="me-text"><span class="caption">{t().core.nameTag}</span><span class="me-name">{me?.name ?? t().header.preview}</span></span>
         <ChevronDown size={18} class="chevron" aria-hidden="true" />
       </button>
+      <!-- notices muted ("do not disturb" in the code, ADR-0023): a sign at the bottom left of the badge's avatar, the
+           counterpart of the status tag at the top right; only while it is on, a click turns it off. This browser only -->
+      {#if dnd}
+        <button type="button" class="dnd-sign" aria-label={t().notices.doNotDisturbOn}
+          title={`${t().notices.doNotDisturbOn}\n${t().notices.doNotDisturbOff}`} onclick={() => app.notices.setDoNotDisturb(false)}>
+          <span class="dnd-face"><BellOff size={12} strokeWidth={2.5} aria-hidden="true" /></span>
+        </button>
+      {/if}
       <!-- the own status (B, ADR-0018): a tag at the avatar of the name badge, as at every avatar in the floor plan;
            its text in the tooltip, dashed while none is set. A button of its own: the badge opens the user menu -->
       {#if me}
@@ -496,6 +505,19 @@
   .status-tag:hover .tag-face { transform: scale(1.1); border-color: var(--color-ink); color: var(--color-ink); }
   .status-tag:focus-visible { outline: none; }
   .status-tag:focus-visible .tag-face { outline: 3px solid var(--color-sky); outline-offset: 1px; }
+  /* notices muted: a filled 22 px sign in a 28 px target at the bottom left of the badge's avatar, like the set status tag */
+  .dnd-sign {
+    position: absolute; left: 0; top: 38px; width: 28px; height: 28px; padding: 0; border: 0; background: none; cursor: pointer;
+    display: grid; place-items: center; z-index: 1;
+  }
+  .dnd-face {
+    width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; box-sizing: border-box;
+    background: var(--color-ink); border: 2px solid var(--color-paper); color: var(--color-paper); box-shadow: 0 1px 3px rgb(0 56 105 / 0.35);
+    transition: transform var(--dur) var(--ease-out);
+  }
+  .dnd-sign:hover .dnd-face { transform: scale(1.1); }
+  .dnd-sign:focus-visible { outline: none; }
+  .dnd-sign:focus-visible .dnd-face { outline: 3px solid var(--color-sky); outline-offset: 1px; }
   .me-text { min-width: 0; }
   .me .caption { color: var(--color-link); }
   .me-name { display: block; font-size: 15px; font-weight: 700; white-space: nowrap; }
