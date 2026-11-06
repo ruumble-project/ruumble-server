@@ -35,6 +35,7 @@
   import Plant from "./Plant.svelte";
   import BoardNotes from "./board/BoardNotes.svelte";
   import Pencil from "@lucide/svelte/icons/pencil";
+  import Sparkles from "@lucide/svelte/icons/sparkles";
 
   // Top bar instead of the elevator column, made of signs: left the floor sign (opens the elevator, which shows
   // everyone online in its head and, inside Ruumble Client, Mumble's functions in its footer), in the middle the sign
@@ -364,6 +365,10 @@
           <button type="button" class="item" onclick={() => { open = null; app.helpOpen = true; }}>
             <Keyboard size={18} aria-hidden="true" />{t().shortcuts.menu}<kbd class="key">?</kbd>
           </button>
+          <!-- what is new in this version: its public page on GitHub (#17), in the system browser inside Ruumble Client -->
+          <a class="item" href={__WHATS_NEW_URL__} target="_blank" rel="noopener noreferrer" onclick={() => (open = null)}>
+            <Sparkles size={18} aria-hidden="true" />{t().core.whatsNew}
+          </a>
           <div class="versions"><span>{t().core.server(building.serverVersion)}</span><span>{t().core.ui(__UI_VERSION__)}</span></div>
         </div>
       {/if}
@@ -597,6 +602,7 @@
     background: none; color: var(--color-ink); font-size: 14px; text-align: left; cursor: pointer;
   }
   .item:hover { background: var(--color-blue-100); }
+  a.item { text-decoration: none; }
   .item .key { margin-left: auto; min-width: 20px; padding: 0 5px; border: 1px solid var(--color-blue-300); border-radius: 4px; font: inherit; font-size: 12px; font-weight: 700; text-align: center; color: var(--color-blue-700); }
   .item:disabled { opacity: 0.5; cursor: not-allowed; }
   .item:disabled:hover { background: none; }

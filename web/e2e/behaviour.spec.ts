@@ -436,3 +436,10 @@ test.describe("Dialog footer", () => {
     await expect(dialog).toHaveCount(0);
   });
 });
+
+test("What's new in the user menu opens the public page of this version (or the overview) in a new tab", async ({ page }) => {
+  await page.goto("/?fixture=sample&talking=0");
+  const link = (await userMenu(page)).getByRole("link", { name: "What's new" });
+  await expect(link).toHaveAttribute("href", /^https:\/\/github\.com\/ruumble-project\/ruumble-server\/blob\/main\/docs\/whats-new\/(README|\d+\.\d+\.\d+)\.md$/);
+  await expect(link).toHaveAttribute("target", "_blank");
+});

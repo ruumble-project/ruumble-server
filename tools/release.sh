@@ -2,7 +2,7 @@
 # Prepare a release (docs/releasing.md): tools/release.sh <version>
 #
 # On a clean main: moves "## [Unreleased]" of CHANGELOG.md into a dated section "## [<version>]" with its link
-# reference, sets the version in bridge/package.json and web/package.json, sets the image tag everywhere the docs
+# reference, turns docs/whats-new/next.md into the version's "What's new" page (tools/whats-new-release.mjs), sets the version in bridge/package.json and web/package.json, sets the image tag everywhere the docs
 # and templates name it, runs lint, tests and build, and commits "Release <version>". Tagging stays a separate step,
 # after CI on main is green:  git push && git tag v<version> && git push origin v<version>
 set -euo pipefail
@@ -40,11 +40,14 @@ awk -v v="$version" -v d="$today" '
   /^## \[Unreleased\]/ { print; print ""; print "## [" v "] - " d; next }
   /^\[[0-9]+\.[0-9]+\.[0-9]+\]: / && !linked { print "[" v "]: https://github.com/ruumble-project/ruumble-server/releases/tag/v" v; linked = 1 }
   { print }
-' CHANGELOG.md > CHANGELOG.md.tmp && mv CHANGELOG.md.tmp CHANGELOG.md
+'' CHANGELOG.md > CHANGELOG.md.tmp && mv CHANGELOG.md.tmp CHANGELOG.md
+
+# the users' "What's new" page of this version (#17); none when next.md holds no user-visible change
+node tools/whats-new-release.mjs "$version" "$today"
 
 pnpm lint && pnpm test && pnpm build
 
-git add bridge/package.json web/package.json CHANGELOG.md "${IMAGE_FILES[@]}"
+git add bridge/package.json web/package.json CHANGELOG.md docs/whats-new "${IMAGE_FILES[@]}"
 git commit -q -m "Release $version"
 echo "Committed \"Release $version\". Next, once CI on main is green:"
 echo "  git push && git tag v$version && git push origin v$version"

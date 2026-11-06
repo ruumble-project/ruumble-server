@@ -94,6 +94,7 @@ export const en: Messages = {
     lightOff: "Turn the light off",
     lightOn: "Turn the light on",
     quickSwitches: "Quick switches",
+    whatsNew: "What's new",
   },
   floorPlan: {
     openFloor: (count) => `Open floor without offices · ${count}`,

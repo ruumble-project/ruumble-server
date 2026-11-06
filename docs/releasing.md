@@ -50,6 +50,16 @@ Choosing the number ([Semantic Versioning](https://semver.org/)): patch (`0.28.1
 
 Every user-visible change adds a line to `CHANGELOG.md` under `## [Unreleased]`, in the existing style (`### Added` / `### Changed` / `### Fixed`, a bold short title, then one or two sentences). Do **not** create a `## [<version>]` section yourself and do not bump versions in feature commits; `tools/release.sh` refuses to run if the section already exists.
 
+Every change a **user** notices also goes into **`docs/whats-new/next.md`**, the public "What's new" page of the next version (#17), which "What's new" in the user menu opens:
+
+- **English, simple words**: what the user can do or see now, not how it was built; no technical terms, no ticket numbers.
+- **Sections** `## New`, `## Better`, `## Fixed`; a short `###` heading per larger change, one line per small one.
+- **Server and Ruumble Client are not told apart.** A change that reaches users only once the server is updated (the web UI, the service) ends with the label `` `server update` ``.
+- **Small screenshots** where they help to understand the change: add a shot to `web/scripts/whats-new-shots.mjs` and run `pnpm -F @ruumble/web whats-new-shots <name>`; the pictures land in `docs/whats-new/images/next/` (light theme, English, cropped to what changed).
+- A change only operators or developers notice stays out (it is in the changelog).
+
+`tools/release.sh` turns `next.md` into `docs/whats-new/<version>.md` with the title, the date and the links to the previous version and the overview (`README.md`), moves the pictures to `images/<version>/` and starts `next.md` again. A release without user-visible changes gets no page.
+
 If the plugin changed, the line above the subsections names the new plugin version, e.g. `Plugin 0.6.0.` or `Plugin 0.5.0 (unchanged).` (see earlier sections). `tools/release.sh` does not write this line; add it under `## [Unreleased]` before releasing.
 
 ## Step by step

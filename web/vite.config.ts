@@ -7,12 +7,16 @@ const pkg = JSON.parse(readFileSync(new URL("./package.json", import.meta.url), 
 // (the Docker build of the web UI has no plugin/ directory)
 const cmake = new URL("../plugin/CMakeLists.txt", import.meta.url);
 const pluginVersion = (existsSync(cmake) && /project\(ruumble_plugin VERSION ([\d.]+)/.exec(readFileSync(cmake, "utf8"))?.[1]) || "0.0.0";
+// "What's new" in the user menu (#17): the public page of this version on GitHub, or the overview when this version has
+// none (a development build, a release without user-visible changes)
+const whatsNewPage = existsSync(new URL(`../docs/whats-new/${pkg.version}.md`, import.meta.url)) ? `${pkg.version}.md` : "README.md";
+const whatsNewUrl = `https://github.com/ruumble-project/ruumble-server/blob/main/docs/whats-new/${whatsNewPage}`;
 
 export default defineConfig({
   plugins: [svelte()],
   // Ruumble Client (ruumble-project/ruumble-client) shows the UI in Qt WebEngine 6.4 = Chromium 102: syntax and CSS are lowered for it as well
   build: { target: ["chrome102", "edge107", "firefox104", "safari16"] },
-  define: { __UI_VERSION__: JSON.stringify(pkg.version), __PLUGIN_VERSION__: JSON.stringify(pluginVersion) },
+  define: { __UI_VERSION__: JSON.stringify(pkg.version), __PLUGIN_VERSION__: JSON.stringify(pluginVersion), __WHATS_NEW_URL__: JSON.stringify(whatsNewUrl) },
   // Workspace packages (e.g. protocol/) live outside web/
   server: {
     fs: { allow: [".."] },

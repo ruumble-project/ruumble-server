@@ -93,6 +93,8 @@ export const de = {
     lightOn: "Licht einschalten",
     /** the row of tiles at the top of the user menu */
     quickSwitches: "Schnellschalter",
+    /** the public page of this version on GitHub (#17), opens in a new tab */
+    whatsNew: "Was ist neu",
   },
   floorPlan: {
     openFloor: (count: string) => `Offene Etage ohne Büros · ${count}`,

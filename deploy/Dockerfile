@@ -45,6 +45,8 @@ COPY third_party third_party
 COPY protocol protocol
 COPY web web
 COPY bridge bridge
+# the web UI links to the "What's new" page of its version when there is one (web/vite.config.ts)
+COPY docs/whats-new docs/whats-new
 RUN pnpm -F @ruumble/web build && pnpm -F @ruumble/bridge build
 
 # only the runtime dependencies of the service (fastify, ice, better-sqlite3), for the target platform
