@@ -612,6 +612,7 @@ export const en: Messages = {
     titleRoom: "Room setup",
     titleFloor: "Floor setup",
     name: "Room name",
+    nameFloor: "Floor name",
     description: "Description",
     write: "Write",
     preview: "Preview",

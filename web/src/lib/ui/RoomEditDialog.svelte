@@ -77,7 +77,7 @@
     </header>
     <div class="fields">
       <label class="field">
-        <span class="caption">{t().roomEdit.name}</span>
+        <span class="caption">{kind === "room" ? t().roomEdit.name : t().roomEdit.nameFloor}</span>
         <input type="text" bind:value={form.name} maxlength="120" required aria-invalid={problem === "name-empty" || problem === "name-taken"} />
       </label>
 

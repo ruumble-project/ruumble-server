@@ -654,6 +654,7 @@ export const de = {
     titleRoom: "Raum einrichten",
     titleFloor: "Etage einrichten",
     name: "Raumname",
+    nameFloor: "Etagenname",
     description: "Beschreibung",
     write: "Schreiben",
     preview: "Vorschau",
