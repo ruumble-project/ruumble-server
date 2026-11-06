@@ -10,6 +10,7 @@ All notable changes to Ruumble. The service and the web UI share one version; th
 
 - **"Do not disturb" is now called "Notices muted"** ("Hinweise stumm"), which is what it does: Ruumble's sounds, cues and desktop notifications stay quiet in this browser and are only counted, a nudge still rings through. Voice and everything else are unchanged, and others do not see it
 - **Muted notices show at the own avatar:** while they are muted, a crossed-out bell sits at the bottom left of the avatar on the name badge, opposite the status tag; a click on it turns notices back on (#12)
+- **The user menu is sorted:** notices muted, dark mode and language are quick switches as three tiles at the top; below them "Go to my floor", "My status …" and "Notice settings …" (was "Notices …"), then "My keys" and the keyboard shortcuts (#12)
 
 ## [0.36.0] - 2026-11-05
 

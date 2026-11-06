@@ -94,6 +94,7 @@ export const en: Messages = {
     switchLanguage: (to) => `Change language: ${to}`,
     languageName: { de: "Deutsch", en: "English" },
     darkMode: "Dark mode",
+    quickSwitches: "Quick switches",
   },
   floorPlan: {
     lockText: { "too-deep": "The channel structure of this floor is deeper than two levels." },
@@ -141,7 +142,7 @@ export const en: Messages = {
     versions: (service, plugin) => `Ruumble service ${service}` + (plugin ? ` · plugin ${plugin}` : ""),
   },
   notices: {
-    menu: "Notices …",
+    menu: "Notice settings …",
     doNotDisturb: "Notices muted",
     doNotDisturbOn: "Notices are muted: only a nudge rings through",
     doNotDisturbOff: "Turn notices back on",

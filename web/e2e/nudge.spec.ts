@@ -37,12 +37,12 @@ test.describe("Nudge", () => {
   test("being nudged: a notice; the nudge can be switched off in the notices dialog and stays off", async ({ page }) => {
     await page.getByRole("button", { name: "Someone nudges me" }).click();
     await expect(page.getByRole("alert")).toHaveText(/Clara nudged you and would like your attention\./);
-    await (await userMenu(page)).getByRole("button", { name: "Notices …" }).click();
+    await (await userMenu(page)).getByRole("button", { name: "Notice settings …" }).click();
     const level = page.getByRole("dialog", { name: "Notices" }).getByLabel("You are nudged");
     await expect(level).toHaveValue("loud");
     await level.selectOption("off");
     await page.reload();
-    await (await userMenu(page)).getByRole("button", { name: "Notices …" }).click();
+    await (await userMenu(page)).getByRole("button", { name: "Notice settings …" }).click();
     await expect(page.getByRole("dialog", { name: "Notices" }).getByLabel("You are nudged")).toHaveValue("off");
   });
 
@@ -74,7 +74,7 @@ test.describe("Nudge", () => {
     await page.getByRole("button", { name: "Someone comes into my room" }).click();
     await expect(page.getByRole("alert")).toHaveText(/came in/);
     await page.reload();
-    await (await userMenu(page)).getByRole("button", { name: "Notices …" }).click();
+    await (await userMenu(page)).getByRole("button", { name: "Notice settings …" }).click();
     await page.getByRole("dialog", { name: "Notices" }).getByLabel("Someone enters the room").selectOption("off");
     await page.keyboard.press("Escape");
     await page.getByRole("button", { name: "Someone comes into my room" }).click();

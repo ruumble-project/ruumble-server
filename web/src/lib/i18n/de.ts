@@ -91,6 +91,8 @@ export const de = {
     switchLanguage: (to: string) => `Sprache wechseln: ${to}`,
     languageName: { de: "Deutsch", en: "English" },
     darkMode: "Dunkler Modus",
+    /** the row of tiles at the top of the user menu */
+    quickSwitches: "Schnellschalter",
   },
   floorPlan: {
     lockText: { "too-deep": "Die Kanalstruktur dieser Etage ist tiefer als zwei Ebenen." },
@@ -139,7 +141,7 @@ export const de = {
     versions: (service: string, plugin: string | null) => `Ruumble-Dienst ${service}` + (plugin ? ` · Plugin ${plugin}` : ""),
   },
   notices: {
-    menu: "Hinweise …",
+    menu: "Hinweiseinstellungen …",
     doNotDisturb: "Hinweise stumm",
     /** the sign at the own avatar on the name badge while notices are muted, and what a click on it does */
     doNotDisturbOn: "Hinweise sind stumm: nur ein Anstupser klingelt durch",

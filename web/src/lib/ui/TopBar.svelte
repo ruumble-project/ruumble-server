@@ -279,6 +279,22 @@
           {#if me}
             <div class="me-row"><span class="n">{me.name}</span><span class="l">{myPlace}</span></div>
           {/if}
+          <!-- quick switches: the three settings of this browser that are switched often, as tiles at the top -->
+          <div class="quick" role="group" aria-label={t().core.quickSwitches}>
+            <!-- notices muted ("do not disturb" in the code, ADR-0023), also from the sign at the avatar -->
+            <button type="button" class="tile" aria-pressed={dnd} onclick={() => app.notices.setDoNotDisturb(!dnd)}>
+              <BellOff size={18} aria-hidden="true" /><span>{t().notices.doNotDisturb}</span>
+            </button>
+            <!-- light or dark: the system setting until chosen here, then remembered in this browser -->
+            <button type="button" class="tile" aria-pressed={theme() === "dark"} onclick={() => setTheme(theme() === "dark" ? "light" : "dark")}>
+              <Moon size={18} aria-hidden="true" /><span>{t().core.darkMode}</span>
+            </button>
+            <!-- language: German or English (browser setting), switchable here and remembered; the tile names the other one -->
+            <button type="button" class="tile" aria-label={t().core.switchLanguage(t().core.languageName[other])} onclick={() => setLocale(other)}>
+              <Languages size={18} aria-hidden="true" /><span>{t().core.languageName[other]}</span>
+            </button>
+          </div>
+          <hr class="sep" />
           <button type="button" class="item" disabled={!myFloor} onclick={() => { app.goHome(); open = null; }}>
             <LocateFixed size={18} aria-hidden="true" />{t().core.home}
           </button>
@@ -286,24 +302,14 @@
           <button type="button" class="item" onclick={() => { open = null; void app.openStatus(); }}>
             <Tag size={18} aria-hidden="true" />{t().status.menu}<kbd class="key">S</kbd>
           </button>
-          <!-- my keys: the own paired browsers (ADR-0015) -->
-          <button type="button" class="item" disabled={!me} onclick={() => { open = null; void app.openKeys(); }}>
-            <span class="key-icon" aria-hidden="true"><Key size={18} /></span>{t().keys.myKeys}
-          </button>
-          <!-- language: German or English (browser setting), switchable here and remembered -->
-          <button type="button" class="item" onclick={() => setLocale(other)}>
-            <Languages size={18} aria-hidden="true" />{t().core.switchLanguage(t().core.languageName[other])}
-          </button>
-          <!-- light or dark: the system setting until chosen here, then remembered in this browser -->
-          <button type="button" class="item" aria-pressed={theme() === "dark"} onclick={() => setTheme(theme() === "dark" ? "light" : "dark")}>
-            <Moon size={18} aria-hidden="true" />{t().core.darkMode}<span class="switch">{theme() === "dark" ? t().common.on : t().common.off}</span>
-          </button>
           <!-- what Ruumble does when something happens in the room, for this browser (ADR-0023) -->
           <button type="button" class="item" onclick={() => { open = null; app.noticesOpen = true; }}>
             <Bell size={18} aria-hidden="true" />{t().notices.menu}
           </button>
-          <button type="button" class="item" aria-pressed={app.notices.settings.doNotDisturb} onclick={() => app.notices.setDoNotDisturb(!app.notices.settings.doNotDisturb)}>
-            <BellOff size={18} aria-hidden="true" />{t().notices.doNotDisturb}<span class="switch">{app.notices.settings.doNotDisturb ? t().common.on : t().common.off}</span>
+          <hr class="sep" />
+          <!-- my keys: the own paired browsers (ADR-0015) -->
+          <button type="button" class="item" disabled={!me} onclick={() => { open = null; void app.openKeys(); }}>
+            <span class="key-icon" aria-hidden="true"><Key size={18} /></span>{t().keys.myKeys}
           </button>
           <!-- the keyboard shortcuts, also with ? -->
           <button type="button" class="item" onclick={() => { open = null; app.helpOpen = true; }}>
@@ -535,8 +541,19 @@
   }
   .item:hover { background: var(--color-blue-100); }
   .item .key { margin-left: auto; min-width: 20px; padding: 0 5px; border: 1px solid var(--color-blue-300); border-radius: 4px; font: inherit; font-size: 12px; font-weight: 700; text-align: center; color: var(--color-blue-700); }
-  .item .switch { margin-left: auto; font-size: 12px; font-weight: 700; color: var(--color-blue-700); }
   .item:disabled { opacity: 0.5; cursor: not-allowed; }
   .item:disabled:hover { background: none; }
+  .sep { width: 100%; margin: 4px 0; border: 0; border-top: 1px solid var(--color-blue-100); }
+  /* the quick switches: three tiles side by side, filled while on */
+  .quick { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; padding: 2px 0 4px; }
+  .tile {
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; min-height: 64px; padding: 8px 4px;
+    border: 1px solid var(--color-blue-300); border-radius: var(--radius-md); background: none; color: var(--color-ink);
+    font-size: 12px; font-weight: 700; line-height: 1.25; text-align: center; cursor: pointer;
+    transition: background var(--dur) var(--ease-out);
+  }
+  .tile:hover { background: var(--color-blue-100); }
+  .tile[aria-pressed="true"] { background: var(--color-ink); border-color: var(--color-ink); color: var(--color-paper); }
+  .tile:focus-visible { outline: 3px solid var(--color-sky); outline-offset: 2px; }
   .versions { display: flex; justify-content: space-between; gap: 12px; padding: 10px 10px 4px; margin-top: 4px; border-top: 1px solid var(--color-blue-100); font-size: 12px; color: var(--color-blue-700); }
 </style>
