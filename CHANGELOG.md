@@ -6,6 +6,8 @@ All notable changes to Ruumble. The service and the web UI share one version; th
 
 ## [Unreleased]
 
+Plugin 0.5.0 (unchanged).
+
 ### Changed
 
 - **"Do not disturb" is now called "Notices muted"** ("Hinweise stumm"), which is what it does: Ruumble's sounds, cues and desktop notifications stay quiet in this browser and are only counted, a nudge still rings through. Voice and everything else are unchanged, and others do not see it
