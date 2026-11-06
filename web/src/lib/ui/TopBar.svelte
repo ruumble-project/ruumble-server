@@ -36,6 +36,7 @@
   import BoardNotes from "./board/BoardNotes.svelte";
   import Pencil from "@lucide/svelte/icons/pencil";
   import Sparkles from "@lucide/svelte/icons/sparkles";
+  import CircleArrowDown from "@lucide/svelte/icons/circle-arrow-down";
 
   // Top bar instead of the elevator column, made of signs: left the floor sign (opens the elevator, which shows
   // everyone online in its head and, inside Ruumble Client, Mumble's functions in its footer), in the middle the sign
@@ -82,6 +83,12 @@
     const room = self.kind === "room" ? f.rooms.find((r) => r.channelId === self.channelId) : undefined;
     if (self.kind === "room" && !room) return null;
     return { space: room ?? f.corridor, kind: (room ? "room" : "floor") as "room" | "floor", floor: f };
+  });
+  // a newer Ruumble Client is out (#18): a dot on the name badge until the user menu was opened for it, an entry in it
+  const update = $derived(app.clientUpdate);
+  const updateDot = $derived(!!update && app.clientUpdateSeen !== update.version);
+  $effect(() => {
+    if (open === "user") app.markClientUpdateSeen();
   });
   const canEdit = $derived(!!here && here.space.canTend && app.desk.available && app.desk.canEditChannels);
 
@@ -299,7 +306,8 @@
     </div>
     <div class="dropdown" data-dropdown="user">
       <!-- the name badge: yellow band like the ring around the own avatar, on a clip -->
-      <button type="button" class="me" bind:this={userButton} aria-expanded={open === "user"} aria-controls="user-menu" aria-label={t().core.userMenu} title={t().core.userMenu} onclick={() => toggle("user")}>
+      <button type="button" class="me" bind:this={userButton} aria-expanded={open === "user"} aria-controls="user-menu" aria-label={updateDot ? `${t().core.userMenu}, ${t().core.clientUpdateDot}` : t().core.userMenu} title={updateDot ? t().core.clientUpdateDot : t().core.userMenu} onclick={() => toggle("user")}>
+        {#if updateDot}<span class="update-dot" aria-hidden="true"></span>{/if}
         <span class="av-me" aria-hidden="true">
           {#if me && myAvatar && avatarBroken !== myAvatar}<img src={myAvatar} alt="" onerror={() => (avatarBroken = myAvatar)} />{:else if me}{initials(me.name)}{:else}<UserIcon size={18} />{/if}
         </span>
@@ -345,6 +353,11 @@
             </button>
           </div>
           <hr class="sep" />
+          {#if update && app.desk.clientVersion}
+            <a class="item update" href={update.url} target="_blank" rel="noopener noreferrer" title={t().core.clientUpdateHint(app.desk.clientVersion)} onclick={() => (open = null)}>
+              <CircleArrowDown size={18} aria-hidden="true" />{t().core.clientUpdate(update.version)}
+            </a>
+          {/if}
           <button type="button" class="item" disabled={!myFloor} onclick={() => { app.goHome(); open = null; }}>
             <LocateFixed size={18} aria-hidden="true" />{t().core.home}
           </button>
@@ -603,6 +616,12 @@
   }
   .item:hover { background: var(--color-blue-100); }
   a.item { text-decoration: none; }
+  a.item.update { font-weight: 700; color: var(--color-link); }
+  /* a newer Ruumble Client: a dot on the name badge's band, like a note pinned to it */
+  .update-dot {
+    position: absolute; top: -9px; right: -5px; width: 12px; height: 12px; border-radius: 50%;
+    background: var(--color-alert); box-shadow: 0 0 0 2px var(--color-paper);
+  }
   .item .key { margin-left: auto; min-width: 20px; padding: 0 5px; border: 1px solid var(--color-blue-300); border-radius: 4px; font: inherit; font-size: 12px; font-weight: 700; text-align: center; color: var(--color-blue-700); }
   .item:disabled { opacity: 0.5; cursor: not-allowed; }
   .item:disabled:hover { background: none; }

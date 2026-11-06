@@ -7,6 +7,7 @@ import type { BoardErrorCode, BoardResult, ConnectionState, MumbleAdapter, PairE
 import { formatSize, newestPost, parseSeen, unseenPosts, type BoardFilter, type CopyTarget } from "./board/model.ts";
 import type { CareTarget } from "./care/model.ts";
 import { moved, positionChanges } from "./care/rooms.ts";
+import { clientUpdate } from "./desk/update.ts";
 import { t } from "./i18n/index.svelte.ts";
 import type { BoardSide } from "./model/float.ts";
 import { avatarUrlOf, buildBuilding, homeFloor, type BuildOptions, type Building, type Floor } from "./model/building.ts";
@@ -17,6 +18,15 @@ import { DeskState } from "./desk/state.svelte.ts";
 import { TubeState } from "./tube/state.svelte.ts";
 
 export type Notice = { text: string };
+
+const CLIENT_UPDATE_SEEN_KEY = "ruumble.clientUpdateSeen";
+function readClientUpdateSeen(): string | null {
+  try {
+    return localStorage.getItem(CLIENT_UPDATE_SEEN_KEY);
+  } catch {
+    return null;
+  }
+}
 
 /** Plain text for a board error in the web UI's language; `maxFileBytes`: the largest attachment the service takes */
 export function boardErrorText(error: BoardErrorCode, maxFileBytes: number = BOARD_LIMITS.fileBytes): string {
@@ -566,6 +576,24 @@ export class RuumbleState {
   }
 
   // ---------------------------------------------------------------- Rooms of a floor (floor care, client#12)
+
+  // ---------------------------------------------------------------- A newer Ruumble Client (#18)
+
+  /** the newer client release to point to, inside an older Ruumble Client */
+  readonly clientUpdate = $derived(clientUpdate(this.desk.clientVersion, this.versions?.client));
+  /** the release whose dot on the name badge was seen (the user menu opened), remembered per browser */
+  clientUpdateSeen = $state<string | null>(readClientUpdateSeen());
+
+  markClientUpdateSeen(): void {
+    const version = this.clientUpdate?.version;
+    if (!version || this.clientUpdateSeen === version) return;
+    this.clientUpdateSeen = version;
+    try {
+      localStorage.setItem(CLIENT_UPDATE_SEEN_KEY, version);
+    } catch {
+      // private mode: the dot comes back after a reload, nothing worse
+    }
+  }
 
   /** busy with a change of the floor's rooms in Mumble */
   roomsBusy = $state(false);

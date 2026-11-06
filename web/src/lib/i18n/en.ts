@@ -95,6 +95,9 @@ export const en: Messages = {
     lightOn: "Turn the light on",
     quickSwitches: "Quick switches",
     whatsNew: "What's new",
+    clientUpdate: (version) => `Ruumble Client ${version} is out`,
+    clientUpdateHint: (running) => `You use ${running}. Opens the download page.`,
+    clientUpdateDot: "A new version of Ruumble Client is out",
   },
   floorPlan: {
     openFloor: (count) => `Open floor without offices · ${count}`,

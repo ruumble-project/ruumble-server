@@ -16,6 +16,8 @@ const BASE = `http://127.0.0.1:${PORT}/?fixture=sample&talking=0`;
 const deskScript = () => {
   const desk = {
     version: "1.6.0", server: "127.0.0.1:64738", history: (cb) => cb([]), sendMessage: (_t, cb) => cb(true),
+    // a shot may play an older client (window.shotClientVersion, set before the page loads)
+    get clientVersion() { return window.shotClientVersion ?? "unknown"; },
     openSettings() {}, openConnect() {}, openAudioWizard() {}, disconnectServer() {}, showMenu() {},
     channelProperties: (_id, cb) => cb({ name: "", maxUsers: 8, descriptionHash: "" }), updateChannel: (_id, _c, cb) => cb({ sent: true }),
     createChannel: (_p, _n, cb) => cb({ sent: true }), removeChannel: (_id, cb) => cb({ sent: true }),
@@ -55,6 +57,16 @@ const SHOTS = {
     const dialog = page.getByRole("dialog", { name: "Floor care" });
     const rooms = dialog.locator("section").filter({ has: page.getByRole("heading", { name: "Rooms on this floor" }) });
     return around([await rooms.boundingBox()], 12);
+  },
+  "client-update": async (page) => {
+    await page.addInitScript(() => (window.shotClientVersion = "0.38.0"));
+    await page.goto(`${BASE}&clientRelease=0.39.0`);
+    await page.waitForTimeout(600);
+    const badge = page.getByRole("button", { name: /^User menu/ });
+    const before = await badge.boundingBox();
+    await badge.click();
+    const entry = page.getByRole("link", { name: "Ruumble Client 0.39.0 is out" });
+    return around([before, await entry.boundingBox()], 14);
   },
   "light-switch": async (page) => {
     await page.getByRole("button", { name: "User menu" }).click();

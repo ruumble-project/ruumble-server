@@ -14,6 +14,8 @@ const FILTER_KEY = "ruumble.deskFilter";
 /** the client's object as QWebChannel hands it over: results arrive in callbacks */
 interface DeskObject {
   version: string;
+  /** Ruumble Client's own version (0.39.0 and newer; "unknown" in a build without it) */
+  clientVersion?: string;
   server: string;
   history(callback: (entries: unknown[]) => void): void;
   sendMessage(text: string, callback: (ok: boolean) => void): void;
@@ -57,6 +59,8 @@ export class DeskState implements DeskAdmin {
   canEditChannels = $state(false);
   /** the client can add and remove rooms (floor care, client#12) */
   canManageChannels = $state(false);
+  /** Ruumble Client's own version; null in a browser, an older client or when unknown (#18) */
+  clientVersion = $state<string | null>(null);
 
   readonly unread = $derived(this.open ? 0 : unreadCount(this.entries, this.seenId));
   readonly visible = $derived(visibleEntries(this.entries, this.query, this.filter));
@@ -71,6 +75,7 @@ export class DeskState implements DeskAdmin {
       this.desk = desk;
       this.available = true;
       this.canEditChannels = typeof desk.updateChannel === "function" && typeof desk.channelProperties === "function";
+      this.clientVersion = typeof desk.clientVersion === "string" && desk.clientVersion !== "unknown" ? desk.clientVersion : null;
       this.canManageChannels = this.canEditChannels && typeof desk.createChannel === "function" && typeof desk.removeChannel === "function";
       desk.logged.connect((raw) => this.add([raw]));
       desk.history((list) => this.add(list));

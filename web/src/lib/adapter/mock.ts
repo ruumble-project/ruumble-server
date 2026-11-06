@@ -675,7 +675,9 @@ export class MockAdapter implements MumbleAdapter {
   }
 
   async versions(): Promise<Versions> {
-    return { service: __UI_VERSION__, plugin: __PLUGIN_VERSION__ };
+    // ?clientRelease=<version>: the latest Ruumble Client release the service knows of (#18)
+    const client = new URLSearchParams(globalThis.location?.search ?? "").get("clientRelease");
+    return { service: __UI_VERSION__, plugin: __PLUGIN_VERSION__, client: client ? { version: client, url: `https://github.com/ruumble-project/ruumble-client/releases/tag/v${client}` } : null };
   }
 
   command(body: CommandBody): Promise<CommandResult> {

@@ -23,7 +23,8 @@ export async function overviewSection(page: Page): Promise<Locator> {
 
 /** opens the user menu (if it is not open yet) and returns it */
 export async function userMenu(page: Page): Promise<Locator> {
-  const button = page.getByRole("button", { name: /^(User menu|Benutzermenü)$/ });
+  // the name may go on with a note, e.g. ", A new version of Ruumble Client is out" (#18)
+  const button = page.getByRole("button", { name: /^(User menu|Benutzermenü)(,|$)/ });
   if ((await button.getAttribute("aria-expanded")) !== "true") await button.click();
   return page.getByRole("group", { name: /^(User menu|Benutzermenü)$/ });
 }

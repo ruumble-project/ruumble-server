@@ -553,7 +553,11 @@ export const PAIR_ERROR_STATUS: Record<PairErrorCode, number> = { "no-plugin": 4
 export const PairError = z.object({ error: PairErrorCode });
 
 /** GET /api/version: version of the service and of the plugin offered under /download (null: none) */
-export const Versions = z.object({ service: z.string(), plugin: z.string().nullable() });
+/** the latest Ruumble Client release the service knows of (#18): version and its release page */
+export const ClientRelease = z.object({ version: z.string(), url: z.string().url() });
+export type ClientRelease = z.infer<typeof ClientRelease>;
+/** GET /api/version; `client` is missing on older services and null while unknown or switched off */
+export const Versions = z.object({ service: z.string(), plugin: z.string().nullable(), client: ClientRelease.nullable().optional() });
 export type Versions = z.infer<typeof Versions>;
 
 /** POST /api/board/posts */

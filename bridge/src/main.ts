@@ -20,6 +20,8 @@
  *                                                (whole numbers: 1–3650 days, at least 10 MB, else the start fails)
  *   TUBE_MAIL_MBIT (16)                          tube mail: bandwidth of all file transfers together in Mbit/s, 0 = unlimited;
  *                                                a default, admins may change it in the building maintenance (ADR-0022)
+ *   CLIENT_RELEASE_CHECK (on)                    on | off: ask GitHub every 6 hours for the latest Ruumble Client release,
+ *                                                so the web UI inside an older client says that a newer one is out (#18)
  *   LOG_LEVEL (info)                             Fastify/pino logging
  *   BUILD_VERSION                                set by the image build: the exact build (git describe), shown instead of
  *                                                the package version under /api/version and in the log
@@ -27,6 +29,7 @@
  * Board backup:  node dist/main.mjs backup <target-directory>  (needs only DATA_DIR, no Ice)
  */
 import { existsSync, readdirSync, readFileSync } from "node:fs";
+import { watchClientRelease } from "./clientRelease.ts";
 import { basename, resolve } from "node:path";
 import fastifyStatic from "@fastify/static";
 import fastifyWebsocket from "@fastify/websocket";
@@ -350,7 +353,12 @@ app.get("/healthz", async (_req, reply) => {
 const versions: Versions = {
   service: env.BUILD_VERSION || pkg.version,
   plugin: config.pluginBundle && existsSync(config.pluginBundle) ? (/-(\d+\.\d+\.\d+)\.mumble_plugin$/.exec(config.pluginBundle)?.[1] ?? null) : null,
+  client: null,
 };
+// the latest Ruumble Client release, for "a newer client is out" in the web UI (#18)
+if ((env.CLIENT_RELEASE_CHECK ?? "on").toLowerCase() !== "off") {
+  watchClientRelease((release) => (versions.client = release), { log });
+}
 app.get("/api/version", async () => versions);
 
 if (config.pluginBundle && existsSync(config.pluginBundle)) {

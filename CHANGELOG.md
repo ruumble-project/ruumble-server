@@ -6,6 +6,10 @@ All notable changes to Ruumble. The service and the web UI share one version; th
 
 ## [Unreleased]
 
+### Added
+
+- **A newer Ruumble Client:** inside an older Ruumble Client a red dot on the name badge and an entry at the top of the user menu point to the new client release. The service asks GitHub every 6 hours for the latest release and passes it on in `/api/version` (`client`); the web UI may only talk to its own service (ADR-0011). Operators switch it off with `CLIENT_RELEASE_CHECK=off`. Needs Ruumble Client 0.39.0 or newer (`desk.clientVersion`) (#18)
+
 ## [0.38.0] - 2026-11-06
 
 ### Added

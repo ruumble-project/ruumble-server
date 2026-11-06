@@ -95,6 +95,10 @@ export const de = {
     quickSwitches: "Schnellschalter",
     /** the public page of this version on GitHub (#17), opens in a new tab */
     whatsNew: "Was ist neu",
+    /** a newer Ruumble Client is out (#18): the entry in the user menu, its tooltip, the dot on the name badge */
+    clientUpdate: (version: string) => `Ruumble Client ${version} ist da`,
+    clientUpdateHint: (running: string) => `Du nutzt ${running}. Öffnet die Download-Seite.`,
+    clientUpdateDot: "Eine neue Version von Ruumble Client ist da",
   },
   floorPlan: {
     openFloor: (count: string) => `Offene Etage ohne Büros · ${count}`,
