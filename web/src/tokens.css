@@ -9,7 +9,9 @@
   /* Base colours */
   --color-ink: #003869;        /* text, walls, active states; also the fill of primary buttons, with paper as their text */
   --color-paper: #ffffff;      /* background of rooms, cards, dialogs and menus */
-  --color-page: #ffffff;       /* around the building */
+  --color-page: #eef3f8;       /* around the building: the site it stands on, a cool light blue-grey */
+  /* the floor plan's shadow, only to the bottom and right (light from the top left), so the building stands on its site */
+  --plan-frame: 5px 7px 0 -3px rgb(0 30 60 / 0.06), 10px 14px 26px -8px rgb(0 30 60 / 0.30);
   --color-wall: #003869;       /* walls of the floor plan and the cross-section, the frame of the floating board; dark in
                                   both themes, so the roof's name on it is white */
   --color-ink-soft: #0f4b8c;   /* hover of ink-filled buttons, numbers in code */
@@ -116,7 +118,8 @@
 
   --color-ink: #c9d2dc;
   --color-paper: #1d232b;
-  --color-page: #14181e;
+  --color-page: #151b23;
+  --plan-frame: 5px 7px 0 -3px rgb(0 0 0 / 0.45), 12px 16px 28px -6px rgb(0 0 0 / 0.95);
   --color-wall: #3a4452;
   --color-ink-soft: #aab6c3;
   --color-sky: #6fa6d6;
@@ -150,4 +153,5 @@
   --color-raised-edge: #556274;
   --dialog-frame: 0 0 0 1px var(--color-raised-edge), 0 2px 6px rgb(0 0 0 / 0.4), 0 24px 60px rgb(0 0 0 / 0.6);
 }
+
 

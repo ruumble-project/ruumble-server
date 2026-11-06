@@ -7,13 +7,13 @@ const background = (page: import("@playwright/test").Page) => page.evaluate(() =
 test("light system: switch to dark and back, the choice is remembered", async ({ page }) => {
   await page.goto("/?fixture=sample&talking=0");
   await expect(html(page)).toHaveAttribute("data-theme", "light");
-  expect(await background(page)).toBe("rgb(255, 255, 255)");
+  expect(await background(page)).toBe("rgb(238, 243, 248)"); // the site the building stands on
 
   // the light of the building: the switch says what a click does
   await (await userMenu(page)).getByRole("button", { name: "Turn the light off" }).click();
   await expect(html(page)).toHaveAttribute("data-theme", "dark");
   await expect((await userMenu(page)).getByRole("button", { name: "Turn the light on" })).toBeVisible();
-  expect(await background(page)).toBe("rgb(20, 24, 30)");
+  expect(await background(page)).toBe("rgb(21, 27, 35)");
   await page.reload();
   await expect(html(page)).toHaveAttribute("data-theme", "dark"); // remembered
 
