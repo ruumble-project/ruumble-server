@@ -107,7 +107,6 @@
 
       {#if problem && changed}<p class="problem" role="alert">{t().roomEdit.problems[problem]}</p>{/if}
       {#if error}<p class="problem" role="alert">{error}</p>{/if}
-      <p class="hint">{kind === "room" ? t().roomEdit.mumbleHintRoom : t().roomEdit.mumbleHintFloor}</p>
     </div>
     <footer>
       <button type="button" class="secondary" onclick={close}>{t().roomEdit.cancel}</button>
