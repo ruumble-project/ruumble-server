@@ -52,11 +52,11 @@ Every user-visible change adds a line to `CHANGELOG.md` under `## [Unreleased]`,
 
 Every change a **user** notices also goes into **`docs/whats-new/next.md`**, the public "What's new" page of the next version (#17), which "What's new" in the user menu opens:
 
-- **English, simple words**: what the user can do or see now, not how it was built; no technical terms, no ticket numbers.
+- **Plain, natural English**, as a native product writer would put it: short sentences, what the user can do or see now, not how it was built; no technical terms, no ticket numbers. Simple must not turn stiff ("if you're allowed to", not "if you may").
 - **Sections** `## New`, `## Better`, `## Fixed`; a short `###` heading per larger change, one line per small one.
-- **Server and Ruumble Client are not told apart.** A change that reaches users only once the server is updated (the web UI, the service) ends with the orange badge `![server update](https://img.shields.io/badge/-server%20update-e67e22)` (it reads well in the light and the dark GitHub theme).
+- **Server and Ruumble Client are not told apart.** A change that reaches users only once the server is updated (the web UI, the service) gets the orange badge `![server update](https://img.shields.io/badge/-server%20update-e67e22)` (it reads well in the light and the dark GitHub theme): after the `###` heading of a larger change, after the `##` section heading when every line in that section needs the server, else at the end of the line.
 - **Small screenshots** where they help to understand the change: add a shot to `web/scripts/whats-new-shots.mjs` and run `pnpm -F @ruumble/web whats-new-shots <name>`; the pictures land in `docs/whats-new/images/next/` (light theme, English, cropped to what changed).
-- A change only operators or developers notice stays out (it is in the changelog).
+- A change only operators or developers notice stays out (it is in the changelog), and so does polish users would not notice.
 
 `tools/release.sh` turns `next.md` into `docs/whats-new/<version>.md` with the title, the date and the links to the previous version and the overview (`README.md`), moves the pictures to `images/<version>/` and starts `next.md` again. A release without user-visible changes gets no page.
 
