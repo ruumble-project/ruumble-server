@@ -606,11 +606,11 @@ export const en: Messages = {
     roomCare: "Room care",
     floorCare: "Floor care",
     editRoom: "Room setup …",
-    editFloor: "Corridor setup …",
+    editFloor: "Floor setup …",
   },
   roomEdit: {
     titleRoom: "Room setup",
-    titleFloor: "Corridor setup",
+    titleFloor: "Floor setup",
     name: "Room name",
     description: "Description",
     write: "Write",

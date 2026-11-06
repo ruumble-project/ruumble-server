@@ -647,12 +647,12 @@ export const de = {
     roomCare: "Raumpflege",
     floorCare: "Etagenpflege",
     editRoom: "Raum einrichten …",
-    editFloor: "Flur einrichten …",
+    editFloor: "Etage einrichten …",
   },
   /** Ruumble's edit dialog for a room or floor (#15) */
   roomEdit: {
     titleRoom: "Raum einrichten",
-    titleFloor: "Flur einrichten",
+    titleFloor: "Etage einrichten",
     name: "Raumname",
     description: "Beschreibung",
     write: "Schreiben",

@@ -8,9 +8,9 @@ All notable changes to Ruumble. The service and the web UI share one version; th
 
 ### Added
 
-- **The room menu:** the room sign ("You are here") opens a menu for the place one is in: the board (B) and the room care as tiles (like the quick switches of the user menu, the same width), and, with Mumble Write inside Ruumble Client, "Room setup …". On the corridor and an open floor the same menu for the floor (floor care, "Corridor setup …"). From another floor the sign still leads back (#15)
+- **The room menu:** the room sign ("You are here") opens a menu for the place one is in: the board (B) and the room care as tiles (like the quick switches of the user menu, the same width), and, with Mumble Write inside Ruumble Client, "Room setup …". On the corridor and an open floor the same menu for the floor (floor care, "Floor setup …"). From another floor the sign still leads back (#15)
 - **Descriptions in Markdown are shown formatted:** the binders in a room or corridor render a description written in the room setup like a board post (headings, lists, bold, links in a new tab, code), sanitised the same way; descriptions written in Mumble look as before (#5)
-- **Ruumble's dialog to set up a room or corridor:** room name, description in Markdown with a preview, available seats (Mumble's maximum users). The description is stored as plain text with the marker line `<!-- ruumble:markdown -->` (never as HTML). Needs Ruumble Client 0.38 or newer (#15)
+- **Ruumble's dialog to set up a room or floor:** room name, description in Markdown with a preview, available seats (Mumble's maximum users). The description is stored as plain text with the marker line `<!-- ruumble:markdown -->` (never as HTML). Needs Ruumble Client 0.38 or newer (#15)
 
 ## [0.37.0] - 2026-11-06
 
