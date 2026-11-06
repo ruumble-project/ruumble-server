@@ -42,6 +42,12 @@
     change(wanted);
   }
 
+  /** push to talk means talking with the key: a muted user is unmuted, else the key would do nothing */
+  function choose(mode: TransmitMode): void {
+    if (mode === "ptt" && transmit.mode !== "ptt" && muted) ontogglemute();
+    transmit.setMode(mode);
+  }
+
   function focusChecked(node: HTMLElement): void {
     node.querySelector<HTMLElement>("[aria-checked='true']")?.focus();
   }
@@ -52,7 +58,7 @@
   <div class="opts" role="radiogroup" aria-label={t().transmit.menuTitle}>
     {#each TRANSMIT_MODES as mode (mode)}
       {@const Icon = icons[mode]}
-      <button type="button" class="opt" role="radio" aria-checked={transmit.mode === mode} data-mode={mode} onclick={() => transmit.setMode(mode)}>
+      <button type="button" class="opt" role="radio" aria-checked={transmit.mode === mode} data-mode={mode} onclick={() => choose(mode)}>
         <span class="ic" aria-hidden="true"><Icon size={18} /></span>
         <span class="txt"><b>{t().transmit.modes[mode]}</b><small>{t().transmit.modeHints[mode]}</small></span>
         <span class="radio" aria-hidden="true"></span>
@@ -75,7 +81,6 @@
           <span>{key.scope === "window" ? t().transmit.window : t().transmit.global}</span>
         </p>
       {/if}
-      <label class="switch"><input type="checkbox" checked={transmit.latched} onchange={(e) => ask(e, transmit.latched, (on) => transmit.setLatched(on))} /><span class="s" aria-hidden="true"></span>{t().transmit.keepOpen}</label>
       <label class="switch"><input type="checkbox" checked={muted} onchange={(e) => ask(e, muted, ontogglemute)} /><span class="s" aria-hidden="true"></span>{t().transmit.mutedSwitch}</label>
       <label class="switch"><input type="checkbox" checked={transmit.options.doublePush} onchange={(e) => ask(e, transmit.options.doublePush, (on) => transmit.setOption("doublePush", on))} /><span class="s" aria-hidden="true"></span>{t().transmit.doublePush}</label>
       <label class="switch"><input type="checkbox" checked={transmit.options.audioCue} onchange={(e) => ask(e, transmit.options.audioCue, (on) => transmit.setOption("audioCue", on))} /><span class="s" aria-hidden="true"></span>{t().transmit.audioCue}</label>

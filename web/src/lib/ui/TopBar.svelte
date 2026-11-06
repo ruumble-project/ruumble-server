@@ -352,8 +352,12 @@
       <Inbox size={20} />
       {#if unread}<span class="count" aria-hidden="true">{unread > 99 ? "99+" : unread}</span>{/if}
     </button>
-    <!-- mute and deafen belong together: one joined pair, set apart from tube mail and the direct chat -->
+    <!-- deafen and mute belong together: one joined pair, set apart from tube mail and the direct chat; the microphone
+         comes second, so the small tab for the transmit mode next to it stays with it (#9 in ruumble-client) -->
     <div class="audio" role="group" aria-label={t().core.audio}>
+    <button type="button" class="tool" aria-pressed={deaf} aria-label={t().core.deaf} title={t().core.deaf} disabled={!me} onclick={() => app.toggleDeaf()}>
+      {#if deaf}<HeadphoneOff size={20} />{:else}<Headphones size={20} />{/if}
+    </button>
     <button
       type="button" class="tool mic" class:on={onAir && ptt} class:voice={onAir && !ptt} aria-pressed={ptt ? undefined : muted}
       aria-label={micTitle} title={micTitle} disabled={!me} data-mic
@@ -390,9 +394,6 @@
         {/if}
       </div>
     {/if}
-    <button type="button" class="tool" aria-pressed={deaf} aria-label={t().core.deaf} title={t().core.deaf} disabled={!me} onclick={() => app.toggleDeaf()}>
-      {#if deaf}<HeadphoneOff size={20} />{:else}<Headphones size={20} />{/if}
-    </button>
     </div>
     <div class="dropdown" data-dropdown="user">
       <!-- the name badge: yellow band like the ring around the own avatar, on a clip -->
@@ -628,10 +629,11 @@
   .audio { display: flex; margin-left: 10px; border-radius: var(--radius-md); box-shadow: 0 1px 0 rgb(0 56 105 / 0.12); }
   .audio .tool { border-radius: 0; background: var(--color-surface); }
   .audio > .tool:first-child { border-radius: var(--radius-md) 0 0 var(--radius-md); }
-  .audio > .tool:last-child { border-left: 0; border-radius: 0 var(--radius-md) var(--radius-md) 0; }
-  /* the small tab for the transmit mode between microphone and headphones (#9 in ruumble-client) */
+  .audio > .tool + .tool { border-left: 0; }
+  .audio > .tool:last-child { border-radius: 0 var(--radius-md) var(--radius-md) 0; }
+  /* the small tab for the transmit mode at the end, after the microphone (#9 in ruumble-client) */
   .audio .mode { display: flex; }
-  .audio .mode-tab { width: 20px; border-left: 0; color: var(--color-blue-700); }
+  .audio .mode-tab { width: 20px; border-left: 0; border-radius: 0 var(--radius-md) var(--radius-md) 0; color: var(--color-blue-700); }
   .audio .mode-tab :global(svg) { transition: transform var(--dur) var(--ease-out); }
   .audio .mode-tab[aria-expanded="true"] :global(svg) { transform: rotate(180deg); }
   /* the microphone: a sign of the mode in its corner; in push-to-talk it fills sky blue while talking, pulses like the

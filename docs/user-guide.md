@@ -52,11 +52,11 @@ Links from Mumble (welcome message, pairing link) open in your default browser. 
 
 Inside Ruumble Client a small tab next to the microphone opens **How you transmit**: voice activation, push to talk or always on. These are Mumble's own settings, so a change here also shows in Mumble's audio settings, and the other way round.
 
-- **Push to talk:** the microphone becomes your talk button. Hold it to talk, let go to go quiet; double-click to keep the mic open, click again to close it. While you transmit, the button turns blue, the level rises inside it and the line under the top bar lights up. Mute moves into the menu ("Muted: the key does not transmit").
+- **Push to talk:** the microphone becomes your talk button. Hold it to talk, let go to go quiet; double-click to keep the mic open, click again to close it. While you transmit, the button turns blue, the level rises inside it and the line under the top bar lights up. Mute moves into the menu ("Muted: the key does not transmit"); choosing push to talk unmutes you.
 - **Talk key:** the first time you choose push to talk, Ruumble asks for a key; Right Ctrl is suggested. Press any key or mouse button (side buttons work well) and confirm with the mouse. The key is Mumble's push-to-talk shortcut, so it also appears in Mumble's settings under Shortcuts. Change it any time in the menu.
 - **Where the key works:** on an X11 desktop (for example Linux Mint with Cinnamon) the key works everywhere, even while another window is in front. On a Wayland desktop Ruumble Client cannot see keys pressed in other windows: the key works only while Ruumble Client is in front, and the menu says so. Holding the microphone with the mouse always works.
 - **Pick a quiet key:** the program in front receives the key as well. A letter, Space or Enter would be typed while you talk, and Left Ctrl starts every Ctrl shortcut. Right Ctrl, Pause or a mouse side button do nothing on their own.
-- The menu also switches Mumble's "press twice to keep the mic open" and the sound when you press and release, and shows your microphone level.
+- The menu also switches Mumble's "press twice quickly to keep the mic open" (a single press closes it again) and a short click when you press and release, and shows your microphone level.
 
 ### Keyboard and tab
 
