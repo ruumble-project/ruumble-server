@@ -6,3 +6,4 @@ In Ruumble, "What's new" in the user menu (the name badge at the top right) open
 **Coming next:** [what is new since the last release](next.md), growing until the next version is out.
 
 <!-- versions: tools/release.sh adds a line here for every release with a page -->
+- [0.38.0](0.38.0.md) · 6 November 2026 · The room menu, Set up a room, Descriptions with headings, lists and links, Manage the rooms on a floor, A light switch

@@ -6,6 +6,8 @@ All notable changes to Ruumble. The service and the web UI share one version; th
 
 ## [Unreleased]
 
+## [0.38.0] - 2026-11-06
+
 ### Added
 
 - **The rooms of a floor in the floor care:** the list shows the visitors of each room; inside Ruumble Client, with Mumble's permissions, rooms are added, renamed, moved forward or back (arrows, Alt+arrow) and deleted. Deleting offers "Do not delete", "Remove the room" (its board stays under "Gone") and "Delete with all data", with "Save the board as ZIP first". Moving a board is one line ("Transfer data"). Needs Ruumble Client 0.38 or newer (ruumble-client#12)
@@ -492,6 +494,7 @@ Plugin 0.1.0 to 0.2.0.
 - Real Mumble avatars and presence (quiet, away, recording).
 - Docker image with the plugin bundle served under `/download`.
 
+[0.38.0]: https://github.com/ruumble-project/ruumble-server/releases/tag/v0.38.0
 [0.37.0]: https://github.com/ruumble-project/ruumble-server/releases/tag/v0.37.0
 [0.36.0]: https://github.com/ruumble-project/ruumble-server/releases/tag/v0.36.0
 [0.35.0]: https://github.com/ruumble-project/ruumble-server/releases/tag/v0.35.0
