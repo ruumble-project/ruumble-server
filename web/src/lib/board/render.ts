@@ -4,6 +4,7 @@
  * The service only delivers raw text; HTML is produced exclusively here and always sanitised.
  */
 import DOMPurify from "dompurify";
+import { editableDescription, isMarkdownDescription } from "../model/roomEdit.ts";
 import hljs from "highlight.js/lib/core";
 import bash from "highlight.js/lib/languages/bash";
 import cpp from "highlight.js/lib/languages/cpp";
@@ -166,6 +167,14 @@ const PURIFY_DESCRIPTION = {
   ALLOWED_ATTR: [...PURIFY.ALLOWED_ATTR, "src", "alt", "width", "height"],
   ALLOWED_URI_REGEXP: PURIFY.ALLOWED_URI_REGEXP,
 };
+
+/**
+ * The description of a channel, whichever way it was written: Markdown from Ruumble's room setup (recognised by its
+ * marker line, #5/#15) like a board post, else Mumble's rich text (renderDescription).
+ */
+export function renderChannelDescription(stored: string): string {
+  return isMarkdownDescription(stored) ? renderMarkdown(editableDescription(stored)) : renderDescription(stored);
+}
 
 export function renderDescription(html: string): string {
   const fragment = DOMPurify.sanitize(html, { ...PURIFY_DESCRIPTION, RETURN_DOM_FRAGMENT: true });

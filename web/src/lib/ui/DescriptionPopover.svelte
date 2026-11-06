@@ -1,15 +1,16 @@
 <script lang="ts">
   // description of a room or corridor as maintained in Mumble: the binders open it as a popover (top layer, so
   // neither the scrolling floor plan nor the room's container clip it). Escape, a click beside it or on a link closes
-  // it; links open in a new tab (renderDescription). A click beside it only closes it: it enters no room.
-  import { renderDescription } from "../board/render.ts";
+  // it; links open in a new tab. Markdown from Ruumble's room setup is rendered like a board post, Mumble's rich text
+  // as before (renderChannelDescription). A click beside it only closes it: it enters no room.
+  import { renderChannelDescription } from "../board/render.ts";
   import { t } from "../i18n/index.svelte.ts";
   import Binders from "./Binders.svelte";
 
   let { channelId, name, description, size = 26 }: { channelId: number; name: string; description: string; size?: number } = $props();
 
   const id = $derived(`description-${channelId}`);
-  const html = $derived(renderDescription(description));
+  const html = $derived(renderChannelDescription(description));
   const label = $derived(t().space.showDescription(name));
   let button = $state<HTMLButtonElement | null>(null);
   let popover = $state<HTMLElement | null>(null);
@@ -117,4 +118,9 @@
   .body :global(table) { border-collapse: collapse; }
   .body :global(th), .body :global(td) { padding: 2px 8px; border: 1px solid var(--color-blue-100); text-align: left; }
   .body :global(h1), .body :global(h2), .body :global(h3) { font-size: 16px; margin: 0.8em 0 0.4em; }
+  .body :global(ul), .body :global(ol) { margin: 0 0 0.6em; padding-left: 1.3em; }
+  .body :global(code) { font-family: var(--font-mono); font-size: 0.92em; padding: 0 3px; border-radius: 3px; background: var(--color-surface); }
+  .body :global(pre) { margin: 0 0 0.6em; padding: 6px 8px; border-radius: 4px; background: var(--color-surface); overflow-x: auto; }
+  .body :global(pre code) { padding: 0; background: none; }
+  .body :global(blockquote) { margin: 0 0 0.6em; padding-left: 10px; border-left: 3px solid var(--color-blue-300); color: var(--color-blue-700); }
 </style>

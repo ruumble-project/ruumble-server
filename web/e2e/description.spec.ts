@@ -5,8 +5,8 @@ test.describe("Descriptions from Mumble", () => {
   test.beforeEach(async ({ page }) => page.goto("/?fixture=sample&talking=0"));
 
   test("the binders open a room's description; Escape closes it", async ({ page }) => {
-    // only rooms with a description have binders
-    await expect(page.getByRole("button", { name: /^Description of / })).toHaveCount(2);
+    // only rooms with a description have binders (Let's talk, Retrospective and the corridor)
+    await expect(page.getByRole("button", { name: /^Description of / })).toHaveCount(3);
     const binders = page.getByRole("button", { name: "Description of Let's talk" });
     await binders.click();
     const popup = page.getByRole("dialog", { name: "Description of Let's talk" });
@@ -32,6 +32,17 @@ test.describe("Descriptions from Mumble", () => {
     await expect(binders).toHaveAttribute("aria-expanded", "false");
     // opened with the mouse: no focus ring on the binders afterwards
     await expect(binders).not.toBeFocused();
+  });
+
+  test("a description written in Markdown (room setup) is shown formatted, without its marker line", async ({ page }) => {
+    await page.getByRole("button", { name: "Description of Retrospective" }).click();
+    const popup = page.getByRole("dialog", { name: "Description of Retrospective" });
+    await expect(popup.getByRole("heading", { name: "Retro" })).toBeVisible();
+    await expect(popup.locator("strong", { hasText: "Friday" })).toBeVisible();
+    await expect(popup.getByRole("listitem")).toHaveText(["What went well", "What to change"]);
+    await expect(popup.getByRole("link", { name: "wiki" })).toHaveAttribute("target", "_blank");
+    await expect(popup).not.toContainText("ruumble:markdown");
+    await expect(popup).not.toContainText("**");
   });
 
   test("opened with the keyboard, Escape gives the focus back to the binders", async ({ page }) => {

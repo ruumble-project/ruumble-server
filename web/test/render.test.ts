@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { describe, expect, it } from "vitest";
-import { findLinks, highlight, renderCode, renderDescription, renderInline, renderMarkdown, uniqueLinks } from "../src/lib/board/render.ts";
+import { findLinks, highlight, renderChannelDescription, renderCode, renderDescription, renderInline, renderMarkdown, uniqueLinks } from "../src/lib/board/render.ts";
 
 describe("Rendering: Markdown and code without XSS (ADR-0011)", () => {
   it("renders common Markdown", () => {
@@ -200,5 +200,21 @@ describe("Channel descriptions from Mumble", () => {
     expect([...doc.querySelectorAll("img")].map((i) => i.getAttribute("src"))).toEqual(["data:image/png;base64,iVBORw0KGgo="]);
     expect(doc.querySelectorAll("script, [onerror]").length).toBe(0);
     expect(doc.querySelector("a")!.getAttribute("href")).toBeNull();
+  });
+});
+
+describe("channel descriptions (#5)", () => {
+  it("Markdown from the room setup is rendered like a board post, without its marker line", () => {
+    const html = renderChannelDescription("<!-- ruumble:markdown -->\n## Retro\n\nEvery **Friday**, see [wiki](https://example.org).\n\n<script>alert(1)</script>");
+    expect(html).toContain("<h2>Retro</h2>");
+    expect(html).toContain("<strong>Friday</strong>");
+    expect(html).toContain('href="https://example.org"');
+    expect(html).toContain('target="_blank"');
+    expect(html).not.toContain("ruumble:markdown");
+    expect(html).not.toContain("<script");
+  });
+
+  it("Mumble's rich text stays as before", () => {
+    expect(renderChannelDescription("<b>Welcome</b>")).toBe(renderDescription("<b>Welcome</b>"));
   });
 });
