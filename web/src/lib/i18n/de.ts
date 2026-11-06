@@ -662,7 +662,9 @@ export const de = {
     markdownHint: "Markdown: **fett**, *kursiv*, - Liste, [Link](https://…). Das offizielle Mumble zeigt den Text unformatiert.",
     maxUsers: "Höchstzahl an Personen",
     maxUsersHint: "0 = ohne Grenze",
-    mumbleHint: "Passwort, Position und Rechte stellst du weiterhin in Mumble ein.",
+    /** what the dialog does not hold: for a room the order is in the corridor's menu (floor care, client#12) */
+    mumbleHintRoom: "Passwort und Rechte stellst du weiterhin in Mumble ein. Die Reihenfolge der Räume änderst du im Menü des Flurs (Etagenpflege).",
+    mumbleHintFloor: "Passwort, Position und Rechte stellst du weiterhin in Mumble ein.",
     save: "Speichern",
     saving: "Speichert …",
     cancel: "Abbrechen",
