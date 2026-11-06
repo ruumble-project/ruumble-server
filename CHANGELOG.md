@@ -6,6 +6,8 @@ All notable changes to Ruumble. The service and the web UI share one version; th
 
 ## [Unreleased]
 
+## [0.37.0] - 2026-11-06
+
 Plugin 0.5.0 (unchanged).
 
 ### Changed
@@ -474,6 +476,7 @@ Plugin 0.1.0 to 0.2.0.
 - Real Mumble avatars and presence (quiet, away, recording).
 - Docker image with the plugin bundle served under `/download`.
 
+[0.37.0]: https://github.com/ruumble-project/ruumble-server/releases/tag/v0.37.0
 [0.36.0]: https://github.com/ruumble-project/ruumble-server/releases/tag/v0.36.0
 [0.35.0]: https://github.com/ruumble-project/ruumble-server/releases/tag/v0.35.0
 [0.34.0]: https://github.com/ruumble-project/ruumble-server/releases/tag/v0.34.0
