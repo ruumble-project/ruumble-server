@@ -2,9 +2,9 @@
 
 [![Server release](https://img.shields.io/github/v/release/ruumble-project/ruumble-server?label=server)](https://github.com/ruumble-project/ruumble-server/releases/latest) [![Client release](https://img.shields.io/github/v/release/ruumble-project/ruumble-client?label=client)](https://github.com/ruumble-project/ruumble-client/releases/latest) [![What's new](https://img.shields.io/badge/what's%20new-release%20notes-0078be)](docs/whats-new/README.md) [![CI](https://github.com/ruumble-project/ruumble-server/actions/workflows/ci.yml/badge.svg)](https://github.com/ruumble-project/ruumble-server/actions/workflows/ci.yml) [![License](https://img.shields.io/github/license/ruumble-project/ruumble-server)](LICENSE)
 
-**Your [Mumble](https://www.mumble.info/) server as an office building.** Ruumble is a web UI next to the regular Mumble client: the channels become floors and rooms, you see at a glance who sits where and who is talking, you move to another room with a click, and every room has a board for notes, code, images and files. Voice stays in Mumble, and Mumble itself stays unchanged.
+The service, the web UI and the Mumble plugin of **Ruumble**, which shows a [Mumble](https://www.mumble.info/) server as an office building.
 
-> **Ruumble is an add-on, not a standalone app.** It needs a Mumble server that you run or administer: the server operator runs a small **service** next to it (one Docker container), and users use **Ruumble Client** or a **plugin** in their Mumble client.
+> **New to Ruumble?** The [project page](https://github.com/ruumble-project) shows what it is, a short demo and whether it fits your team. This README is about running and building it.
 
 ## Get started
 
@@ -36,17 +36,6 @@ Then add the line `setup.sh` prints, e.g. `ruumble: http://192.168.1.10:64080`, 
 
 Server and client have their own version numbers; any client works with older and newer servers.
 
-## Features
-
-- **Building view:** top-level channels become floors, second-level channels rooms, the floor channel itself the corridor. The order follows the channels' position in Mumble.
-- **Presence:** talking indicator, mute and deafen, quiet and away, listeners, recording, Mumble avatars.
-- **One click to move:** Ruumble moves your own Mumble client, and mute and deafen work from the browser too.
-- **Board in every room:** Markdown, source code with highlighting, images, files (10 MB by default), quick reactions, shared task lists, one post kept on top, search. The others in the room get a short notice in their Mumble log.
-- **Care for admins:** whoever has Mumble's Write permission tends the stored data from a plant (delete old posts, export or move a board, tidy up after deleted rooms), sets up rooms and floors in Ruumble Client, changes the building's settings and revokes paired browsers.
-- **German and English**, installable as a web app over HTTPS.
-
-Full list and plans: [docs/features.md](docs/features.md).
-
 ## Requirements
 
 | | |
@@ -56,10 +45,6 @@ Full list and plans: [docs/features.md](docs/features.md).
 | Mumble client with the plugin | 1.4 or newer on **Linux** (x86_64) or **Windows** (x64); one plugin file for both. No macOS plugin yet. |
 | Service | Docker, network access to the Mumble server's Ice port |
 | Browser | a current Firefox, Chrome or Edge |
-
-## A look inside
-
-![Ruumble: moving between rooms, a new post on the board, the elevator and back via the room sign](docs/images/ruumble-demo.gif)
 
 ---
 
@@ -99,7 +84,7 @@ The Ruumble icon for portals, dashboards and bookmarks: [ruumble-icons.zip](http
 
 ### Support and contributing
 
-- Questions and ideas: [Discussions](https://github.com/ruumble-project/ruumble-server/discussions). Bugs and feature requests: [issues](https://github.com/ruumble-project/ruumble-server/issues).
+- Questions, ideas, bugs and feature requests: [issues](https://github.com/ruumble-project/ruumble-server/issues).
 - Security problems: please report them privately, see [SECURITY.md](SECURITY.md).
 - Contributions are welcome, see [CONTRIBUTING.md](CONTRIBUTING.md).
 
