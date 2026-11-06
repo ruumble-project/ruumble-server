@@ -240,7 +240,7 @@
               <div class="quick" role="group" aria-label={t().core.quickSwitches}>
                 <button type="button" class="tile" aria-pressed={app.boardOpen} aria-keyshortcuts={SHORTCUT_KEYS.toggleBoard.toUpperCase()}
                   title={`${t().roomMenu.board} (${SHORTCUT_KEYS.toggleBoard.toUpperCase()})`} onclick={() => { open = null; app.toggleBoard(); }}>
-                  <span class="tile-icon"><BoardNotes /></span><span>{t().roomMenu.board}</span>
+                  <span class="tile-icon"><BoardNotes /></span><span class="tile-label">{t().roomMenu.board}<kbd class="tile-key">{SHORTCUT_KEYS.toggleBoard.toUpperCase()}</kbd></span>
                 </button>
                 {#if here.space.canTend}
                   <button type="button" class="tile" onclick={() => { open = null; void app.openCare({ kind: here.kind, channelId: here.space.channelId }); }}>
@@ -495,6 +495,11 @@
   .room-sign[aria-expanded="true"] :global(.chevron) { transform: rotate(180deg); }
   /* the room menu hangs centred below the room sign */
   .menu.room-menu { right: auto; left: 50%; width: 260px; margin-left: -130px; transform-origin: top center; box-sizing: border-box; }
+  .tile-label { display: inline-flex; align-items: center; gap: 5px; }
+  .tile-key {
+    min-width: 16px; padding: 0 4px; border: 1px solid currentColor; border-radius: 3px; opacity: 0.7;
+    font: inherit; font-size: 10px; line-height: 14px; text-align: center;
+  }
   .room-menu .quick { grid-template-columns: none; grid-auto-flow: column; grid-auto-columns: 1fr; }
   .tile-icon { position: relative; display: inline-flex; height: 22px; align-items: center; }
   .room-sign :global(.back) { flex-shrink: 0; align-self: center; color: var(--color-link); }
@@ -599,7 +604,7 @@
   /* the quick switches: three tiles side by side, filled while on */
   .quick { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; padding: 2px 0 4px; }
   .tile {
-    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; min-height: 64px; padding: 8px 4px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; min-height: 64px; padding: 8px 4px;
     border: 1px solid var(--color-blue-300); border-radius: var(--radius-md); background: none; color: var(--color-ink);
     font-size: 12px; font-weight: 700; line-height: 1.25; text-align: center; cursor: pointer;
     transition: background var(--dur) var(--ease-out);
