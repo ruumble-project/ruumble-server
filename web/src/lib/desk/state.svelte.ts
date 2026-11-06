@@ -28,6 +28,9 @@ interface DeskObject {
   /** Ruumble's edit dialog (#15), Ruumble Client 0.38 and newer */
   channelProperties?(channelId: number, callback: (properties: Record<string, unknown>) => void): void;
   updateChannel?(channelId: number, changes: Record<string, unknown>, callback: (result: Record<string, unknown>) => void): void;
+  /** the rooms of the floor care (client#12), Ruumble Client 0.38 and newer */
+  createChannel?(parentId: number, name: string, callback: (result: Record<string, unknown>) => void): void;
+  removeChannel?(channelId: number, callback: (result: Record<string, unknown>) => void): void;
   logged: { connect(handler: (entry: unknown) => void): void };
   serverChanged: { connect(handler: () => void): void };
 }
@@ -52,6 +55,8 @@ export class DeskState implements DeskAdmin {
   private desk: DeskObject | null = null;
   /** the client can change a channel for Ruumble's edit dialog (#15); older clients cannot */
   canEditChannels = $state(false);
+  /** the client can add and remove rooms (floor care, client#12) */
+  canManageChannels = $state(false);
 
   readonly unread = $derived(this.open ? 0 : unreadCount(this.entries, this.seenId));
   readonly visible = $derived(visibleEntries(this.entries, this.query, this.filter));
@@ -66,6 +71,7 @@ export class DeskState implements DeskAdmin {
       this.desk = desk;
       this.available = true;
       this.canEditChannels = typeof desk.updateChannel === "function" && typeof desk.channelProperties === "function";
+      this.canManageChannels = this.canEditChannels && typeof desk.createChannel === "function" && typeof desk.removeChannel === "function";
       desk.logged.connect((raw) => this.add([raw]));
       desk.history((list) => this.add(list));
     });
@@ -131,6 +137,24 @@ export class DeskState implements DeskAdmin {
       desk.updateChannel(channelId, changes, (r) =>
         resolve({ sent: r?.sent === true, ...(typeof r?.descriptionHash === "string" ? { descriptionHash: r.descriptionHash } : {}) }),
       );
+    });
+  }
+
+  /** a new room below the floor `parentId`; the server decides, the next snapshot shows it */
+  createChannel(parentId: number, name: string): Promise<boolean> {
+    const desk = this.desk;
+    return new Promise((resolve) => {
+      if (!desk?.createChannel) return resolve(false);
+      desk.createChannel(parentId, name, (r) => resolve(r?.sent === true));
+    });
+  }
+
+  /** removes a channel; Mumble moves its people to the parent */
+  removeChannel(channelId: number): Promise<boolean> {
+    const desk = this.desk;
+    return new Promise((resolve) => {
+      if (!desk?.removeChannel) return resolve(false);
+      desk.removeChannel(channelId, (r) => resolve(r?.sent === true));
     });
   }
 

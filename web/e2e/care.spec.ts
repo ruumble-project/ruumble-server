@@ -88,10 +88,10 @@ test.describe("Care (ADR-0014)", () => {
     await page.getByRole("button", { name: "Floor care: Development" }).click();
     const dialog = page.getByRole("dialog", { name: "Floor care" });
     await expect(dialog.getByText("5 rooms · 5 posts", { exact: false })).toBeVisible();
-    const rooms = dialog.getByRole("button", { name: /^Let's talk/ });
-    await expect(rooms).toContainText(/Let's talk\s*4/);
-    await expect(dialog.getByRole("button", { name: /^Let's play/ })).toContainText("empty");
-    await rooms.click();
+    await expect(dialog.getByRole("listitem").filter({ hasText: "Let's talk" })).toContainText(/Let's talk\s*3/); // three visitors
+    await expect(dialog.getByRole("listitem").filter({ hasText: "Let's talk" }).locator(".last")).toHaveAttribute("title", "4 posts");
+    await expect(dialog.getByRole("listitem").filter({ hasText: "Let's play" })).toContainText("empty");
+    await dialog.getByRole("button", { name: /^Let's talk/ }).click();
     await expect(page.getByRole("dialog", { name: "Room care" })).toBeVisible();
     await page.getByRole("button", { name: "Back to floor care" }).click();
     await expect(page.getByRole("dialog", { name: "Floor care" })).toBeVisible();
@@ -104,14 +104,14 @@ test.describe("Care (ADR-0014)", () => {
   test("floor care: move the board of a room that is gone, after confirming", async ({ page }) => {
     await page.getByRole("button", { name: "Floor care: Development" }).click();
     const dialog = page.getByRole("dialog", { name: "Floor care" });
-    await expect(dialog.getByRole("button", { name: "Move the board" })).toBeDisabled();
+    await expect(dialog.getByRole("button", { name: "Transfer data" })).toBeDisabled();
     await dialog.getByLabel("From").selectOption({ label: "Design review · 4 posts · gone" });
     await dialog.getByLabel("To").selectOption({ label: "Retrospective" });
-    await dialog.getByRole("button", { name: "Move the board" }).click();
+    await dialog.getByRole("button", { name: "Transfer data" }).click();
     await expect(dialog.getByRole("alertdialog", { name: "Move 4 posts from Design review to Retrospective?" })).toBeVisible();
     await dialog.getByRole("button", { name: "Move", exact: true }).click();
     await expect(dialog.getByRole("status")).toHaveText("4 posts moved.");
-    await expect(dialog.getByRole("button", { name: /^Retrospective/ })).toContainText(/Retrospective\s*4/);
+    await expect(dialog.getByRole("listitem").filter({ hasText: "Retrospective" }).locator(".last")).toHaveAttribute("title", "4 posts");
   });
 
   test("floor care: rooms that are gone, removed one by one", async ({ page }) => {

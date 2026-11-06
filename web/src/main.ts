@@ -21,6 +21,8 @@ const requested = params.get("fixture") ?? "sample";
 const fixture = (requested in FIXTURES ? requested : "sample") as FixtureName;
 const mock = useMock ? new MockAdapter(fixture, { talking: params.get("talking") !== "0", paired: params.get("paired") !== "0" }) : null;
 const app = new RuumbleState(mock ?? new LiveAdapter());
+// the e2e tests' fake Ruumble Client changes channels through the mock, as the real client does through Mumble
+if (mock) Object.assign(window, { ruumbleMock: mock });
 app.start();
 
 mount(App, { target: document.getElementById("app")!, props: { app, mock: mock && params.has("debug") ? mock : null } });

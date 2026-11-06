@@ -34,6 +34,15 @@ bold text and links.
 
 ![A room's description behind the binders](images/next/description.png)
 
+### Look after the rooms of a floor `server update`
+
+The **floor care** (the plant on the corridor, or the tile in the corridor's menu) now lists the rooms of the floor with
+how many people are in each. Inside Ruumble Client, if you may change them, you can **add** a room, **rename** it, move
+it **forward or back** (also with Alt and the arrow keys) and **delete** it. When you delete a room you choose: keep its
+board for later, or delete it with all its data; you can save the board as a ZIP file first.
+
+![The rooms in the floor care](images/next/floor-care.png)
+
 ### A light switch `server update`
 
 The dark mode switch in the user menu is now a light switch, like in a real building: **Turn the light off** for the

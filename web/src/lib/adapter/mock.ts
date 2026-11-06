@@ -789,6 +789,39 @@ export class MockAdapter implements MumbleAdapter {
     this.emit();
   }
 
+  // ---- what Ruumble Client's desk does in Mumble (room setup #15, floor care client#12); e2e tests call these
+
+  /** a new permanent room below a floor, like Mumble's "Add" */
+  createRoom(parent: number, name: string): void {
+    const id = Math.max(...this.state.channels.map((c) => c.id)) + 1;
+    this.state.channels.push({ id, parent, name: name.trim(), position: 0, links: [], temporary: false });
+    this.emit();
+  }
+
+  /** name or position of a channel, like a ChannelState from the client */
+  updateChannel(id: number, changes: { name?: string; position?: number }): void {
+    const c = this.state.channels.find((x) => x.id === id);
+    if (!c) return;
+    if (changes.name !== undefined) c.name = changes.name;
+    if (changes.position !== undefined) c.position = changes.position;
+    this.emit();
+  }
+
+  /** removes a room: its people go to the floor, its board stays as a room that is gone (as the service keeps it) */
+  removeChannel(id: number): void {
+    const c = this.state.channels.find((x) => x.id === id);
+    if (!c || c.parent === null) return;
+    this.state.channels = this.state.channels.filter((x) => x.id !== id);
+    for (const u of this.state.users) if (u.channel === id) u.channel = c.parent;
+    const posts = this.posts.get(id) ?? [];
+    if (posts.length) {
+      const floor = this.state.channels.find((x) => x.id === c.parent);
+      this.orphans.push({ floorId: c.parent, floorName: floor?.name ?? "", room: { channelId: id, name: c.name, posts: posts.length, bytes: posts.reduce((n, p) => n + (p.attachment?.size ?? 0), 0), goneSince: Date.now() } });
+      this.posts.delete(id);
+    }
+    this.emit();
+  }
+
   removeTemporaryChannels(): void {
     const temp = new Set(this.state.channels.filter((c) => c.temporary && c.name.startsWith("New ")).map((c) => c.id));
     this.state.channels = this.state.channels.filter((c) => !temp.has(c.id));

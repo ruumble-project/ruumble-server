@@ -50,6 +50,12 @@ const SHOTS = {
     await binders.click();
     return around([await binders.boundingBox(), await page.getByRole("dialog", { name: "Description of Retrospective" }).boundingBox()], 16);
   },
+  "floor-care": async (page) => {
+    await page.getByRole("button", { name: "Floor care: Development" }).click();
+    const dialog = page.getByRole("dialog", { name: "Floor care" });
+    const rooms = dialog.locator("section").filter({ has: page.getByRole("heading", { name: "Rooms on this floor" }) });
+    return around([await rooms.boundingBox()], 12);
+  },
   "light-switch": async (page) => {
     await page.getByRole("button", { name: "User menu" }).click();
     const tiles = page.getByRole("group", { name: "Quick switches" });

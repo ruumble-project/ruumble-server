@@ -13,6 +13,10 @@
     close: ["M6 6l12 12M18 6L6 18"],
     check: ["M5 12l5 5 9-10"],
     move: ["M4 12h14M13 7l5 5-5 5"],
+    up: ["M6 15l6-6 6 6"],
+    down: ["M6 9l6 6 6-6"],
+    pencil: ["M4 20h4L19 9l-4-4L4 16z", "M14 6l4 4"],
+    plus: ["M12 5v14M5 12h14"],
   } as const;
   export type IconName = keyof typeof PATHS;
 </script>

@@ -6,6 +6,7 @@ import { BOARD_LIMITS, type Attachment, type BoardView, type BuildingCare, type 
 import type { BoardErrorCode, BoardResult, ConnectionState, MumbleAdapter, PairErrorCode, PluginStatus } from "./adapter/types.ts";
 import { formatSize, newestPost, parseSeen, unseenPosts, type BoardFilter, type CopyTarget } from "./board/model.ts";
 import type { CareTarget } from "./care/model.ts";
+import { moved, positionChanges } from "./care/rooms.ts";
 import { t } from "./i18n/index.svelte.ts";
 import type { BoardSide } from "./model/float.ts";
 import { avatarUrlOf, buildBuilding, homeFloor, type BuildOptions, type Building, type Floor } from "./model/building.ts";
@@ -534,9 +535,9 @@ export class RuumbleState {
     return this.careAction(() => this.adapter.care.pruneRoom(target.channelId, days), (v) => t().care.pruned(t().care.posts(v.posts)));
   }
 
-  /** the board as a file: the browser saves it */
-  exportRoom(): Promise<boolean> {
-    const target = this.care;
+  /** the board as a file: the browser saves it; `channelId`: a room of the floor care (before deleting it) */
+  exportRoom(channelId?: number): Promise<boolean> {
+    const target = channelId === undefined ? this.care : ({ kind: "room", channelId } as const);
     if (target?.kind !== "room") return Promise.resolve(false);
     let cancelled = false;
     return this.careAction(async (): Promise<BoardResult<{ name: string }>> => {
@@ -562,6 +563,103 @@ export class RuumbleState {
     if (!target || target.kind === "room" || !ids.length) return Promise.resolve(false);
     const run = target.kind === "floor" ? () => this.adapter.care.cleanFloor(target.channelId, ids.filter((id) => id !== null)) : () => this.adapter.care.cleanBuilding(ids);
     return this.careAction(run, (v) => t().care.removed(t().care.posts(v.posts)));
+  }
+
+  // ---------------------------------------------------------------- Rooms of a floor (floor care, client#12)
+
+  /** busy with a change of the floor's rooms in Mumble */
+  roomsBusy = $state(false);
+
+  /** waits until the snapshot shows what was asked of Mumble; false after `ms` (refused, or no permission) */
+  private async until(seen: (s: Snapshot) => boolean, ms = 6000): Promise<boolean> {
+    for (let waited = 0; waited <= ms; waited += 200) {
+      if (this.snapshot && seen(this.snapshot)) return true;
+      await new Promise((r) => setTimeout(r, 200));
+    }
+    return false;
+  }
+
+  /** runs a change of the floor's rooms: sends it, waits for the snapshot, then reloads the floor care */
+  private async roomsChange(send: () => Promise<boolean>, seen: (s: Snapshot) => boolean, done: string): Promise<boolean> {
+    if (this.roomsBusy) return false;
+    this.roomsBusy = true;
+    this.careMessage = null;
+    this.careError = null;
+    const ok = (await send()) && (await this.until(seen));
+    this.roomsBusy = false;
+    if (!ok) {
+      this.setNotice({ text: t().care.roomsRefused });
+      return false;
+    }
+    this.careMessage = done;
+    await this.loadCare();
+    return true;
+  }
+
+  addRoom(floorId: number, name: string): Promise<boolean> {
+    const n = name.trim();
+    return this.roomsChange(
+      () => this.desk.createChannel(floorId, n),
+      (s) => s.channels.some((c) => c.parent === floorId && c.name === n),
+      t().care.roomAdded(n),
+    );
+  }
+
+  renameRoom(channelId: number, name: string): Promise<boolean> {
+    const n = name.trim();
+    return this.roomsChange(
+      async () => (await this.desk.updateChannel(channelId, { name: n })).sent,
+      (s) => s.channels.some((c) => c.id === channelId && c.name === n),
+      t().care.roomRenamed(n),
+    );
+  }
+
+  /** one place up (-1) or down (+1) on the floor: every room gets Mumble's position of its place */
+  moveRoom(floorId: number, channelId: number, step: -1 | 1): Promise<boolean> {
+    const floor = this.building?.floors.find((f) => f.channelId === floorId);
+    if (!floor || !this.snapshot) return Promise.resolve(false);
+    const order = moved(floor.rooms.map((r) => r.channelId), channelId, step);
+    const changes = positionChanges(order, this.snapshot.channels);
+    if (!changes.length) return Promise.resolve(false);
+    return this.roomsChange(
+      async () => (await Promise.all(changes.map((c) => this.desk.updateChannel(c.channelId, { position: c.position })))).every((r) => r.sent),
+      () => (this.building?.floors.find((f) => f.channelId === floorId)?.rooms.map((r) => r.channelId).join() ?? "") === order.join(),
+      "",
+    );
+  }
+
+  /**
+   * Deletes a room in Mumble. `withData`: its board goes too (the floor care's clean-up of rooms that are gone, once the
+   * service has noticed it is gone); otherwise the board stays under "rooms that were here".
+   */
+  async deleteRoom(floorId: number, channelId: number, name: string, withData: boolean): Promise<boolean> {
+    const gone = await this.roomsChange(
+      () => this.desk.removeChannel(channelId),
+      (s) => !s.channels.some((c) => c.id === channelId),
+      withData ? "" : t().care.roomRemoved(name),
+    );
+    if (!gone || !withData) return gone;
+    // the clean-up only takes rooms the service already counts as gone: wait until the floor care lists it there; a room
+    // without a board never shows up there, then there is nothing to delete
+    for (let attempt = 0; attempt < 12; attempt++) {
+      const floor = await this.adapter.care.floor(floorId);
+      if (floor.ok && floor.value.orphans.some((o) => o.channelId === channelId)) {
+        const r = await this.adapter.care.cleanFloor(floorId, [channelId]);
+        if (!r.ok) break;
+        this.careMessage = t().care.roomDeleted(name);
+        await this.loadCare();
+        return true;
+      }
+      if (floor.ok && !floor.value.rooms.some((x) => x.channelId === channelId) && attempt >= 2) {
+        this.careMessage = t().care.roomDeleted(name);
+        await this.loadCare();
+        return true;
+      }
+      await new Promise((res) => setTimeout(res, 500));
+    }
+    this.setNotice({ text: t().care.roomDataKept(name) });
+    await this.loadCare();
+    return false;
   }
 
   // ---------------------------------------------------------------- Key cabinet (ADR-0015)
