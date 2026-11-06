@@ -40,7 +40,7 @@ awk -v v="$version" -v d="$today" '
   /^## \[Unreleased\]/ { print; print ""; print "## [" v "] - " d; next }
   /^\[[0-9]+\.[0-9]+\.[0-9]+\]: / && !linked { print "[" v "]: https://github.com/ruumble-project/ruumble-server/releases/tag/v" v; linked = 1 }
   { print }
-'' CHANGELOG.md > CHANGELOG.md.tmp && mv CHANGELOG.md.tmp CHANGELOG.md
+' CHANGELOG.md > CHANGELOG.md.tmp && mv CHANGELOG.md.tmp CHANGELOG.md
 
 # the users' "What's new" page of this version (#17); none when next.md holds no user-visible change
 node tools/whats-new-release.mjs "$version" "$today"
