@@ -70,6 +70,11 @@
      them and draw a ring in --color-raised-edge (invisible in the light theme) in front of their shadow. */
   --color-raised: #ffffff;
   --color-raised-edge: transparent;
+  /* The frame of a modal dialog (shortcuts, building overview, care, post editor): a fine ring and a deep, soft
+     shadow, so the window stands off the page behind its backdrop, and the yellow band of the name badge on top
+     (a confirmation keeps its red one) */
+  --dialog-frame: 0 0 0 1px rgb(0 56 105 / 0.22), 0 2px 6px rgb(0 30 60 / 0.14), 0 24px 60px rgb(0 30 60 / 0.38);
+  --dialog-band: 5px solid var(--color-accent);
 
   /* Gradient (elevator panel) */
   --gradient-elevator: linear-gradient(90deg, #0f4b8c 0%, #003869 25%);
@@ -143,4 +148,6 @@
 
   --color-raised: #313946;
   --color-raised-edge: #556274;
+  --dialog-frame: 0 0 0 1px var(--color-raised-edge), 0 2px 6px rgb(0 0 0 / 0.4), 0 24px 60px rgb(0 0 0 / 0.6);
 }
+

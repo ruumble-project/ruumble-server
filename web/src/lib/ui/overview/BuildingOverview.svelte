@@ -46,8 +46,8 @@
 
 <style>
   .overview {
-    --color-paper: var(--color-raised); box-shadow: 0 0 0 1px var(--color-raised-edge);
-    width: min(1180px, calc(100vw - 32px)); height: min(820px, 92vh); padding: 0; border: 0; border-radius: var(--radius-md);
+    --color-paper: var(--color-raised); box-shadow: var(--dialog-frame);
+    width: min(1180px, calc(100vw - 32px)); height: min(820px, 92vh); padding: 0; border: 0; border-top: var(--dialog-band); border-radius: var(--radius-md);
     color: var(--color-ink); background: var(--color-paper); display: flex; flex-direction: column; overflow: hidden;
   }
   .overview::backdrop { background: var(--color-backdrop); }

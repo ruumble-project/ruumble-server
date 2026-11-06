@@ -414,7 +414,7 @@ export const en: Messages = {
     viewFloor: (name) => `View the floor ${name}`,
     enterRoom: (name) => `Enter ${name}`,
     inHouse: (n) => (n === 1 ? "1 person in the building" : `${n} people in the building`),
-    hint: "Click a person to go to them. P: have a quiet word with them.",
+    hint: "Click a person to go to them. T: have a quiet word with them.",
   },
   status: {
     title: "My status",

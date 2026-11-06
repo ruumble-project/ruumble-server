@@ -429,7 +429,7 @@ export const de = {
     viewFloor: (name: string) => `Etage ${name} ansehen`,
     enterRoom: (name: string) => `${name} betreten`,
     inHouse: (n: number) => (n === 1 ? "1 Person im Haus" : `${n} Personen im Haus`),
-    hint: "Klick auf eine Person: hingehen. P: mit ihr unter vier Augen schreiben.",
+    hint: "Klick auf eine Person: hingehen. T: mit ihr unter vier Augen schreiben.",
   },
   /** the list of keyboard shortcuts (?), also from the user menu */
   shortcuts: {

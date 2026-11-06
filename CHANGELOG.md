@@ -18,6 +18,8 @@ Plugin 0.5.0 (unchanged).
 - **Channels below the rooms are ignored** instead of locking the whole floor: the floor shows its rooms as usual, the deeper channels and the people in them are not drawn (in the directory board they are "elsewhere"). A building without any floor still says "Vacant"
 - **The light switch:** the dark mode tile in the user menu follows the building and says what it does: "Turn the light off" in the light theme, "Turn the light on" in the dark one
 - **Keyboard:** comma and full stop no longer switch the tabs of Ruumble in a box (the arrow keys in the tab list still do)
+- **Windows stand off the page:** the dialogs (shortcuts, building overview, care and maintenance, the post editor) get a fine ring, a deep soft shadow and the yellow band of the name badge on top, in both themes
+- The building overview's hint names **T** for a quiet word (was still P)
 
 ## [0.36.0] - 2026-11-05
 
