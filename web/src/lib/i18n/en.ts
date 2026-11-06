@@ -603,7 +603,6 @@ export const en: Messages = {
     label: "Room menu",
     open: (place) => `Menu of ${place}`,
     board: "Board",
-    log: "Log",
     roomCare: "Room care",
     floorCare: "Floor care",
     editRoom: "Edit room …",

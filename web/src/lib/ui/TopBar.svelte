@@ -242,13 +242,6 @@
                   title={`${t().roomMenu.board} (${SHORTCUT_KEYS.toggleBoard.toUpperCase()})`} onclick={() => { open = null; app.toggleBoard(); }}>
                   <span class="tile-icon"><BoardNotes /></span><span>{t().roomMenu.board}</span>
                 </button>
-                {#if app.desk.available}
-                  <button type="button" class="tile" aria-keyshortcuts={SHORTCUT_KEYS.chat.toUpperCase()}
-                    title={`${t().roomMenu.log} (${SHORTCUT_KEYS.chat.toUpperCase()})`} onclick={() => { open = null; app.chat.openRoom(); }}>
-                    <span class="tile-icon"><Inbox size={18} aria-hidden="true" />{#if app.desk.unread}<span class="tile-count">{app.desk.unread > 99 ? "99+" : app.desk.unread}</span>{/if}</span>
-                    <span>{t().roomMenu.log}</span>
-                  </button>
-                {/if}
                 {#if here.space.canTend}
                   <button type="button" class="tile" onclick={() => { open = null; void app.openCare({ kind: here.kind, channelId: here.space.channelId }); }}>
                     <span class="tile-icon"><Plant size={18} /></span><span>{here.kind === "room" ? t().roomMenu.roomCare : t().roomMenu.floorCare}</span>
@@ -501,13 +494,9 @@
   .room-sign :global(.chevron) { flex-shrink: 0; align-self: center; color: var(--color-link); transition: transform var(--dur) var(--ease-out); }
   .room-sign[aria-expanded="true"] :global(.chevron) { transform: rotate(180deg); }
   /* the room menu hangs centred below the room sign */
-  .room-menu { right: auto; left: 50%; width: 300px; min-width: 0; margin-left: -150px; transform-origin: top center; }
+  .menu.room-menu { right: auto; left: 50%; width: 260px; margin-left: -130px; transform-origin: top center; box-sizing: border-box; }
   .room-menu .quick { grid-template-columns: none; grid-auto-flow: column; grid-auto-columns: 1fr; }
   .tile-icon { position: relative; display: inline-flex; height: 22px; align-items: center; }
-  .tile-count {
-    position: absolute; top: -6px; right: -12px; min-width: 16px; height: 16px; padding: 0 4px; border-radius: 8px; box-sizing: border-box;
-    background: var(--color-ink); color: var(--color-paper); box-shadow: 0 0 0 2px var(--color-paper); font-size: 10px; line-height: 16px; text-align: center;
-  }
   .room-sign :global(.back) { flex-shrink: 0; align-self: center; color: var(--color-link); }
 
   .tool {

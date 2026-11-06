@@ -1,7 +1,7 @@
 import { expect, test, type Page } from "@playwright/test";
 import { gotoFloor } from "./topbar.ts";
 
-// The room menu on the room sign (#15): tiles for the board, the room's log (Ruumble Client) and its care, and
+// The room menu on the room sign (#15): tiles for the board and the room's care, and
 // Ruumble's edit dialog (Ruumble Client, Mumble Write). The client's "desk" object is faked as QWebChannel hands it
 // over; the fake takes over a change after a moment, unless `window.refuse` is set (the server says no).
 async function asDesk(page: Page): Promise<void> {
@@ -51,13 +51,12 @@ async function asDesk(page: Page): Promise<void> {
 const roomSign = (page: Page) => page.getByRole("button", { name: /Menu of Let's talk$/ });
 const roomMenu = (page: Page) => page.getByRole("group", { name: "Room menu" });
 
-test("in a browser: the room sign opens the room menu with the board and the room care, no log and no edit", async ({ page }) => {
+test("in a browser: the room sign opens the room menu with the board and the room care, no edit", async ({ page }) => {
   await page.goto("/?fixture=sample&talking=0");
   await roomSign(page).click();
   const menu = roomMenu(page);
   await expect(menu.getByRole("button", { name: /^Board/ })).toHaveAttribute("aria-pressed", "false");
   await expect(menu.getByRole("button", { name: "Room care" })).toBeVisible();
-  await expect(menu.getByRole("button", { name: /^Log/ })).toHaveCount(0);
   await expect(menu.getByRole("button", { name: "Edit room …" })).toHaveCount(0);
   await menu.getByRole("button", { name: /^Board/ }).click();
   await expect(menu).toHaveCount(0);
@@ -81,13 +80,6 @@ test.describe("inside Ruumble Client", () => {
   test.beforeEach(async ({ page }) => {
     await asDesk(page);
     await page.goto("/?fixture=sample&talking=0");
-  });
-
-  test("the log tile opens Ruumble in a box on the room's tab", async ({ page }) => {
-    await roomSign(page).click();
-    await roomMenu(page).getByRole("button", { name: /^Log/ }).click();
-    const box = page.getByRole("region", { name: "Ruumble in a box" });
-    await expect(box.getByRole("tab").first()).toHaveAttribute("aria-selected", "true");
   });
 
   test("Edit room: name, Markdown description and maximum users go to Mumble as plain text, the dialog closes once taken over", async ({ page }) => {

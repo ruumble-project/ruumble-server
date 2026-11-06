@@ -153,14 +153,6 @@ export class ChatState {
     this.focusOn("composer");
   }
 
-  /** the room menu's Log tile (#15): the window open on the room tab (Ruumble Client only) */
-  openRoom(): void {
-    if (!this.room) return;
-    this.show(ROOM_TAB);
-    this.panel = "open";
-    this.focusOn("composer");
-  }
-
   /** a tab clicked (a person, or the room tab): ready to write there */
   select(tab: string): void {
     this.show(tab);

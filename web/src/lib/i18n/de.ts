@@ -644,7 +644,6 @@ export const de = {
     label: "Raummenü",
     open: (place: string) => `Menü von ${place}`,
     board: "Pinnwand",
-    log: "Protokoll",
     roomCare: "Raumpflege",
     floorCare: "Etagenpflege",
     editRoom: "Raum bearbeiten …",
