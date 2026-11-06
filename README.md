@@ -1,8 +1,10 @@
 # Ruumble
 
-[![CI](https://github.com/ruumble-project/ruumble-server/actions/workflows/ci.yml/badge.svg)](https://github.com/ruumble-project/ruumble-server/actions/workflows/ci.yml) [![Release](https://img.shields.io/github/v/release/ruumble-project/ruumble-server)](https://github.com/ruumble-project/ruumble-server/releases/latest) [![License](https://img.shields.io/github/license/ruumble-project/ruumble-server)](LICENSE)
+[![CI](https://github.com/ruumble-project/ruumble-server/actions/workflows/ci.yml/badge.svg)](https://github.com/ruumble-project/ruumble-server/actions/workflows/ci.yml) [![Release](https://img.shields.io/github/v/release/ruumble-project/ruumble-server)](https://github.com/ruumble-project/ruumble-server/releases/latest) [![What's new](https://img.shields.io/badge/what's%20new-release%20notes-0078be)](docs/whats-new/README.md) [![License](https://img.shields.io/github/license/ruumble-project/ruumble-server)](LICENSE)
 
 **Your [Mumble](https://www.mumble.info/) server as an office building.** Ruumble is a web UI next to the regular Mumble client: the channels become floors and rooms, you see at a glance who sits where and who is talking, you move to another room with a click, and every room has a board for notes, code, images and files. Voice stays in Mumble, and Mumble itself stays unchanged.
+
+**What's new:** the [release notes for users](docs/whats-new/README.md) show what changed in each version, in plain words and with pictures (the newest version on top; "What's new" in Ruumble's user menu opens the page of the version you use). Operators and developers find the details in the [changelog](CHANGELOG.md) and the [releases](https://github.com/ruumble-project/ruumble-server/releases).
 
 ## For team members
 
