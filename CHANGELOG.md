@@ -6,6 +6,11 @@ All notable changes to Ruumble. The service and the web UI share one version; th
 
 ## [Unreleased]
 
+### Added
+
+- **The room menu:** the room sign ("You are here") opens a menu for the place one is in: the board (B), the room's log (T, inside Ruumble Client) and the room care as tiles, and, with Mumble Write inside Ruumble Client, "Edit room …". On the corridor and an open floor the same menu for the floor (floor care, "Edit floor …"). From another floor the sign still leads back (#15)
+- **Ruumble's edit dialog for a room or floor:** name, description in Markdown with a preview, maximum number of people. The description is stored as plain text with the marker line `<!-- ruumble:markdown -->` (never as HTML); the official Mumble shows it readable but unformatted. Needs Ruumble Client 0.38 or newer; password, position and permissions stay in Mumble (#15)
+
 ## [0.37.0] - 2026-11-06
 
 Plugin 0.5.0 (unchanged).

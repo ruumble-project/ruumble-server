@@ -20,6 +20,7 @@
   import MaintenanceDialog from "./lib/ui/MaintenanceDialog.svelte";
   import BuildingOverview from "./lib/ui/overview/BuildingOverview.svelte";
   import ShortcutsDialog from "./lib/ui/ShortcutsDialog.svelte";
+  import RoomEditDialog from "./lib/ui/RoomEditDialog.svelte";
   import NoticesDialog from "./lib/ui/NoticesDialog.svelte";
   import StatusDialog from "./lib/ui/StatusDialog.svelte";
   import ChatPanel from "./lib/ui/chat/ChatPanel.svelte";
@@ -180,6 +181,10 @@
     {#if app.statusOpen}<StatusDialog {app} />{/if}
     {#if app.noticesOpen}<NoticesDialog {app} />{/if}
     {#if app.helpOpen}<ShortcutsDialog onclose={() => (app.helpOpen = false)} />{/if}
+    {#if app.editChannelId !== null}
+      {@const editing = app.snapshot?.channels.find((c) => c.id === app.editChannelId)}
+      {#if editing}<RoomEditDialog {app} channel={editing} kind={editing.parent === 0 ? "floor" : "room"} />{/if}
+    {/if}
     {#if app.overviewOpen && building}<BuildingOverview {app} {building} />{/if}
     <!-- Ruumble in a box (#10): the room's log inside Ruumble Client, the quiet words wherever one is paired -->
     {#if app.me || app.desk.available}<ChatPanel {app} />{/if}

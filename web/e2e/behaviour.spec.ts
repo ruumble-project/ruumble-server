@@ -7,7 +7,7 @@ test.describe("Sample building", () => {
   test("starts on the user's own floor with their own room marked", async ({ page }) => {
     await expect(page.getByRole("heading", { name: "Development" })).toBeVisible();
     await expect(currentFloor(page)).toHaveAccessibleName("1st floor: Development, 4 on this floor – choose floor");
-    await expect(page.getByRole("status", { name: "You are here: Let's talk, 3 people" })).toBeVisible();
+    await expect(page.getByRole("button", { name: `You are here: Let's talk, 3 people – Menu of`, exact: false })).toBeVisible();
     await expect(page.getByRole("button", { name: "Let's talk – you are here" })).toBeVisible();
     const lift = await elevator(page);
     await expect(lift.getByRole("button", { name: "1st floor: Development" })).toHaveAttribute("aria-current", "page");
@@ -62,7 +62,7 @@ test.describe("Sample building", () => {
     await page.keyboard.press("h");
     await dialog.getByRole("button", { name: /^Go to Eva/ }).focus();
     await page.keyboard.press("Enter");
-    await expect(page.getByRole("status", { name: /^You are here: Lobby/ })).toBeVisible();
+    await expect(page.getByRole("button", { name: /^You are here: Lobby/ })).toBeVisible();
   });
 
   test("floor button only changes the view, “Go to my floor” goes back", async ({ page }) => {
@@ -343,7 +343,7 @@ test.describe("Building overview", () => {
     await expect(dialog.getByRole("region", { name: "Directory" }).getByRole("button", { name: /^Go to/ })).toHaveCount(1);
     await search.press("Enter");
     await expect(dialog).toHaveCount(0);
-    await expect(page.getByRole("status", { name: /^You are here: Office 3/ })).toBeVisible();
+    await expect(page.getByRole("button", { name: /^You are here: Office 3/ })).toBeVisible();
     await expect(page.getByRole("heading", { name: "Support" })).toBeVisible();
   });
 
@@ -375,7 +375,7 @@ test.describe("Building overview", () => {
     await expect(page.getByRole("heading", { name: "Support" })).toBeVisible();
     await page.keyboard.press("h");
     await dialog.getByRole("region", { name: "Cross-section" }).getByRole("button", { name: "Enter Ben's office" }).dblclick();
-    await expect(page.getByRole("status", { name: /^You are here: Ben's office/ })).toBeVisible();
+    await expect(page.getByRole("button", { name: /^You are here: Ben's office/ })).toBeVisible();
   });
 });
 

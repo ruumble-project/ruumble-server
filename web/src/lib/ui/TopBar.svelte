@@ -32,6 +32,9 @@
   import Avatar from "./Avatar.svelte";
   import { contextMenu, getDeskAdmin } from "../desk/admin.ts";
   import Key from "./Key.svelte";
+  import Plant from "./Plant.svelte";
+  import BoardNotes from "./board/BoardNotes.svelte";
+  import Pencil from "@lucide/svelte/icons/pencil";
 
   // Top bar instead of the elevator column, made of signs: left the floor sign (opens the elevator, which shows
   // everyone online in its head and, inside Ruumble Client, Mumble's functions in its footer), in the middle the sign
@@ -69,11 +72,23 @@
   const place = $derived(app.snapshot ? ownPlace(building, app.snapshot) : null);
   // viewing another floor: the room sign leads back
   const away = $derived(!!myFloor && floor?.channelId !== myFloor.channelId);
+  /** the place one is in, for the room menu (#15): a room, or the corridor / open floor (the floor channel) */
+  const here = $derived.by(() => {
+    const self = building.self;
+    if (!self || !("floorId" in self) || app.readonly) return null;
+    const f = building.floors.find((x) => x.channelId === self.floorId);
+    if (!f) return null;
+    const room = self.kind === "room" ? f.rooms.find((r) => r.channelId === self.channelId) : undefined;
+    if (self.kind === "room" && !room) return null;
+    return { space: room ?? f.corridor, kind: (room ? "room" : "floor") as "room" | "floor", floor: f };
+  });
+  const canEdit = $derived(!!here && here.space.canTend && app.desk.available && app.desk.canEditChannels);
 
   // one dropdown at a time; closes on a choice, Escape (focus back to its button) and a click elsewhere
-  let open = $state<"floors" | "user" | null>(null);
+  let open = $state<"floors" | "user" | "room" | null>(null);
   let floorsButton = $state<HTMLButtonElement | null>(null);
   let userButton = $state<HTMLButtonElement | null>(null);
+  let roomButton = $state<HTMLButtonElement | null>(null);
   $effect(() => {
     if (!open) return;
     const which = open;
@@ -81,7 +96,7 @@
     const onkeydown = (e: KeyboardEvent) => {
       if (e.key !== "Escape") return;
       open = null;
-      (which === "floors" ? floorsButton : userButton)?.focus();
+      (which === "floors" ? floorsButton : which === "room" ? roomButton : userButton)?.focus();
     };
     window.addEventListener("click", onclick);
     window.addEventListener("keydown", onkeydown);
@@ -90,7 +105,7 @@
       window.removeEventListener("keydown", onkeydown);
     };
   });
-  const toggle = (which: "floors" | "user") => (open = open === which ? null : which);
+  const toggle = (which: "floors" | "user" | "room") => (open = open === which ? null : which);
 
   /** a button in the elevator's footer: closes the elevator, then does its thing */
   function act(run: () => void): void {
@@ -206,6 +221,49 @@
           <span class="caption">{t().core.youAreHere}</span>
           <span class="plate-name"><span class="room-name">{place.name}</span><LocateFixed size={15} class="back" /></span>
         </button>
+      {:else if here}
+        <!-- the room menu (#15): only for the place one is in -->
+        <div class="dropdown room-dropdown" data-dropdown="room">
+          <button
+            type="button" class="sign room-sign" bind:this={roomButton} aria-expanded={open === "room"} aria-controls="room-menu"
+            aria-label={`${label} – ${t().roomMenu.open(place.name)}`} title={t().roomMenu.open(place.name)} onclick={() => toggle("room")}
+          >
+            <span class="caption">{t().core.youAreHere}</span>
+            <span class="plate-name"><span class="room-name">{place.name}</span><ChevronDown size={15} class="chevron" aria-hidden="true" /></span>
+          </button>
+          {#if open === "room"}
+            <div id="room-menu" class="menu room-menu" role="group" aria-label={t().roomMenu.label} {@attach focusFirst}>
+              <div class="me-row">
+                <span class="n">{place.name}</span>
+                <span class="l">{t().floors.floor(here.floor.badge)} · {countText(place.people)}{#if here.space.recording} · {t().people.recording}{/if}</span>
+              </div>
+              <div class="quick" role="group" aria-label={t().core.quickSwitches}>
+                <button type="button" class="tile" aria-pressed={app.boardOpen} aria-keyshortcuts={SHORTCUT_KEYS.toggleBoard.toUpperCase()}
+                  title={`${t().roomMenu.board} (${SHORTCUT_KEYS.toggleBoard.toUpperCase()})`} onclick={() => { open = null; app.toggleBoard(); }}>
+                  <span class="tile-icon"><BoardNotes /></span><span>{t().roomMenu.board}</span>
+                </button>
+                {#if app.desk.available}
+                  <button type="button" class="tile" aria-keyshortcuts={SHORTCUT_KEYS.chat.toUpperCase()}
+                    title={`${t().roomMenu.log} (${SHORTCUT_KEYS.chat.toUpperCase()})`} onclick={() => { open = null; app.chat.openRoom(); }}>
+                    <span class="tile-icon"><Inbox size={18} aria-hidden="true" />{#if app.desk.unread}<span class="tile-count">{app.desk.unread > 99 ? "99+" : app.desk.unread}</span>{/if}</span>
+                    <span>{t().roomMenu.log}</span>
+                  </button>
+                {/if}
+                {#if here.space.canTend}
+                  <button type="button" class="tile" onclick={() => { open = null; void app.openCare({ kind: here.kind, channelId: here.space.channelId }); }}>
+                    <span class="tile-icon"><Plant size={18} /></span><span>{here.kind === "room" ? t().roomMenu.roomCare : t().roomMenu.floorCare}</span>
+                  </button>
+                {/if}
+              </div>
+              {#if canEdit}
+                <hr class="sep" />
+                <button type="button" class="item" onclick={() => { open = null; app.editChannelId = here.space.channelId; }}>
+                  <Pencil size={18} aria-hidden="true" />{here.kind === "room" ? t().roomMenu.editRoom : t().roomMenu.editFloor}
+                </button>
+              {/if}
+            </div>
+          {/if}
+        </div>
       {:else}
         <div class="sign room-sign" role="status" aria-label={label}>
           <span class="caption">{t().core.youAreHere}</span>
@@ -439,6 +497,17 @@
   .room-name { font-size: 17px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   button.room-sign { cursor: pointer; transition: transform var(--dur) var(--ease-out); }
   button.room-sign:hover { transform: translateY(-1px); }
+  button.room-sign[aria-expanded="true"] { transform: translateY(1px); }
+  .room-sign :global(.chevron) { flex-shrink: 0; align-self: center; color: var(--color-link); transition: transform var(--dur) var(--ease-out); }
+  .room-sign[aria-expanded="true"] :global(.chevron) { transform: rotate(180deg); }
+  /* the room menu hangs centred below the room sign */
+  .room-menu { right: auto; left: 50%; width: 300px; min-width: 0; margin-left: -150px; transform-origin: top center; }
+  .room-menu .quick { grid-template-columns: none; grid-auto-flow: column; grid-auto-columns: 1fr; }
+  .tile-icon { position: relative; display: inline-flex; height: 22px; align-items: center; }
+  .tile-count {
+    position: absolute; top: -6px; right: -12px; min-width: 16px; height: 16px; padding: 0 4px; border-radius: 8px; box-sizing: border-box;
+    background: var(--color-ink); color: var(--color-paper); box-shadow: 0 0 0 2px var(--color-paper); font-size: 10px; line-height: 16px; text-align: center;
+  }
   .room-sign :global(.back) { flex-shrink: 0; align-self: center; color: var(--color-link); }
 
   .tool {

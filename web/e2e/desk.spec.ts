@@ -163,7 +163,7 @@ test.describe("Ruumble in a box", () => {
     // Anna is in "Let's talk", in the top row: the box stays at the bottom
     await expect.poll(async () => { const b = (await box.boundingBox())!; return b.y + b.height; }).toBeGreaterThan(plan.y + plan.height - 20);
     await page.locator(".floorplan").getByRole("button", { name: /^Ben's office/ }).dblclick();
-    await expect(page.getByRole("status", { name: /^You are here: Ben's office/ })).toBeVisible();
+    await expect(page.getByRole("button", { name: /^You are here: Ben's office/ })).toBeVisible();
     // now in the bottom row: the box moves to the top, below the top bar
     await expect.poll(async () => (await box.boundingBox())!.y).toBeLessThan(plan.y + 20);
     await expect.poll(async () => (await box.boundingBox())!.y).toBeGreaterThanOrEqual(plan.y - 10); // 5 px past the wall, after its animation
@@ -200,11 +200,11 @@ test.describe("Ruumble in a box", () => {
     await expect.poll(async () => Math.abs((await edges()).top - (corridor.top + 16))).toBeLessThan(3);
     // in "Ben's office" (bottom row): from the top down to the corridor's bottom
     await page.locator(".floorplan").getByRole("button", { name: /^Ben's office/ }).dblclick();
-    await expect(page.getByRole("status", { name: /^You are here: Ben's office/ })).toBeVisible();
+    await expect(page.getByRole("button", { name: /^You are here: Ben's office/ })).toBeVisible();
     await expect.poll(async () => Math.abs((await edges()).bottom - (corridor.bottom - 16))).toBeLessThan(3);
     // in the corridor: only the bottom row
     await page.locator(".floorplan .room.corridor").dblclick({ position: { x: 600, y: 30 } });
-    await expect(page.getByRole("status", { name: /^You are here: Corridor/ })).toBeVisible();
+    await expect(page.getByRole("button", { name: /^You are here: Corridor/ })).toBeVisible();
     const bottomRow = await rect(".floorplan .row.bottom");
     await expect.poll(async () => Math.abs((await edges()).top - (bottomRow.top + 16))).toBeLessThan(3);
   });

@@ -105,6 +105,8 @@ export class RuumbleState {
   keysError = $state<BoardErrorCode | null>(null);
   /** the list of keyboard shortcuts, opened with ? or from the user menu */
   helpOpen = $state(false);
+  /** Ruumble's edit dialog for this channel (room or floor, #15), opened from the room menu inside Ruumble Client */
+  editChannelId = $state<number | null>(null);
   /** building overview (ADR-0019): cross-section and directory, opened from the elevator's status bar or with H */
   overviewOpen = $state(false);
   /** the own status (B, ADR-0018): dialog open, what the service reported (current and recent texts), saving, error */

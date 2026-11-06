@@ -639,6 +639,41 @@ export const de = {
     offline: "Keine Verbindung zum Ruumble-Dienst.",
   },
   /** Ruumble in a box (#10): one window for the room's log and chat and the quiet words */
+  /** the menu of the own room on the room sign (#15) */
+  roomMenu: {
+    label: "Raummenü",
+    open: (place: string) => `Menü von ${place}`,
+    board: "Pinnwand",
+    log: "Protokoll",
+    roomCare: "Raumpflege",
+    floorCare: "Etagenpflege",
+    editRoom: "Raum bearbeiten …",
+    editFloor: "Etage bearbeiten …",
+  },
+  /** Ruumble's edit dialog for a room or floor (#15) */
+  roomEdit: {
+    titleRoom: (name: string) => `Raum bearbeiten: ${name}`,
+    titleFloor: (name: string) => `Etage bearbeiten: ${name}`,
+    name: "Name",
+    description: "Beschreibung",
+    write: "Schreiben",
+    preview: "Vorschau",
+    emptyPreview: "Keine Beschreibung.",
+    markdownHint: "Markdown: **fett**, *kursiv*, - Liste, [Link](https://…). Das offizielle Mumble zeigt den Text unformatiert.",
+    maxUsers: "Höchstzahl an Personen",
+    maxUsersHint: "0 = ohne Grenze",
+    mumbleHint: "Passwort, Position und Rechte stellst du weiterhin in Mumble ein.",
+    save: "Speichern",
+    saving: "Speichert …",
+    cancel: "Abbrechen",
+    problems: {
+      "name-empty": "Der Name darf nicht leer sein.",
+      "name-taken": "Diesen Namen gibt es hier schon.",
+      "max-users": "Die Höchstzahl muss 0 oder größer sein.",
+    },
+    notSent: "Die Änderung ließ sich nicht senden. Ist Ruumble Client mit dem Server verbunden?",
+    notApplied: "Mumble hat die Änderung nicht übernommen. Fehlt dir das Recht dazu, oder ist die Beschreibung für den Server zu lang?",
+  },
   box: {
     title: "Ruumble in a box",
     roomTab: (room: string) => `Protokoll und Chat von ${room}`,

@@ -25,6 +25,9 @@ interface DeskObject {
   showChannelMenu?(channelId: number, x: number, y: number): void;
   showUserMenu?(session: number, x: number, y: number): void;
   moveUser?(session: number, channelId: number): void;
+  /** Ruumble's edit dialog (#15), Ruumble Client 0.38 and newer */
+  channelProperties?(channelId: number, callback: (properties: Record<string, unknown>) => void): void;
+  updateChannel?(channelId: number, changes: Record<string, unknown>, callback: (result: Record<string, unknown>) => void): void;
   logged: { connect(handler: (entry: unknown) => void): void };
   serverChanged: { connect(handler: () => void): void };
 }
@@ -47,6 +50,8 @@ export class DeskState implements DeskAdmin {
   newFrom = $state<number | null>(null);
   private seenId = $state(0);
   private desk: DeskObject | null = null;
+  /** the client can change a channel for Ruumble's edit dialog (#15); older clients cannot */
+  canEditChannels = $state(false);
 
   readonly unread = $derived(this.open ? 0 : unreadCount(this.entries, this.seenId));
   readonly visible = $derived(visibleEntries(this.entries, this.query, this.filter));
@@ -60,6 +65,7 @@ export class DeskState implements DeskAdmin {
       if (!desk) return;
       this.desk = desk;
       this.available = true;
+      this.canEditChannels = typeof desk.updateChannel === "function" && typeof desk.channelProperties === "function";
       desk.logged.connect((raw) => this.add([raw]));
       desk.history((list) => this.add(list));
     });
@@ -103,6 +109,28 @@ export class DeskState implements DeskAdmin {
     this.desk.sendMessage(text, (ok) => {
       this.sending = false;
       if (ok) this.draft = "";
+    });
+  }
+
+  /** name, maximum users and the description's hash of a channel as the client knows it; null if unknown */
+  channelProperties(channelId: number): Promise<{ name: string; maxUsers: number; descriptionHash: string } | null> {
+    const desk = this.desk;
+    return new Promise((resolve) => {
+      if (!desk?.channelProperties) return resolve(null);
+      desk.channelProperties(channelId, (p) =>
+        resolve(typeof p?.name === "string" ? { name: p.name, maxUsers: Number(p.maxUsers) || 0, descriptionHash: String(p.descriptionHash ?? "") } : null),
+      );
+    });
+  }
+
+  /** sends a change of name, description or maximum users; the server decides, the client's channel shows it */
+  updateChannel(channelId: number, changes: Record<string, unknown>): Promise<{ sent: boolean; descriptionHash?: string }> {
+    const desk = this.desk;
+    return new Promise((resolve) => {
+      if (!desk?.updateChannel) return resolve({ sent: false });
+      desk.updateChannel(channelId, changes, (r) =>
+        resolve({ sent: r?.sent === true, ...(typeof r?.descriptionHash === "string" ? { descriptionHash: r.descriptionHash } : {}) }),
+      );
     });
   }
 
