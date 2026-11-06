@@ -48,7 +48,10 @@
   .overview {
     --color-paper: var(--color-raised); box-shadow: var(--dialog-frame);
     width: min(1180px, calc(100vw - 32px)); height: min(820px, 92vh); padding: 0; border: 0; border-top: var(--dialog-band); border-radius: var(--radius-md);
-    color: var(--color-ink); background: var(--color-paper); display: flex; flex-direction: column; overflow: hidden;
+    color: var(--color-ink); background: var(--color-paper); display: flex; flex-direction: column;
+    /* clip, not just hide: focusing the directory's search field must never scroll the window sideways (that moved
+       the header to the left and cut off the directory board on the right) */
+    overflow: hidden; overflow: clip;
   }
   .overview::backdrop { background: var(--color-backdrop); }
   header { display: flex; align-items: center; gap: 12px; padding: 12px 12px 12px 20px; border-bottom: 1px solid var(--color-blue-100); flex: none; }
@@ -57,7 +60,7 @@
   .close { margin-left: auto; width: 36px; height: 36px; display: grid; place-items: center; border: 0; border-radius: var(--radius-md); background: transparent; color: var(--color-ink); cursor: pointer; }
   .close:hover { background: var(--color-blue-100); }
   .close:focus-visible { outline: 3px solid var(--color-sky); outline-offset: 2px; }
-  .body { flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(0, 1.7fr) minmax(300px, 1fr); gap: 20px; padding: 16px 20px 20px; }
+  .body { flex: 1; min-height: 0; min-width: 0; display: grid; grid-template-columns: minmax(0, 1.7fr) minmax(min(300px, 45%), 1fr); gap: 20px; padding: 16px 20px 20px; }
   /* only vertical: a highlighted avatar grows a little and must not make the pane scroll sideways */
   .section-pane { min-height: 0; overflow-y: auto; overflow-x: hidden; }
 </style>

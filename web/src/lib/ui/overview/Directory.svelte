@@ -122,7 +122,7 @@
   /* a dark plate with a screw in every corner, like the floor sign in the top bar */
   .board {
     --screw: radial-gradient(circle, rgb(255 255 255 / 0.45) 1.6px, transparent 2.2px);
-    display: flex; flex-direction: column; gap: 10px; min-height: 0; padding: 14px 14px 10px; border-radius: 6px; color: var(--color-white);
+    display: flex; flex-direction: column; gap: 10px; min-height: 0; min-width: 0; padding: 14px 14px 10px; border-radius: 6px; color: var(--color-white);
     background-image: var(--screw), var(--screw), var(--screw), var(--screw), var(--gradient-elevator);
     background-size: 10px 10px, 10px 10px, 10px 10px, 10px 10px, 100% 100%;
     background-position: 3px 3px, calc(100% - 3px) 3px, 3px calc(100% - 3px), calc(100% - 3px) calc(100% - 3px), 0 0;

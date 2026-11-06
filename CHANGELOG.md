@@ -25,6 +25,7 @@ Plugin 0.5.0 (unchanged).
 - **Keyboard:** comma and full stop no longer switch the tabs of Ruumble in a box (the arrow keys in the tab list still do)
 - **Windows stand off the page:** the dialogs (shortcuts, building overview, care and maintenance, the post editor) get a fine ring, a deep soft shadow and the yellow band of the name badge on top, in both themes
 - The building overview's hint names **T** for a quiet word (was still P)
+- The building overview can no longer be scrolled sideways when its search field gets the focus (the header moved to the left, the directory board was cut off on the right)
 
 ## [0.36.0] - 2026-11-05
 
