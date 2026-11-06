@@ -13,8 +13,8 @@ describe("keyboard shortcuts", () => {
     expect(shortcutOf(key("s"), false)).toBe("status");
     expect(shortcutOf(key("?"), false)).toBe("help");
     expect(shortcutOf(key("T"), false)).toBe("chat");
-    expect(shortcutOf(key(","), false)).toBe("chatPrev");
-    expect(shortcutOf(key("."), false)).toBe("chatNext");
+    expect(shortcutOf(key(","), false)).toBeNull(); // the tabs of Ruumble in a box: arrow keys in the tab list only
+    expect(shortcutOf(key("."), false)).toBeNull();
     expect(shortcutOf(key("x"), false)).toBeNull();
   });
 

@@ -16,8 +16,6 @@ export const AWAY_MINUTES = 5;
 
 export type Presence = "active" | "quiet" | "away";
 
-export type LockReason = "too-deep";
-
 export interface UserView {
   session: number;
   name: string;
@@ -79,7 +77,6 @@ export interface Floor {
   rooms: Room[];
   /** only without rooms: open floor */
   open: boolean;
-  lock: LockReason | null;
   /** all users in the floor's visible subtree */
   population: number;
   isSelf: boolean;
@@ -87,7 +84,6 @@ export interface Floor {
 
 export type SelfLocation =
   | { kind: "room" | "corridor" | "open-floor"; floorId: number; channelId: number }
-  | { kind: "locked-floor"; floorId: number; channelId: number }
   | { kind: "entrance" }
   /** in a hidden (linked) channel */
   | { kind: "hidden"; channelId: number };
@@ -116,16 +112,19 @@ export function sortSiblings<T extends Pick<Channel, "position" | "name">>(chann
 }
 
 /**
- * Visible channels: linked channels disappear together with all subchannels (docs/internal/charter.md, O2, O3).
- * The root channel is always visible.
+ * Visible channels: linked channels disappear together with all subchannels (docs/internal/charter.md, O2, O3), and so
+ * does everything below the rooms: the building has two levels, floors and rooms (L4). A deeper structure is ignored
+ * instead of locking the floor. The root channel is always visible.
  */
 export function visibleChannels(channels: readonly Channel[]): Channel[] {
   const byId = new Map(channels.map((c) => [c.id, c]));
   const hidden = (c: Channel): boolean => {
+    let depth = 0;
     for (let cur: Channel | undefined = c; cur && cur.parent !== null; cur = byId.get(cur.parent)) {
       if (cur.links.length > 0) return true;
+      depth++;
     }
-    return false;
+    return depth > 2;
   };
   return channels.filter((c) => !hidden(c));
 }
@@ -302,7 +301,6 @@ export function buildBuilding(snapshot: Snapshot, options: BuildOptions = {}): B
 
   const floors: Floor[] = childrenOf(0).map((f, index) => {
     const roomChannels = childrenOf(f.id);
-    const lock: LockReason | null = roomChannels.some((r) => childrenOf(r.id).length > 0) ? "too-deep" : null;
     return {
       channelId: f.id,
       name: f.name,
@@ -314,7 +312,6 @@ export function buildBuilding(snapshot: Snapshot, options: BuildOptions = {}): B
         grow: roomGrow(usersIn.get(r.id)?.length ?? 0),
       })),
       open: roomChannels.length === 0,
-      lock,
       population: subtreePopulation(f.id),
       isSelf: selfUser !== undefined && subtreeIds(f.id).includes(selfUser.channel),
     };
@@ -326,7 +323,6 @@ export function buildBuilding(snapshot: Snapshot, options: BuildOptions = {}): B
     const floor = floors.find((f) => f.isSelf);
     if (ch === 0) self = { kind: "entrance" };
     else if (!visibleIds.has(ch) || !floor) self = { kind: "hidden", channelId: ch };
-    else if (floor.lock) self = { kind: "locked-floor", floorId: floor.channelId, channelId: ch };
     else if (floor.channelId === ch) self = { kind: floor.open ? "open-floor" : "corridor", floorId: floor.channelId, channelId: ch };
     else self = { kind: "room", floorId: floor.channelId, channelId: ch };
   }
@@ -362,5 +358,5 @@ export function ownPlace(building: Building, snapshot: Snapshot): { name: string
 /** Which floor is shown at start or on “Go to my floor”: your own, otherwise the first displayable one. */
 export function homeFloor(building: Building): Floor | null {
   const own = building.floors.find((f) => f.isSelf);
-  return own ?? building.floors.find((f) => !f.lock) ?? null;
+  return own ?? building.floors[0] ?? null;
 }

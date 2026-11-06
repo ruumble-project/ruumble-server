@@ -121,7 +121,6 @@ describe("Sample building (normal case)", () => {
     expect(dev.corridor.channelId).toBe(2);
     expect(dev.open).toBe(false);
     expect(b.floors[0]?.open).toBe(true);
-    expect(b.floors.every((f) => f.lock === null)).toBe(true);
   });
 
   it("occupancy, own room and own floor", () => {
@@ -162,13 +161,13 @@ describe("Edge cases", () => {
     expect(floor("SALES")!.rooms.map((r) => r.name)).toEqual(["Away", "Focus room (muted)", "Gregor's office", "Project room"]);
   });
 
-  it("floor nested too deep is locked, users on level 3 count towards the floor", () => {
-    expect(floor("ARCHIVE")).toMatchObject({ lock: "too-deep", population: 1 });
+  it("channels below the rooms are ignored: the floor shows its rooms, people deeper down are not on it", () => {
+    expect(floor("ARCHIVE")!.rooms.map((r) => r.name)).toEqual(["File room", "Deep room"]);
+    expect(floor("ARCHIVE")!.population).toBe(0);
   });
 
   it("many rooms do not lock the floor (it scrolls sideways)", () => {
     expect(floor("OPEN SPACE")!.rooms).toHaveLength(9);
-    expect(floor("OPEN SPACE")!.lock).toBeNull();
   });
 
   it("rooms get wider with the people in them", () => {
@@ -184,7 +183,7 @@ describe("Edge cases", () => {
     expect(b.entrance.map((u) => u.name)).toEqual(["Ida", "Jonas"]);
     expect(b.online).toBe(13);
     const onFloors = b.floors.reduce((n, f) => n + f.population, 0);
-    expect(onFloors + b.entrance.length).toBe(13 - 3); // Gregor + Hanna (Kitchen↔Coffee corner) and Lena (Guest office) are hidden
+    expect(onFloors + b.entrance.length).toBe(13 - 4); // Gregor + Hanna (Kitchen↔Coffee corner), Lena (Guest office) and Karl (below a room) are hidden
   });
 
   it("listeners, lock and user status", () => {
@@ -209,7 +208,7 @@ describe("Where is the own user?", () => {
     [1, { kind: "open-floor", floorId: 1, channelId: 1 }],
     [2, { kind: "corridor", floorId: 2, channelId: 2 }],
     [3, { kind: "room", floorId: 2, channelId: 3 }],
-    [6, { kind: "locked-floor", floorId: 4, channelId: 6 }],
+    [6, { kind: "hidden", channelId: 6 }],
     [7, { kind: "hidden", channelId: 7 }],
   ])("channel %i → %j", (channel, expected) => {
     expect(at(channel).self).toEqual(expected);
@@ -220,7 +219,7 @@ describe("Where is the own user?", () => {
     [1, { name: "Ground", people: 1 }],
     [2, { name: "Corridor", people: 1 }],
     [3, { name: "Room", people: 1 }],
-    [6, { name: "T1a", people: 1 }],
+    [6, { name: "area not shown", people: 1 }],
     [7, { name: "area not shown", people: 1 }],
   ])("own place for the room sign in channel %i → %j", (channel, expected) => {
     const s = snapshot(house, [user(1, "Me", channel)], 1);
@@ -234,8 +233,8 @@ describe("Where is the own user?", () => {
     expect(ownPlace(buildBuilding(none), none)).toBeNull();
   });
 
-  it("own locked floor is still shown, hidden channel falls back to the first displayable one", () => {
-    expect(homeFloor(at(6))?.name).toBe("Deep");
+  it("below a room or in a hidden channel: the first floor is shown", () => {
+    expect(homeFloor(at(6))?.name).toBe("Ground");
     expect(homeFloor(at(7))?.name).toBe("Ground");
   });
 
@@ -255,18 +254,14 @@ describe("Vacancy and live changes", () => {
     expect(homeFloor(buildBuilding(snapshot([ch(0, null, "R")])))).toBeNull();
   });
 
-  it("subchannel added → floor locked, removed again → unlocked", () => {
+  it("a subchannel added below a room changes nothing on the floor", () => {
     const base = [ch(0, null, "R"), ch(1, 0, "Upper"), ch(2, 1, "Room")];
-    expect(buildBuilding(snapshot(base)).floors[0]?.lock).toBeNull();
-    expect(buildBuilding(snapshot([...base, ch(3, 2, "New")])).floors[0]?.lock).toBe("too-deep");
-    expect(buildBuilding(snapshot(base)).floors[0]?.lock).toBeNull();
-  });
-
-  it("linked subchannel does not lock (O3), a real one does", () => {
-    const rooms = Array.from({ length: 9 }, (_, i) => ch(10 + i, 1, `R${i}`, i));
-    const base = [ch(0, null, "R"), ch(1, 0, "Upper"), ...rooms];
-    expect(buildBuilding(snapshot([...base, ch(30, 10, "Sub", 0, [31]), ch(31, 0, "X", 9, [30])])).floors[0]?.lock).toBeNull();
-    expect(buildBuilding(snapshot([...base, ch(40, 10, "Sub")])).floors[0]?.lock).toBe("too-deep");
+    const before = buildBuilding(snapshot(base)).floors[0]!;
+    const after = buildBuilding(snapshot([...base, ch(3, 2, "New"), ch(4, 3, "Deeper")], [user(1, "Me", 4)], 1));
+    expect(after.floors[0]!.rooms.map((r) => r.channelId)).toEqual(before.rooms.map((r) => r.channelId));
+    expect(after.floors[0]!.population).toBe(0);
+    expect(after.self).toEqual({ kind: "hidden", channelId: 4 });
+    expect(visibleChannels([...base, ch(3, 2, "New")]).map((c) => c.id)).toEqual([0, 1, 2]);
   });
 
   it("renaming changes the order at equal position", () => {

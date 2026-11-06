@@ -15,6 +15,9 @@ Plugin 0.5.0 (unchanged).
 - **"Do not disturb" is now called "Notices muted"** ("Hinweise stumm"), which is what it does: Ruumble's sounds, cues and desktop notifications stay quiet in this browser and are only counted, a nudge still rings through. Voice and everything else are unchanged, and others do not see it
 - **Muted notices show at the own avatar:** while they are muted, a crossed-out bell sits at the bottom left of the avatar on the name badge, opposite the status tag; a click on it turns notices back on (#12)
 - **The user menu is sorted:** notices muted, dark mode and language are quick switches as three tiles at the top; below them "Go to my floor", "My status …" and "Notice settings …" (was "Notices …"), then "My keys" and the keyboard shortcuts (#12)
+- **Channels below the rooms are ignored** instead of locking the whole floor: the floor shows its rooms as usual, the deeper channels and the people in them are not drawn (in the directory board they are "elsewhere"). A building without any floor still says "Vacant"
+- **The light switch:** the dark mode tile in the user menu follows the building and says what it does: "Turn the light off" in the light theme, "Turn the light on" in the dark one
+- **Keyboard:** comma and full stop no longer switch the tabs of Ruumble in a box (the arrow keys in the tab list still do)
 
 ## [0.36.0] - 2026-11-05
 

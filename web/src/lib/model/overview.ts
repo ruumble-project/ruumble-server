@@ -13,7 +13,7 @@ export interface DirectoryEntry {
   channelId: number;
   /** room name, "Corridor", the floor's name (open floor), "Entrance" or "not shown" */
   place: string;
-  /** the own user may move there: not the own channel, allowed by Mumble, a place Ruumble shows (no locked floor) */
+  /** the own user may move there: not the own channel, allowed by Mumble, a place Ruumble shows */
   canGo: boolean;
   /** why not, for the tooltip; null when one can go there */
   blocked: Blocked | null;
@@ -25,7 +25,7 @@ export interface DirectoryEntry {
 
 /** why one cannot go to a person: it is oneself, one is there already, no own Mumble (preview, offline), a floor
  * too deep or a channel Ruumble does not show, or Mumble does not let one in */
-export type Blocked = "self" | "here" | "no-mumble" | "locked-floor" | "hidden" | "no-access";
+export type Blocked = "self" | "here" | "no-mumble" | "hidden" | "no-access";
 
 /** one line of the board: a floor (highest first), the entrance, or channels Ruumble does not show */
 export interface DirectoryGroup {
@@ -34,8 +34,6 @@ export interface DirectoryGroup {
   channelId: number | null;
   badge: string;
   name: string;
-  /** a floor too deep to show (ADR-0007): listed, not drawn */
-  locked: boolean;
   isSelf: boolean;
   people: DirectoryEntry[];
 }
@@ -58,10 +56,10 @@ export function buildDirectory(snapshot: Snapshot, building: Building, options: 
 
   const groups = new Map<string, DirectoryGroup>();
   for (const f of [...building.floors].reverse()) {
-    groups.set(`f${f.channelId}`, { kind: "floor", channelId: f.channelId, badge: f.badge, name: f.name, locked: f.lock !== null, isSelf: f.isSelf, people: [] });
+    groups.set(`f${f.channelId}`, { kind: "floor", channelId: f.channelId, badge: f.badge, name: f.name, isSelf: f.isSelf, people: [] });
   }
-  groups.set("entrance", { kind: "entrance", channelId: 0, badge: "", name: t().common.entrance, locked: false, isSelf: selfChannel === 0, people: [] });
-  const elsewhere: DirectoryGroup = { kind: "elsewhere", channelId: null, badge: "", name: t().overview.elsewhere, locked: false, isSelf: false, people: [] };
+  groups.set("entrance", { kind: "entrance", channelId: 0, badge: "", name: t().common.entrance, isSelf: selfChannel === 0, people: [] });
+  const elsewhere: DirectoryGroup = { kind: "elsewhere", channelId: null, badge: "", name: t().overview.elsewhere, isSelf: false, people: [] };
 
   for (const u of snapshot.users) {
     const ch = u.channel;
@@ -78,7 +76,6 @@ export function buildDirectory(snapshot: Snapshot, building: Building, options: 
       : selfSession === null ? "no-mumble"
       : ch === selfChannel ? "here"
       : group.kind === "elsewhere" ? "hidden"
-      : group.locked ? "locked-floor"
       : snapshot.canEnter[String(ch)] === false ? "no-access"
       : null;
     const user = userViewOf(u, selfSession, options.avatarUrl);

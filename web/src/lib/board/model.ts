@@ -161,7 +161,6 @@ export function copyTargets(building: Building | null, channels: readonly Pick<C
   const temporary = new Set(channels.filter((c) => c.temporary).map((c) => c.id));
   return [...building.floors]
     .sort((a, b) => Number(b.isSelf) - Number(a.isSelf))
-    .filter((f) => !f.lock)
     .map((f) => ({ floorId: f.channelId, floor: f.name, rooms: f.rooms.filter((r) => !r.isSelf && !r.locked && !temporary.has(r.channelId)).map((r) => ({ channelId: r.channelId, name: r.name })) }))
     .filter((f) => f.rooms.length > 0);
 }

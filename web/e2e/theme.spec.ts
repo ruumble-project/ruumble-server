@@ -9,16 +9,15 @@ test("light system: switch to dark and back, the choice is remembered", async ({
   await expect(html(page)).toHaveAttribute("data-theme", "light");
   expect(await background(page)).toBe("rgb(255, 255, 255)");
 
-  const toggle = (await userMenu(page)).getByRole("button", { name: /^Dark mode/ });
-  await expect(toggle).toHaveAttribute("aria-pressed", "false");
-  await toggle.click();
+  // the light of the building: the switch says what a click does
+  await (await userMenu(page)).getByRole("button", { name: "Turn the light off" }).click();
   await expect(html(page)).toHaveAttribute("data-theme", "dark");
-  await expect(toggle).toHaveAttribute("aria-pressed", "true");
+  await expect((await userMenu(page)).getByRole("button", { name: "Turn the light on" })).toBeVisible();
   expect(await background(page)).toBe("rgb(20, 24, 30)");
   await page.reload();
   await expect(html(page)).toHaveAttribute("data-theme", "dark"); // remembered
 
-  await (await userMenu(page)).getByRole("button", { name: /^Dark mode/ }).click();
+  await (await userMenu(page)).getByRole("button", { name: "Turn the light on" }).click();
   await page.reload();
   await expect(html(page)).toHaveAttribute("data-theme", "light"); // remembered
 });
@@ -32,7 +31,7 @@ test.describe("dark system", () => {
     await page.waitForSelector("html[data-theme]", { state: "attached" });
     await expect(html(page)).toHaveAttribute("data-theme", "dark");
 
-    await (await userMenu(page)).getByRole("button", { name: /^Dark mode/ }).click();
+    await (await userMenu(page)).getByRole("button", { name: "Turn the light on" }).click();
     await expect(html(page)).toHaveAttribute("data-theme", "light");
     await page.reload();
     await expect(html(page)).toHaveAttribute("data-theme", "light");

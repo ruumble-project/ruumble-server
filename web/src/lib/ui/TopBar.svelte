@@ -9,10 +9,10 @@
   import Keyboard from "@lucide/svelte/icons/keyboard";
   import Languages from "@lucide/svelte/icons/languages";
   import LocateFixed from "@lucide/svelte/icons/locate-fixed";
-  import Lock from "@lucide/svelte/icons/lock";
   import Mic from "@lucide/svelte/icons/mic";
   import MicOff from "@lucide/svelte/icons/mic-off";
-  import Moon from "@lucide/svelte/icons/moon";
+  import Lightbulb from "@lucide/svelte/icons/lightbulb";
+  import LightbulbOff from "@lucide/svelte/icons/lightbulb-off";
   import Package from "@lucide/svelte/icons/package";
   import Tag from "@lucide/svelte/icons/tag";
   import UserIcon from "@lucide/svelte/icons/user";
@@ -52,7 +52,6 @@
     const place = self.kind === "corridor" ? t().common.corridor : name;
     return myFloor ? `${place} · ${t().floors.floor(myFloor.badge)}` : place;
   });
-  const lockHint = $derived(t().core.lockReason);
   const other = $derived(locale() === "de" ? "en" : "de");
   const muted = $derived(me ? me.selfMute || me.selfDeaf : false);
   const deaf = $derived(me?.selfDeaf ?? false);
@@ -101,7 +100,7 @@
 
   function choose(f: Floor): void {
     app.showFloor(f);
-    if (f.lock === null || f.isSelf) open = null;
+    open = null;
   }
   /** keyboard: focus on the active floor or the first entry when a dropdown opens */
   function focusFirst(node: HTMLElement): void {
@@ -142,19 +141,16 @@
           </div>
           {#each reversed as f (f.channelId)}
             {@const active = f.channelId === floor?.channelId}
-            {@const blocked = f.lock !== null && !f.isSelf}
             <button
-              type="button" class="floor" data-floor={f.channelId} class:active class:blocked class:mine={f.isSelf}
-              aria-current={active ? "page" : undefined} aria-disabled={blocked || undefined}
-              aria-label={t().core.floorButton(f.level, f.name, f.lock ? lockHint[f.lock] : null)}
-              title={f.lock ? lockHint[f.lock] : undefined}
+              type="button" class="floor" data-floor={f.channelId} class:active class:mine={f.isSelf}
+              aria-current={active ? "page" : undefined}
+              aria-label={t().core.floorButton(f.level, f.name)}
               onclick={() => choose(f)}
               oncontextmenu={(e) => contextMenu(admin, e, f.channelId)}
             >
               <span class="fbadge">{f.badge}</span>
               <span class="ftext">
                 <span class="fname"><span class="name">{f.name}</span><span class="fpeople" aria-hidden="true"><Users size={13} />{f.population}</span></span>
-                {#if f.lock}<span class="sub"><Lock size={11} /> {t().core.lockedShort} · {lockHint[f.lock]}</span>{/if}
               </span>
             </button>
           {/each}
@@ -285,9 +281,11 @@
             <button type="button" class="tile" aria-pressed={dnd} onclick={() => app.notices.setDoNotDisturb(!dnd)}>
               <BellOff size={18} aria-hidden="true" /><span>{t().notices.doNotDisturb}</span>
             </button>
-            <!-- light or dark: the system setting until chosen here, then remembered in this browser -->
-            <button type="button" class="tile" aria-pressed={theme() === "dark"} onclick={() => setTheme(theme() === "dark" ? "light" : "dark")}>
-              <Moon size={18} aria-hidden="true" /><span>{t().core.darkMode}</span>
+            <!-- the light of the building (the theme): the system setting until chosen here, then remembered in this browser;
+                 the tile says what a click does and stays dark while the light is off -->
+            <button type="button" class="tile" class:on={theme() === "dark"} onclick={() => setTheme(theme() === "dark" ? "light" : "dark")}>
+              {#if theme() === "dark"}<Lightbulb size={18} aria-hidden="true" /><span>{t().core.lightOn}</span>
+              {:else}<LightbulbOff size={18} aria-hidden="true" /><span>{t().core.lightOff}</span>{/if}
             </button>
             <!-- language: German or English (browser setting), switchable here and remembered; the tile names the other one -->
             <button type="button" class="tile" aria-label={t().core.switchLanguage(t().core.languageName[other])} onclick={() => setLocale(other)}>
@@ -385,8 +383,6 @@
   }
   .floor:hover { background: rgb(255 255 255 / 0.08); }
   .floor.active, .floor.active:hover { background: var(--color-paper); color: var(--color-ink); }
-  .floor.blocked { opacity: 0.55; cursor: not-allowed; }
-  .floor.blocked:hover { background: transparent; }
   .fbadge {
     width: 40px; height: 40px; flex-shrink: 0; border: 2px solid rgb(255 255 255 / 0.6); border-radius: 50%;
     display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px;
@@ -399,8 +395,6 @@
   .name { font-size: 15px; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .fpeople { display: inline-flex; align-items: center; gap: 3px; flex-shrink: 0; font-size: 13px; font-weight: 700; color: var(--color-plate-muted); font-variant-numeric: tabular-nums; }
   .floor.active .fpeople { color: var(--color-blue-700); }
-  .sub { font-size: 12px; color: var(--color-plate-muted); display: flex; align-items: center; gap: 4px; white-space: nowrap; }
-  .floor.active .sub { color: var(--color-blue-700); }
   .entrance { display: flex; flex-direction: column; gap: 8px; margin-top: 4px; padding: 10px 6px 2px; border-top: 1px solid rgb(255 255 255 / 0.2); }
   .entrance-head { display: flex; align-items: center; gap: 8px; min-height: 28px; font-size: 13px; font-weight: 700; color: var(--color-plate-muted); }
   .key-icon { display: inline-flex; }
@@ -553,7 +547,7 @@
     transition: background var(--dur) var(--ease-out);
   }
   .tile:hover { background: var(--color-blue-100); }
-  .tile[aria-pressed="true"] { background: var(--color-ink); border-color: var(--color-ink); color: var(--color-paper); }
+  .tile[aria-pressed="true"], .tile.on { background: var(--color-ink); border-color: var(--color-ink); color: var(--color-paper); }
   .tile:focus-visible { outline: 3px solid var(--color-sky); outline-offset: 2px; }
   .versions { display: flex; justify-content: space-between; gap: 12px; padding: 10px 10px 4px; margin-top: 4px; border-top: 1px solid var(--color-blue-100); font-size: 12px; color: var(--color-blue-700); }
 </style>

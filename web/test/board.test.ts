@@ -142,12 +142,14 @@ describe("Copy to room", () => {
     expect(copyTargets(null, [])).toEqual([]);
   });
 
-  it("not into locked or temporary rooms, nothing from a locked floor, no empty floors", () => {
+  it("not into locked or temporary rooms or below a room, no empty floors", () => {
     const s = structuredClone(snapshot);
     s.canEnter = { "4": false, "5": false, "6": false };
     s.channels.find((c) => c.id === 7)!.temporary = true;
-    s.channels.push({ id: 20, parent: 9, name: "Too deep", position: 0, links: [], temporary: false }); // locks "Support"
-    expect(copyTargets(buildBuilding(s), s.channels)).toEqual([]);
+    s.channels.push({ id: 20, parent: 9, name: "Too deep", position: 0, links: [], temporary: false }); // ignored
+    expect(copyTargets(buildBuilding(s), s.channels)).toEqual([
+      { floorId: 8, floor: "Support", rooms: [9, 10, 11, 12].map((id) => ({ channelId: id, name: `Office ${id - 8}` })) },
+    ]);
   });
 });
 

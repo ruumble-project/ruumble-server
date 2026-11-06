@@ -93,11 +93,11 @@ test.describe("Sample building", () => {
 test.describe("Edge cases", () => {
   test.beforeEach(async ({ page }) => page.goto("/?fixture=edge-cases&talking=0"));
 
-  test("locked floors are visible but cannot be selected", async ({ page }) => {
-    const archive = (await elevator(page)).getByRole("button", { name: "3rd floor: ARCHIVE – locked: Channel structure too deep" });
-    await expect(archive).toHaveAttribute("aria-disabled", "true");
-    await archive.click({ force: true }); // aria-disabled: otherwise Playwright does not click at all
-    await expect(page.getByRole("heading", { name: "DEVELOPMENT" })).toBeVisible();
+  test("a floor with channels below its rooms shows the rooms and ignores the deeper channels", async ({ page }) => {
+    await gotoFloor(page, "3rd floor: ARCHIVE");
+    await expect(page.getByRole("heading", { name: "ARCHIVE" })).toBeVisible();
+    await expect(page.getByRole("button", { name: /^Deep room – enter/ })).toBeVisible();
+    await expect(page.getByRole("button", { name: /Subchannel/ })).toHaveCount(0);
     await expect(page.getByRole("button", { name: /EXTERNAL|PARTNERS/ })).toHaveCount(0);
   });
 
@@ -163,12 +163,11 @@ test("rapid clicks: the last room wins", async ({ page }) => {
   await expect(page.getByRole("alert")).toHaveCount(0);
 });
 
-test("adding a subchannel locks the user's own floor live", async ({ page }) => {
+test("adding a subchannel below a room changes nothing on the user's own floor", async ({ page }) => {
   await page.goto("/?fixture=sample&talking=0&debug");
   await page.getByRole("button", { name: "Add subchannel in the first room" }).click();
-  await expect(page.getByText("You are in an area that cannot be shown here.")).toBeVisible();
-  await expect((await elevator(page)).getByRole("button", { name: /Development – locked/ })).toHaveAttribute("aria-current", "page");
-  await page.keyboard.press("Escape");
+  await expect(page.getByRole("button", { name: "Let's talk – you are here" })).toBeVisible();
+  await expect(page.getByText("You are in an area that cannot be shown here.")).toHaveCount(0);
   await page.getByRole("button", { name: "Remove new subchannels" }).click();
   await expect(page.getByRole("button", { name: "Let's talk – you are here" })).toBeVisible();
 });
@@ -393,7 +392,7 @@ test.describe("Tab title and shortcuts", () => {
   test("? lists the shortcuts, also from the user menu", async ({ page }) => {
     await page.keyboard.press("?");
     const dialog = page.getByRole("dialog", { name: "Keyboard shortcuts" });
-    const rows: [string, string][] = [["B", "Show and hide the board"], ["H", "Building overview"], ["S", "My status"], ["T", "Ruumble in a box: open and close"], [",", "Ruumble in a box: previous tab"], [".", "Ruumble in a box: next tab"], ["?", "This list"], ["Esc", "Close a dialog or the conversations"]];
+    const rows: [string, string][] = [["B", "Show and hide the board"], ["H", "Building overview"], ["S", "My status"], ["T", "Ruumble in a box: open and close"], ["?", "This list"], ["Esc", "Close a dialog or the conversations"]];
     for (const [key, what] of rows) {
       await expect(dialog.getByText(key, { exact: true })).toBeVisible();
       await expect(dialog.getByText(what, { exact: true })).toBeVisible();

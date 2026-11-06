@@ -16,30 +16,6 @@
       "position": 0,
       "links": [],
       "temporary": false
-    },
-    {
-      "id": 16,
-      "parent": 0,
-      "name": "ARCHIVE",
-      "position": 0,
-      "links": [],
-      "temporary": false
-    },
-    {
-      "id": 17,
-      "parent": 16,
-      "name": "File room",
-      "position": 0,
-      "links": [],
-      "temporary": false
-    },
-    {
-      "id": 18,
-      "parent": 17,
-      "name": "Subchannel",
-      "position": 0,
-      "links": [],
-      "temporary": false
     }
   ],
   "users": [

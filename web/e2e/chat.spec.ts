@@ -78,7 +78,7 @@ test.describe("A quiet word", () => {
     await expect(panel(page)).toContainText("You are there.");
   });
 
-  test("P, comma and full stop, Escape closes; kept after a reload until forgotten", async ({ page }) => {
+  test("T, the tabs, Escape closes; kept after a reload until forgotten", async ({ page }) => {
     await openFromCard(page, "Clara");
     await input(page, "Clara").fill("First");
     await page.keyboard.press("Enter");
@@ -87,10 +87,9 @@ test.describe("A quiet word", () => {
     await page.getByRole("dialog", { name: "Building overview" }).getByRole("button", { name: "Message to Ben" }).click();
     await expect(panel(page).getByRole("tab", { name: "Ben" })).toHaveAttribute("aria-selected", "true");
 
-    await panel(page).getByRole("heading", { name: "Ruumble in a box" }).click(); // out of the text field
-    await page.keyboard.press(",");
+    await panel(page).getByRole("tab", { name: "Clara" }).click();
     await expect(panel(page).getByRole("tab", { name: "Clara" })).toHaveAttribute("aria-selected", "true");
-    await page.keyboard.press(".");
+    await panel(page).getByRole("tab", { name: "Ben" }).click();
     await expect(panel(page).getByRole("tab", { name: "Ben" })).toHaveAttribute("aria-selected", "true");
 
     await input(page, "Ben").press("Escape");

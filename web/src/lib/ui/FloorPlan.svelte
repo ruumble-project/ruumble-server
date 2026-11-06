@@ -44,7 +44,6 @@
   const tendFloor = $derived(ontend ? () => ontend({ kind: "floor", channelId: floor.channelId }) : undefined);
 
   const rows = $derived(splitRows(floor.rooms));
-  const lockText = $derived(floor.lock ? t().floorPlan.lockText[floor.lock] : "");
   // more than 3 rooms per row: the rows get wider than the view and only the floor plan scrolls sideways
   const width = $derived(rowsWidth(floor.rooms.length));
 
@@ -68,12 +67,7 @@
 </script>
 
 <div class="floorplan" class:wide={width > 1} bind:this={plan} {@attach wheel}>
-  {#if floor.lock}
-    <div class="notice" role="status">
-      <strong>{t().common.notShown}</strong>
-      <span>{lockText} {t().floorPlan.useMumble}</span>
-    </div>
-  {:else if floor.open}
+  {#if floor.open}
     <SpaceButton
       space={floor.corridor}
       variant="open"
@@ -120,9 +114,4 @@
   /* never lower than two rows of people (tokens.css) */
   .row.top { min-height: var(--room-min-top); }
   .row.bottom { min-height: var(--room-min-bottom); }
-  .notice {
-    flex-grow: 1; display: flex; flex-direction: column; justify-content: center; gap: 8px; padding: 40px;
-    background: var(--color-paper); font-size: 15px; color: var(--color-blue-700);
-  }
-  .notice strong { font-size: 20px; color: var(--color-ink); }
 </style>

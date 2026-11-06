@@ -148,7 +148,7 @@ export class RuumbleState {
   floor: Floor | null = $derived.by(() => {
     const b = this.building;
     if (!b) return null;
-    return b.floors.find((f) => f.channelId === this.viewFloorId && (!f.lock || f.isSelf)) ?? homeFloor(b);
+    return b.floors.find((f) => f.channelId === this.viewFloorId) ?? homeFloor(b);
   });
 
   /** largest attachment the service takes (building maintenance), known once a board was loaded */
@@ -254,7 +254,6 @@ export class RuumbleState {
   }
 
   showFloor(floor: Floor): void {
-    if (floor.lock && !floor.isSelf) return;
     this.viewFloorId = floor.channelId;
   }
 

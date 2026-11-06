@@ -37,7 +37,7 @@
   const floor = $derived(app.floor);
   // few rooms: the open board gets more width (not when it floats over the floor plan)
   const fewRooms = $derived(
-    app.boardOpen && !app.boardFloating && !app.readonly && !!floor && !floor.lock && floor.rooms.length > 0 && floor.rooms.length <= FEW_ROOMS,
+    app.boardOpen && !app.boardFloating && !app.readonly && !!floor && floor.rooms.length > 0 && floor.rooms.length <= FEW_ROOMS,
   );
 
   // floating board: on the side where the own room stays fully visible. Measured again when the floor or the people
@@ -113,9 +113,6 @@
     } else if (shortcut === "chat" && (app.me || app.desk.available)) {
       e.preventDefault();
       app.chat.toggle();
-    } else if ((shortcut === "chatPrev" || shortcut === "chatNext") && app.chat.panel === "open") {
-      e.preventDefault();
-      app.chat.cycle(shortcut === "chatNext" ? 1 : -1);
     }
   }
 </script>

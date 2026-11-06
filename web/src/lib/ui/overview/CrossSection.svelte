@@ -1,5 +1,4 @@
 <script lang="ts">
-  import Lock from "@lucide/svelte/icons/lock";
   import { onActivateKey } from "../activate.ts";
   import { t } from "../../i18n/index.svelte.ts";
   import type { Building, Floor, Space } from "../../model/building.ts";
@@ -66,20 +65,15 @@
 <section class="section" aria-label={t().overview.section}>
   <div class="roof" aria-hidden="true"><span>{building.name}</span></div>
   {#each storeys as f (f.channelId)}
-    {@const blocked = f.lock !== null && !f.isSelf}
-    <div class="storey" class:mine={f.isSelf} class:locked={f.lock !== null} data-floor={f.channelId}>
+    <div class="storey" class:mine={f.isSelf} data-floor={f.channelId}>
       <div class="shaft">
         <button
-          type="button" class="fbadge" aria-label={t().overview.viewFloor(f.name)} title={blocked ? t().core.lockReason[f.lock!] : t().overview.viewFloor(f.name)}
-          disabled={blocked} onclick={() => onfloor(f)}
+          type="button" class="fbadge" aria-label={t().overview.viewFloor(f.name)} title={t().overview.viewFloor(f.name)}
+          onclick={() => onfloor(f)}
         >{f.badge}</button>
       </div>
       <div class="floor">
-        {#if f.lock}
-          <span class="closed"><Lock size={13} />{t().overview.locked} · {t().core.lockReason[f.lock]}</span>
-        {:else}
-          {#each groupsOf(f) as g (g.space.channelId)}{@render people(g.space, g.name)}{/each}
-        {/if}
+        {#each groupsOf(f) as g (g.space.channelId)}{@render people(g.space, g.name)}{/each}
       </div>
     </div>
   {/each}
@@ -174,8 +168,6 @@
   .group.own::before, .group.own + .group::before { display: none; }
   .group.go:hover, .group.pending { background: var(--color-blue-50); }
   .who { position: relative; display: inline-flex; }
-  .closed { display: flex; align-items: center; gap: 6px; align-self: center; font-size: 12px; color: var(--color-blue-700); }
-  .storey.locked .floor { background: repeating-linear-gradient(135deg, var(--color-surface) 0 6px, var(--color-paper) 6px 12px); }
   /* the ground line of a section drawing: the building stands on it, it reaches beyond the walls */
   .ground-line { height: 3px; background: var(--color-wall); }
   /* the entrance storey: the door stands on the slab, at the left next to the shaft */

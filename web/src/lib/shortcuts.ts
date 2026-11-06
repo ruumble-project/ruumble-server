@@ -2,14 +2,13 @@
  * Keyboard shortcuts: single keys without Ctrl, Alt or Meta (those clash with the browser, e.g. Ctrl+B,
  * Alt+B), like GitHub or Gmail. They never apply while typing or while a modal dialog is open.
  */
-export type Shortcut = "toggleBoard" | "overview" | "status" | "chat" | "chatPrev" | "chatNext" | "help";
+export type Shortcut = "toggleBoard" | "overview" | "status" | "chat" | "help";
 
 /**
  * key (lower case) → action; the key is also shown in the tooltips. Every key must work on a German and an English
- * keyboard without AltGr (that counts as Ctrl+Alt): B for the board, T for "talk" (Ruumble in a box, #10), comma
- * and full stop sit side by side in both.
+ * keyboard without AltGr (that counts as Ctrl+Alt): B for the board, T for "talk" (Ruumble in a box, #10).
  */
-export const SHORTCUT_KEYS: Record<Shortcut, string> = { toggleBoard: "b", overview: "h", status: "s", chat: "t", chatPrev: ",", chatNext: ".", help: "?" };
+export const SHORTCUT_KEYS: Record<Shortcut, string> = { toggleBoard: "b", overview: "h", status: "s", chat: "t", help: "?" };
 
 interface KeyLike {
   key: string;

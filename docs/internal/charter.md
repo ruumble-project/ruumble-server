@@ -19,7 +19,7 @@ Set by the project owner.
 | L1 | Ruumble is **completely independent of the main project**. | Standalone repository (ADR-0009). Only two Mumble interface files are taken over unchanged (`third_party/mumble/`, pinned to one release). |
 | L2 | **Mumble stays independent.** | Server and desktop client keep working unchanged. Ruumble is an additional view, not a replacement. |
 | L3 | The view uses **only the existing channel structure**. | No building configuration of its own, no extra metadata on the server. Everything is derived from the tree and the names. (Small exception: the service address in the root channel description, ADR-0010. It does not affect the view.) |
-| L4 | If the structure is **deeper than two levels**, the floor is **not available**. | The rule applies per floor (see 3.3). |
+| L4 | If the structure is **deeper than two levels**, the floor is **not available**. | The rule applies per floor (see 3.3). *Update 2026-11-06: channels below the rooms are ignored instead; the floor stays available.* |
 
 ## 3. Building rules: channel tree → building
 
@@ -42,6 +42,8 @@ Set by the project owner.
 - Floor numbers are assigned **after** hiding linked channels (3.4) and are gapless.
 
 ### 3.3 Locked floors
+
+*Update 2026-11-06: floors are no longer locked. Channels below the rooms (a third level) are ignored like hidden channels: they are not drawn, people in them are "elsewhere" in the directory board and not counted on the floor, and someone inside sees "You are in an area that cannot be shown here" in the top bar. The rest of the floor works as usual. If no floor exists at all, the "vacant" message stays. The text below is the original rule.*
 
 A floor is **locked** (cannot be shown) if at least one of its visible rooms has visible subchannels (L4, notice "Channel structure too deep").
 

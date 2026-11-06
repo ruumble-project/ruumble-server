@@ -29,17 +29,16 @@ describe("Building overview: the directory (ADR-0019)", () => {
     expect(groups[1]!.people.find((p) => p.user.name === "Clara")!.user.status?.text).toBe("Focus time, please write");
   });
 
-  it("locked floors are listed without going there, hidden channels are elsewhere, Mumble's no stays no", () => {
+  it("channels below the rooms and hidden channels are elsewhere, Mumble's no stays no", () => {
     const s = fixture("edge-cases");
     const all = summary(s);
-    expect(all["ARCHIVE"]).toEqual([["Karl", "Subchannel", false]]); // too deep: not drawn, no going there
-    expect(all["Elsewhere"]).toEqual([["Gregor", "area not shown", false], ["Hanna", "area not shown", false], ["Lena", "area not shown", false]]);
+    expect(all["ARCHIVE"]).toEqual([]); // Karl is below a room: ignored like a hidden channel
+    expect(all["Elsewhere"]).toEqual([["Gregor", "area not shown", false], ["Hanna", "area not shown", false], ["Karl", "area not shown", false], ["Lena", "area not shown", false]]);
     expect(all["Entrance"]).toEqual([["Ida", "Entrance", true], ["Jonas", "Entrance", true]]);
     expect(all["DEVELOPMENT"]).toContainEqual(["Mia", "Meeting (temporary)", true]);
     expect(all["Lobby"]).toEqual([["Ben", "Lobby", true], ["Eva", "Lobby", true], ["Felix", "Lobby", true]]);
     const denied = { ...s, canEnter: { ...s.canEnter, "1": false } };
     expect(summary(denied)["Lobby"]!.every(([, , go]) => go === false)).toBe(true);
-    expect(directory(s).find((g) => g.kind === "floor" && g.name === "ARCHIVE")!.locked).toBe(true);
   });
 
   it("a deafened person with Ruumble in the own room can be nudged (ADR-0020)", () => {
@@ -55,7 +54,7 @@ describe("Building overview: the directory (ADR-0019)", () => {
   it("why one cannot go to someone", () => {
     const why = (s: Snapshot) => Object.fromEntries(directory(s).flatMap((g) => g.people.map((p) => [p.user.name, p.blocked])));
     const edge = fixture("edge-cases");
-    expect(why(edge)).toMatchObject({ Anna: "self", Karl: "locked-floor", Gregor: "hidden", Ida: null });
+    expect(why(edge)).toMatchObject({ Anna: "self", Karl: "hidden", Gregor: "hidden", Ida: null });
     expect(why(fixture("sample"))).toMatchObject({ Clara: "here", Ben: null });
     expect(why({ ...edge, canEnter: { ...edge.canEnter, "1": false } })).toMatchObject({ Ben: "no-access" });
     expect(why({ ...edge, self: null })).toMatchObject({ Ida: "no-mumble", Anna: "no-mumble" });

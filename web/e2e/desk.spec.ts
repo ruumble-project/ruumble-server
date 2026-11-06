@@ -102,7 +102,7 @@ test.describe("Ruumble in a box", () => {
     await expect(panel.getByRole("separator", { name: "New" })).toHaveCount(0);
   });
 
-  test("the quiet words live in the same box: a tab per person after the room, comma and full stop go round", async ({ page }) => {
+  test("the quiet words live in the same box: a tab per person after the room", async ({ page }) => {
     await page.locator(".floorplan").getByRole("img", { name: /^Clara/ }).hover();
     await page.getByRole("group", { name: "Clara" }).getByRole("button", { name: "Message to Clara" }).click();
     const panel = page.getByRole("region", { name: "Ruumble in a box" });
@@ -110,11 +110,10 @@ test.describe("Ruumble in a box", () => {
     await expect(tabs).toHaveCount(2);
     await expect(tabs.first()).toHaveAccessibleName("Log and chat of Let's talk, 2 unread messages");
     await expect(panel.getByRole("tab", { name: "Clara" })).toHaveAttribute("aria-selected", "true");
-    await panel.getByRole("heading", { name: "Ruumble in a box" }).click(); // out of the text field
-    await page.keyboard.press(".");
+    await tabs.first().click();
     await expect(tabs.first()).toHaveAttribute("aria-selected", "true");
     await expect(panel.getByRole("log")).toBeVisible();
-    await page.keyboard.press(".");
+    await panel.getByRole("tab", { name: "Clara" }).click();
     await expect(panel.getByRole("tab", { name: "Clara" })).toHaveAttribute("aria-selected", "true");
     // closing the last person goes back to the room; the box stays open
     await panel.getByRole("button", { name: "Close the conversation with Clara" }).click();

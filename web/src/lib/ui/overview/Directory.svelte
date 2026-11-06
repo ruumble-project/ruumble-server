@@ -70,12 +70,11 @@
       <div class="group" class:mine={g.isSelf}>
         <div class="group-head">
           {#if g.badge}<span class="gbadge">{g.badge}</span>{/if}
-          {#if floor && !(g.locked && !g.isSelf)}
+          {#if floor}
             <button type="button" class="gname link" title={t().overview.viewFloor(g.name)} onclick={() => onfloor(floor)}>{g.name}</button>
           {:else}
             <span class="gname">{g.name}</span>
           {/if}
-          {#if g.locked}<span class="tag">{t().overview.locked}</span>{/if}
           <span class="gcount">{g.people.length || ""}</span>
         </div>
         {#if g.people.length}
@@ -141,7 +140,6 @@
   .link { border: 0; padding: 0; background: none; font: inherit; font-size: 14px; font-weight: 700; cursor: pointer; text-align: left; }
   .link:hover { text-decoration: underline; }
   .link:focus-visible, .person:focus-visible { outline: 3px solid var(--color-sky); outline-offset: 1px; }
-  .tag { font-size: 11px; color: var(--color-plate-muted); }
   .gcount { margin-left: auto; font-size: 12px; font-weight: 700; color: var(--color-plate-muted); font-variant-numeric: tabular-nums; }
   ul { list-style: none; margin: 4px 0 0; padding: 0; display: flex; flex-direction: column; gap: 1px; }
   .person {
