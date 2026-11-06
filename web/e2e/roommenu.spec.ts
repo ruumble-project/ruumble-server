@@ -57,7 +57,7 @@ test("in a browser: the room sign opens the room menu with the board and the roo
   const menu = roomMenu(page);
   await expect(menu.getByRole("button", { name: /^Board/ })).toHaveAttribute("aria-pressed", "false");
   await expect(menu.getByRole("button", { name: "Room care" })).toBeVisible();
-  await expect(menu.getByRole("button", { name: "Set up room …" })).toHaveCount(0);
+  await expect(menu.getByRole("button", { name: "Room setup …" })).toHaveCount(0);
   await menu.getByRole("button", { name: /^Board/ }).click();
   await expect(menu).toHaveCount(0);
   await expect(page.locator("#board-panel")).toBeVisible();
@@ -82,20 +82,20 @@ test.describe("inside Ruumble Client", () => {
     await page.goto("/?fixture=sample&talking=0");
   });
 
-  test("Set up room: name, Markdown description and maximum users go to Mumble as plain text, the dialog closes once taken over", async ({ page }) => {
+  test("Room setup: name, Markdown description and maximum users go to Mumble as plain text, the dialog closes once taken over", async ({ page }) => {
     await roomSign(page).click();
-    await roomMenu(page).getByRole("button", { name: "Set up room …" }).click();
-    const dialog = page.getByRole("dialog", { name: "Set up room: Let's talk" });
-    await expect(dialog.getByLabel("Maximum number of people")).toHaveValue("4");
+    await roomMenu(page).getByRole("button", { name: "Room setup …" }).click();
+    const dialog = page.getByRole("dialog", { name: "Room setup" });
+    await expect(dialog.getByLabel("Available seats")).toHaveValue("4");
     await expect(dialog.getByRole("button", { name: "Save" })).toBeDisabled(); // nothing changed yet
-    await dialog.getByLabel("Name").fill("Ben's office");
+    await dialog.getByLabel("Room name").fill("Ben's office");
     await expect(dialog.getByRole("alert")).toHaveText("This name is already used here.");
-    await dialog.getByLabel("Name").fill("Retro corner");
+    await dialog.getByLabel("Room name").fill("Retro corner");
     await dialog.getByRole("textbox", { name: "Description" }).fill("# Retro\n\n- every **Friday**");
     await dialog.getByRole("tab", { name: "Preview" }).click();
     await expect(dialog.getByRole("heading", { name: "Retro" })).toBeVisible();
     await expect(dialog.locator("strong", { hasText: "Friday" })).toBeVisible();
-    await dialog.getByLabel("Maximum number of people").fill("6");
+    await dialog.getByLabel("Available seats").fill("6");
     await dialog.getByRole("button", { name: "Save" }).click();
     await expect(dialog).toHaveCount(0);
     expect(await page.evaluate(() => (window as unknown as { deskCalls: unknown[] }).deskCalls)).toEqual([
@@ -103,12 +103,12 @@ test.describe("inside Ruumble Client", () => {
     ]);
   });
 
-  test("Set up room: a change Mumble does not take over is reported, the dialog stays", async ({ page }) => {
+  test("Room setup: a change Mumble does not take over is reported, the dialog stays", async ({ page }) => {
     await page.evaluate(() => ((window as unknown as { refuse: boolean }).refuse = true));
     await roomSign(page).click();
-    await roomMenu(page).getByRole("button", { name: "Set up room …" }).click();
-    const dialog = page.getByRole("dialog", { name: "Set up room: Let's talk" });
-    await dialog.getByLabel("Name").fill("Retro corner");
+    await roomMenu(page).getByRole("button", { name: "Room setup …" }).click();
+    const dialog = page.getByRole("dialog", { name: "Room setup" });
+    await dialog.getByLabel("Room name").fill("Retro corner");
     await dialog.getByRole("button", { name: "Save" }).click();
     await expect(dialog.getByRole("alert")).toHaveText(/Mumble did not take over the change/, { timeout: 10_000 });
     await expect(dialog).toBeVisible();

@@ -38,7 +38,7 @@
   const changes = $derived(changesOf(before, form));
   const changed = $derived(Object.keys(changes).length > 0);
   const preview = $derived(form.description.trim() ? renderMarkdown(form.description) : "");
-  const title = $derived(kind === "room" ? t().roomEdit.titleRoom(channel.name) : t().roomEdit.titleFloor(channel.name));
+  const title = $derived(kind === "room" ? t().roomEdit.titleRoom : t().roomEdit.titleFloor);
 
   function close(): void {
     app.editChannelId = null;

@@ -651,15 +651,15 @@ export const de = {
   },
   /** Ruumble's edit dialog for a room or floor (#15) */
   roomEdit: {
-    titleRoom: (name: string) => `Raum einrichten: ${name}`,
-    titleFloor: (name: string) => `Flur einrichten: ${name}`,
-    name: "Name",
+    titleRoom: "Raum einrichten",
+    titleFloor: "Flur einrichten",
+    name: "Raumname",
     description: "Beschreibung",
     write: "Schreiben",
     preview: "Vorschau",
     emptyPreview: "Keine Beschreibung.",
     markdownHint: "Markdown: **fett**, *kursiv*, - Liste, [Link](https://…).",
-    maxUsers: "Höchstzahl an Personen",
+    maxUsers: "Verfügbare Sitzplätze",
     maxUsersHint: "0 = ohne Grenze",
     save: "Speichern",
     saving: "Speichert …",
@@ -667,7 +667,7 @@ export const de = {
     problems: {
       "name-empty": "Der Name darf nicht leer sein.",
       "name-taken": "Diesen Namen gibt es hier schon.",
-      "max-users": "Die Höchstzahl muss 0 oder größer sein.",
+      "max-users": "Die Zahl der Sitzplätze muss 0 oder größer sein.",
     },
     notSent: "Die Änderung ließ sich nicht senden. Ist Ruumble Client mit dem Server verbunden?",
     notApplied: "Mumble hat die Änderung nicht übernommen. Fehlt dir das Recht dazu, oder ist die Beschreibung für den Server zu lang?",
