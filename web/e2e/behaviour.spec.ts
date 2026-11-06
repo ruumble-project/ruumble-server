@@ -101,6 +101,19 @@ test.describe("Edge cases", () => {
     await expect(page.getByRole("button", { name: /EXTERNAL|PARTNERS/ })).toHaveCount(0);
   });
 
+  test("many rooms: the corridor's plant stays at the right edge of the view while the floor plan scrolls", async ({ page }) => {
+    await gotoFloor(page, "4th floor: OPEN SPACE");
+    const plan = page.locator(".floorplan");
+    const plant = page.locator(".plant-corridor");
+    for (const left of [0, 400, 99999]) {
+      await plan.evaluate((el, x) => (el.scrollLeft = x), left);
+      await expect.poll(async () => {
+        const [p, v] = [(await plant.boundingBox())!, (await plan.boundingBox())!];
+        return p.x >= v.x && p.x + p.width <= v.x + v.width;
+      }).toBe(true);
+    }
+  });
+
   test("many rooms: 3 per row in view, only the floor plan scrolls sideways, also with the wheel", async ({ page }) => {
     await gotoFloor(page, "4th floor: OPEN SPACE");
     const plan = page.locator(".floorplan");

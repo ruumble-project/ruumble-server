@@ -62,6 +62,7 @@ dark look, **Turn the light on** to go back.
 
 ## Fixed
 
+- On a floor with many rooms, the plant and the binders on the corridor stay in view while you scroll. `server update`
 - The building overview no longer slides to the side when its search field gets the focus. `server update`
 - The building overview names the right key for a quiet word: **T**. `server update`
 - In Ruumble Client, a right click on a room no longer offers "Add": a channel added there closed the whole floor.

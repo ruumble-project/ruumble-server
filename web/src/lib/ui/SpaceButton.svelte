@@ -424,7 +424,7 @@
   .lower .description-spot.description-room { bottom: auto; top: 2px; }
   /* in the corridor the binders stand on the same floor as the plant: the same box, both at its bottom */
   .description-spot.description-corridor {
-    top: 50%; right: 60px; transform: translateY(-50%); box-sizing: border-box; height: 44px; padding-bottom: 2px; align-items: flex-end;
+    top: 50%; right: calc(60px + var(--corridor-end, 0px)); transform: translateY(-50%); box-sizing: border-box; height: 44px; padding-bottom: 2px; align-items: flex-end;
   }
   .description-corridor :global(.binders-toggle) { align-items: flex-end; }
   .description-spot.description-open { top: 12px; right: 12px; }
@@ -438,7 +438,8 @@
   }
   .plant-spot.plant-room { left: 4px; right: auto; bottom: 8px; min-width: 30px; min-height: 32px; width: 30px; height: 32px; padding: 0; align-items: center; }
   .lower .plant-spot.plant-room { bottom: auto; top: 8px; }
-  .plant-spot.plant-corridor { bottom: auto; top: 50%; right: 14px; transform: translateY(-50%); }
+  /* at the right edge of the view, also when the floor plan scrolls sideways (FloorPlan sets --corridor-end) */
+  .plant-spot.plant-corridor { bottom: auto; top: 50%; right: calc(14px + var(--corridor-end, 0px)); transform: translateY(-50%); }
   .plant-spot.tend { pointer-events: auto; cursor: pointer; transition: transform var(--dur) var(--ease-out); }
   .plant-spot.tend:hover { transform: translateY(-2px) rotate(3deg) scale(1.08); }
   .plant-spot.plant-corridor.tend:hover { transform: translateY(calc(-50% - 2px)) rotate(3deg) scale(1.08); }

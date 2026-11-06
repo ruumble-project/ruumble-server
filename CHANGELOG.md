@@ -29,6 +29,7 @@ Plugin 0.5.0 (unchanged).
 - **Windows stand off the page:** the dialogs (shortcuts, building overview, care and maintenance, the post editor) get a fine ring, a deep soft shadow and the yellow band of the name badge on top, in both themes
 - The building overview's hint names **T** for a quiet word (was still P)
 - **The building stands on its site:** around the floor plan a cool light blue-grey (a slightly lighter dark in the dark theme), and the floor plan casts a soft shadow to the bottom and right, clearer in the dark theme
+- On a floor with more rooms than fit, the corridor's plant and binders stay at the right edge of the view instead of at the far end of the floor plan, out of sight
 - The building overview can no longer be scrolled sideways when its search field gets the focus (the header moved to the left, the directory board was cut off on the right)
 
 ## [0.36.0] - 2026-11-05

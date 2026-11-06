@@ -54,6 +54,22 @@
     if (selfRoom === null || !plan) return;
     plan.querySelector(`[data-channel="${selfRoom}"]`)?.scrollIntoView({ block: "nearest", inline: "nearest" });
   });
+  // the corridor is as wide as all rooms: its plant and binders stay at the right edge of the view, not at its far end
+  // (--corridor-end: how far the view's right edge is from the end of the floor plan)
+  let corridorEnd = $state(0);
+  function trackEnd(el: HTMLElement) {
+    const update = () => (corridorEnd = Math.max(0, Math.round(el.scrollWidth - el.clientWidth - el.scrollLeft)));
+    update();
+    el.addEventListener("scroll", update, { passive: true });
+    const resized = new ResizeObserver(update);
+    resized.observe(el);
+    if (el.firstElementChild) resized.observe(el.firstElementChild);
+    return () => {
+      el.removeEventListener("scroll", update);
+      resized.disconnect();
+    };
+  }
+
   // a mouse wheel scrolls the floor plan sideways when it is wider than the view
   function wheel(el: HTMLElement) {
     const onwheel = (e: WheelEvent) => {
@@ -66,7 +82,7 @@
   }
 </script>
 
-<div class="floorplan" class:wide={width > 1} bind:this={plan} {@attach wheel}>
+<div class="floorplan" class:wide={width > 1} bind:this={plan} style:--corridor-end={`${corridorEnd}px`} {@attach wheel} {@attach trackEnd}>
   {#if floor.open}
     <SpaceButton
       space={floor.corridor}
