@@ -6,6 +6,10 @@ All notable changes to Ruumble. The service and the web UI share one version; th
 
 ## [Unreleased]
 
+### Changed
+
+- **Room descriptions are always Markdown:** Ruumble no longer writes the marker line `<!-- ruumble:markdown -->` and no longer renders Mumble's rich text. A description written in Mumble's own dialog is read as text with its line breaks and lists, its links and bold or italic text kept as Markdown; images and styles go. Fixes descriptions on servers with `allowhtml=false`, which strip the marker (and the room setup then said "not taken over")
+
 ### Added
 
 - **Listening in (Ruumble Client):** a click on the door of another room on the own floor listens in without entering; the door opens wide with an ear in it, a second click closes it. A tag beside the open door sets the volume (start -15 dB, -30 to +12 dB); a tab at the room sign lists the rooms with their volume, "Quieter when someone talks in my room" (Mumble's listener attenuation, on by default) and "Stop all". Only rooms of the own floor, never the own room or a closed one; changing the floor or entering the room ends it, also for listening Mumble restored or started from its own menu. Hovering a room strengthens the door's swing line, hovering the door swings it a little further. The service reads Mumble's Listen permission and sends `canListen` in the snapshot. Needs the `desk` calls of the next Ruumble Client (`startListening` and friends); browsers and older clients show the state only (ADR-0027, #19)

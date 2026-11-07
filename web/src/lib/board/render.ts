@@ -4,7 +4,7 @@
  * The service only delivers raw text; HTML is produced exclusively here and always sanitised.
  */
 import DOMPurify from "dompurify";
-import { editableDescription, isMarkdownDescription } from "../model/roomEdit.ts";
+import { descriptionMarkdown } from "../model/roomEdit.ts";
 import hljs from "highlight.js/lib/core";
 import bash from "highlight.js/lib/languages/bash";
 import cpp from "highlight.js/lib/languages/cpp";
@@ -159,33 +159,11 @@ export function renderInline(text: string, tickets?: TicketLinks): string {
 }
 
 /**
- * Description of a channel as maintained in Mumble (Qt rich text) → sanitised HTML. Formatting and links stay;
- * inline styles go (they would fight the theme), images only as data: URIs (no requests to foreign servers).
- */
-const PURIFY_DESCRIPTION = {
-  ALLOWED_TAGS: [...PURIFY.ALLOWED_TAGS, "b", "i", "u", "div", "img", "caption", "tfoot"],
-  ALLOWED_ATTR: [...PURIFY.ALLOWED_ATTR, "src", "alt", "width", "height"],
-  ALLOWED_URI_REGEXP: PURIFY.ALLOWED_URI_REGEXP,
-};
-
-/**
- * The description of a channel, whichever way it was written: Markdown from Ruumble's room setup (recognised by its
- * marker line, #5/#15) like a board post, else Mumble's rich text (renderDescription).
+ * The description of a channel (Markdown, #5/#15) like a board post; Mumble's rich text is read as text with its links
+ * (descriptionMarkdown).
  */
 export function renderChannelDescription(stored: string): string {
-  return isMarkdownDescription(stored) ? renderMarkdown(editableDescription(stored)) : renderDescription(stored);
-}
-
-export function renderDescription(html: string): string {
-  const fragment = DOMPurify.sanitize(html, { ...PURIFY_DESCRIPTION, RETURN_DOM_FRAGMENT: true });
-  for (const img of fragment.querySelectorAll("img")) if (!/^data:image\//i.test(img.getAttribute("src") ?? "")) img.remove();
-  // Qt pads the text with empty paragraphs
-  const empty = (n: ChildNode | null) => !!n && !n.textContent?.trim() && !(n instanceof Element && (n.matches("img") || n.querySelector("img")));
-  while (empty(fragment.firstChild)) fragment.firstChild!.remove();
-  while (empty(fragment.lastChild)) fragment.lastChild!.remove();
-  const box = document.createElement("div");
-  box.append(fragment);
-  return box.innerHTML;
+  return renderMarkdown(descriptionMarkdown(stored));
 }
 
 /** http(s) URLs written out in a text, in order, with their position (A4); no fuzzy links like "example.com" */

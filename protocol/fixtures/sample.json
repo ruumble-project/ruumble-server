@@ -59,7 +59,7 @@
       "position": 2,
       "links": [],
       "temporary": false,
-      "description": "<!-- ruumble:markdown -->\n## Retro\n\nEvery second **Friday**, notes in the [wiki](https://example.org/retro).\n\n- What went well\n- What to change"
+      "description": "## Retro\n\nEvery second **Friday**, notes in the [wiki](https://example.org/retro).\n\n- What went well\n- What to change"
     },
     {
       "id": 6,

@@ -99,7 +99,7 @@ test.describe("inside Ruumble Client", () => {
     await dialog.getByRole("button", { name: "Save" }).click();
     await expect(dialog).toHaveCount(0);
     expect(await page.evaluate(() => (window as unknown as { deskCalls: unknown[] }).deskCalls)).toEqual([
-      { name: "Retro corner", description: "<!-- ruumble:markdown -->\n# Retro\n\n- every **Friday**", maxUsers: 6 },
+      { name: "Retro corner", description: "# Retro\n\n- every **Friday**", maxUsers: 6 },
     ]);
   });
 

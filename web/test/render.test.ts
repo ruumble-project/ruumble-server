@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { describe, expect, it } from "vitest";
-import { findLinks, highlight, renderChannelDescription, renderCode, renderDescription, renderInline, renderMarkdown, uniqueLinks } from "../src/lib/board/render.ts";
+import { findLinks, highlight, renderChannelDescription, renderCode, renderInline, renderMarkdown, uniqueLinks } from "../src/lib/board/render.ts";
 
 describe("Rendering: Markdown and code without XSS (ADR-0011)", () => {
   it("renders common Markdown", () => {
@@ -27,11 +27,6 @@ describe("Rendering: Markdown and code without XSS (ADR-0011)", () => {
       for (const attr of el.attributes) expect(attr.name).not.toMatch(/^on/i);
     }
     for (const a of doc.querySelectorAll("a")) expect(a.getAttribute("href") ?? "").toMatch(/^(https?:|mailto:|$)/);
-  });
-
-  it("an empty description stays empty, an image alone is kept", () => {
-    expect(renderDescription("<p><br></p>\n<p> </p>")).toBe("");
-    expect(renderDescription('<p><img src="data:image/png;base64,AA=="></p>')).toBe('<p><img src="data:image/png;base64,AA=="></p>');
   });
 
   it("links open in a new tab without access to the window", () => {
@@ -172,39 +167,8 @@ describe("Links everywhere (A4) and their short form in text (A5)", () => {
   });
 });
 
-describe("Channel descriptions from Mumble", () => {
-  const parse = (html: string) => new DOMParser().parseFromString(`<div>${html}</div>`, "text/html");
-
-  it("keeps the formatting of Qt rich text, drops its document frame, styles and empty paragraphs", () => {
-    const html = renderDescription(
-      '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0//EN"><html><head><style>p{color:red}</style></head><body style="font-family:x">' +
-        '<p style="margin:0"><b>Stand-up</b> at <i>9:30</i></p><ul><li>one</li></ul><p><br></p></body></html>',
-    );
-    expect(html).toBe("<p><b>Stand-up</b> at <i>9:30</i></p><ul><li>one</li></ul>");
-  });
-
-  it("an empty description stays empty, an image alone is kept", () => {
-    expect(renderDescription("<p><br></p>\n<p> </p>")).toBe("");
-    expect(renderDescription('<p><img src="data:image/png;base64,AA=="></p>')).toBe('<p><img src="data:image/png;base64,AA=="></p>');
-  });
-
-  it("links open in a new tab without access to this window", () => {
-    const a = parse(renderDescription('<a href="https://example.com/x">x</a>')).querySelector("a")!;
-    expect(a.getAttribute("href")).toBe("https://example.com/x");
-    expect(a.getAttribute("target")).toBe("_blank");
-    expect(a.getAttribute("rel")).toBe("noopener noreferrer nofollow");
-  });
-
-  it("embedded images stay, remote images and scripts go", () => {
-    const doc = parse(renderDescription('<img src="data:image/png;base64,iVBORw0KGgo="><img src="https://tracker.example/p.gif"><script>alert(1)</script><a href="javascript:alert(1)">x</a><img src=x onerror=alert(1)>'));
-    expect([...doc.querySelectorAll("img")].map((i) => i.getAttribute("src"))).toEqual(["data:image/png;base64,iVBORw0KGgo="]);
-    expect(doc.querySelectorAll("script, [onerror]").length).toBe(0);
-    expect(doc.querySelector("a")!.getAttribute("href")).toBeNull();
-  });
-});
-
 describe("channel descriptions (#5)", () => {
-  it("Markdown from the room setup is rendered like a board post, without its marker line", () => {
+  it("are Markdown, rendered like a board post (an old marker line goes, raw HTML stays text)", () => {
     const html = renderChannelDescription("<!-- ruumble:markdown -->\n## Retro\n\nEvery **Friday**, see [wiki](https://example.org).\n\n<script>alert(1)</script>");
     expect(html).toContain("<h2>Retro</h2>");
     expect(html).toContain("<strong>Friday</strong>");
@@ -214,7 +178,14 @@ describe("channel descriptions (#5)", () => {
     expect(html).not.toContain("<script");
   });
 
-  it("Mumble's rich text stays as before", () => {
-    expect(renderChannelDescription("<b>Welcome</b>")).toBe(renderDescription("<b>Welcome</b>"));
+  it("Mumble's rich text is read as text: its frame, styles and images go, links and bold stay", () => {
+    const html = renderChannelDescription(
+      '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0//EN"><html><head><style>p{color:red}</style></head><body style="font-family:x">' +
+        '<p style="margin:0"><b>Stand-up</b> at 9:30, <a href="https://example.com/x">notes</a></p><img src="https://tracker.example/p.gif"><a href="javascript:alert(1)">x</a></body></html>',
+    );
+    expect(html).toContain("<strong>Stand-up</strong>");
+    expect(html).toContain('<a href="https://example.com/x" target="_blank" rel="noopener noreferrer nofollow">notes</a>');
+    expect(html).not.toMatch(/<img|style=|javascript:/);
+    expect(renderChannelDescription("<p><br></p>\n<p> </p>")).toBe("");
   });
 });

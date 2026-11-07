@@ -31,5 +31,6 @@ You can only listen to rooms on your own floor. Changing the floor or going into
 
 ## Fixed ![server update](https://img.shields.io/badge/-server%20update-e67e22)
 
+- Room descriptions are always shown as formatted text. Descriptions written in Mumble's own editor now show as plain text with their links, and descriptions written in Ruumble also work on servers that do not allow HTML.
 - In Ruumble Client, opening the description of a corridor no longer breaks the floor plan.
 - In Ruumble Client, the directory in the building overview fits again: it is no longer cut off on the right, and you can read the full room names.

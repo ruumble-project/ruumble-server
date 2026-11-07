@@ -1,26 +1,28 @@
 import { describe, expect, it } from "vitest";
 import {
-  MARKDOWN_MARKER, applied, changesOf, editableDescription, formOf, formProblem, isMarkdownDescription, storedDescription,
+  applied, changesOf, descriptionMarkdown, formOf, formProblem, storedDescription,
 } from "../src/lib/model/roomEdit.ts";
 
 describe("Ruumble's edit dialog (#15)", () => {
-  it("a Markdown description is stored with the marker line and edited without it", () => {
-    const stored = storedDescription("  # Retro\n\n- every Friday  ");
-    expect(stored).toBe(`${MARKDOWN_MARKER}\n# Retro\n\n- every Friday`);
-    expect(isMarkdownDescription(stored)).toBe(true);
-    expect(editableDescription(stored)).toBe("# Retro\n\n- every Friday");
+  it("a description is stored as plain Markdown; an old marker line goes", () => {
+    expect(storedDescription("  # Retro\n\n- every Friday  ")).toBe("# Retro\n\n- every Friday");
     expect(storedDescription("   ")).toBe("");
+    expect(descriptionMarkdown("<!-- ruumble:markdown -->\n# Retro\n\n- every Friday")).toBe("# Retro\n\n- every Friday");
+    expect(descriptionMarkdown("# Retro")).toBe("# Retro");
   });
 
-  it("an older HTML description becomes plain text with its line breaks", () => {
-    const html = '<!DOCTYPE html><html><head><style>p{}</style></head><body><p>Hello &amp; welcome<br/>to <b>Sales</b></p><ul><li>one</li><li>two</li></ul><p>&lt;tag&gt; &#228;&#x2764;&nbsp;&bogus;</p></body></html>';
-    expect(editableDescription(html)).toBe("Hello & welcome\nto Sales\n- one\n- two\n<tag> ä❤ &bogus;");
-    expect(editableDescription("plain text, no tags")).toBe("plain text, no tags");
-    expect(isMarkdownDescription(html)).toBe(false);
+  it("Mumble's rich text becomes Markdown: text with its line breaks and lists, links and bold or italic kept", () => {
+    const html = '<!DOCTYPE html><html><head><style>p{}</style></head><body><p>Hello &amp; welcome<br/>to <b>Sales</b> and <i>more</i></p><ul><li>one</li><li>two</li></ul><p>&lt;tag&gt; &#228;&#x2764;&nbsp;&bogus;</p></body></html>';
+    expect(descriptionMarkdown(html)).toBe("Hello & welcome\nto **Sales** and *more*\n- one\n- two\n<tag> ä❤ &bogus;");
+    expect(descriptionMarkdown('<p>Board: <a href="https://example.com/b">the board</a>, <a href="https://example.com/x">https://example.com/x</a></p>')).toBe(
+      "Board: [the board](https://example.com/b), https://example.com/x",
+    );
+    expect(descriptionMarkdown('<a href="javascript:alert(1)">click</a>')).toBe("click");
+    expect(descriptionMarkdown("plain text, no tags")).toBe("plain text, no tags");
   });
 
   it("the form opens with the channel's values", () => {
-    expect(formOf({ name: "Retro", description: `${MARKDOWN_MARKER}\nhi` }, 5)).toEqual({ name: "Retro", description: "hi", maxUsers: 5 });
+    expect(formOf({ name: "Retro", description: "<!-- ruumble:markdown -->\nhi" }, 5)).toEqual({ name: "Retro", description: "hi", maxUsers: 5 });
     expect(formOf({ name: "Retro", description: undefined as unknown as string }, 0).description).toBe("");
   });
 
@@ -39,7 +41,7 @@ describe("Ruumble's edit dialog (#15)", () => {
     const before = { name: "Retro", description: "Hello", maxUsers: 0 };
     expect(changesOf(before, { ...before })).toEqual({});
     expect(changesOf(before, { name: " Retro 2 ", description: "Hello ", maxUsers: 8 })).toEqual({ name: "Retro 2", maxUsers: 8 });
-    expect(changesOf(before, { ...before, description: "**Hi**" })).toEqual({ description: `${MARKDOWN_MARKER}\n**Hi**` });
+    expect(changesOf(before, { ...before, description: "**Hi**" })).toEqual({ description: "**Hi**" });
     expect(changesOf(before, { ...before, description: "" })).toEqual({ description: "" });
   });
 

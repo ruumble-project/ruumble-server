@@ -8,8 +8,8 @@
   import { showModal } from "./modal.ts";
   import { pollUntil } from "../poll.ts";
 
-  // Ruumble's edit dialog for a room or floor (#15): name, description in Markdown (stored as plain text with the
-  // marker line, never as HTML), maximum users. The change goes through Ruumble Client to Mumble; the dialog waits
+  // Ruumble's edit dialog for a room or floor (#15): name, description in Markdown (stored as plain text, never as
+  // HTML), maximum users. The change goes through Ruumble Client to Mumble; the dialog waits
   // until the client's channel shows it, then closes. Password, position and ACL stay in Mumble.
   let { app, channel, kind }: { app: RuumbleState; channel: Channel; kind: "room" | "floor" } = $props();
 

@@ -1,8 +1,8 @@
 <script lang="ts">
   // description of a room or corridor as maintained in Mumble: the binders open it as a popover (top layer, so
   // neither the scrolling floor plan nor the room's container clip it). Escape, a click beside it or on a link closes
-  // it; links open in a new tab. Markdown from Ruumble's room setup is rendered like a board post, Mumble's rich text
-  // as before (renderChannelDescription). A click beside it only closes it: it enters no room.
+  // it; links open in a new tab. The description is Markdown, rendered like a board post; Mumble's rich text is read as
+  // text with its links (renderChannelDescription). A click beside it only closes it: it enters no room.
   import { renderChannelDescription } from "../board/render.ts";
   import { t } from "../i18n/index.svelte.ts";
   import Binders from "./Binders.svelte";
