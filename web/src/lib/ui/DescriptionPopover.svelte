@@ -46,7 +46,7 @@
     if (!open || !popover) return;
     place();
     popover.style.visibility = "";
-    popover.focus();
+    popover.focus({ preventScroll: true });
   }
 
   // light dismiss lets the click through to what lies below: swallow the click a press beside the popover ends in.
@@ -66,6 +66,14 @@
     window.addEventListener("pointerdown", onpointerdown, { capture: true });
     return () => window.removeEventListener("pointerdown", onpointerdown, { capture: true });
   });
+
+  // straight under <body>: Qt WebEngine 6.4 (Chromium 102) has no top layer for popovers, the polyfill shows them as
+  // position: fixed in place, and the corridor's binders sit in a transformed box. That box became the containing
+  // block: the popup landed far to the right, widened the floor plan and focusing it scrolled the plan over there
+  function toBody(node: HTMLElement) {
+    document.body.appendChild(node);
+    return () => node.remove();
+  }
 
   function onclick(e: MouseEvent): void {
     if ((e.target as HTMLElement).closest("a")) popover?.hidePopover();
@@ -87,7 +95,7 @@
 </button>
 <!-- the click only closes it after a link was followed (Enter on a link is a click too) -->
 <!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_noninteractive_element_interactions -->
-<div bind:this={popover} {id} class="description" popover="auto" role="dialog" aria-label={label} tabindex="-1" {onbeforetoggle} {ontoggle} {onclick}>
+<div bind:this={popover} {id} class="description" popover="auto" role="dialog" aria-label={label} tabindex="-1" {@attach toBody} {onbeforetoggle} {ontoggle} {onclick}>
   <div class="body">{@html html}</div>
 </div>
 

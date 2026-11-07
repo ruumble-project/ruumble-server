@@ -58,7 +58,7 @@
   }
 </script>
 
-<section class="board" aria-labelledby="directory-title">
+<section class="directory" aria-labelledby="directory-title">
   <h3 id="directory-title" class="plate-title">{t().overview.directory}</h3>
   <label class="search">
     <Search size={15} aria-hidden="true" />
@@ -120,7 +120,8 @@
 
 <style>
   /* a dark plate with a screw in every corner, like the floor sign in the top bar */
-  .board {
+  /* not "board": Ruumble Client's fallbacks for older services widen every .board to the board panel's width */
+  .directory {
     --screw: radial-gradient(circle, rgb(255 255 255 / 0.45) 1.6px, transparent 2.2px);
     display: flex; flex-direction: column; gap: 10px; min-height: 0; min-width: 0; padding: 14px 14px 10px; border-radius: 6px; color: var(--color-white);
     background-image: var(--screw), var(--screw), var(--screw), var(--screw), var(--gradient-elevator);
@@ -156,7 +157,8 @@
   }
   .side:hover { background: rgb(255 255 255 / 0.15); }
   .side:focus-visible { outline: 3px solid var(--color-sky); outline-offset: 1px; }
-  .line { display: flex; align-items: baseline; gap: 10px; min-width: 0; }
+  /* width: Chromium 102 (Ruumble Client) does not stretch it inside the button, the place got cut after a few letters */
+  .line { width: 100%; display: flex; align-items: baseline; gap: 10px; min-width: 0; }
   .pname { font-size: 13px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
   .place { margin-left: auto; flex: none; max-width: 50%; font-size: 12px; color: var(--color-plate-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .pstatus { display: flex; align-items: center; gap: 5px; font-size: 12px; font-style: italic; color: var(--color-plate-muted); overflow-wrap: anywhere; }
