@@ -29,6 +29,10 @@ While you listen, an ear tab hangs next to "You are here". It lists the rooms yo
 
 You can only listen to rooms on your own floor. Changing the floor or going into the room ends it. You need the new Ruumble Client for this.
 
+## Better
+
+- Ruumble Client shows its own icons in the system tray: one clear sign for each state, such as talking, muted or deafened. The window list shows the Ruumble icon too.
+
 ## Fixed ![server update](https://img.shields.io/badge/-server%20update-e67e22)
 
 - Room descriptions are always shown as formatted text. Descriptions written in Mumble's own editor now show as plain text with their links, and descriptions written in Ruumble also work on servers that do not allow HTML.
