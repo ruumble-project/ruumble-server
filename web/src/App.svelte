@@ -166,6 +166,7 @@
           boardUnseen={app.boardUnseen}
           ontoggleboard={() => app.toggleBoard()}
           ontend={(target) => app.openCare(target)}
+          onfurnish={app.desk.available && app.desk.canEditChannels ? (id) => (app.editChannelId = id) : undefined}
           onnudge={(user) => void app.nudge(user)}
           onchat={(user) => { if (user.person) app.chat.open(user.person, user.name); }}
           onparcel={(user) => { if (user.person) app.tube.compose(null, [user.person]); }}

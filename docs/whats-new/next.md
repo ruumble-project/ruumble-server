@@ -10,3 +10,9 @@
 -->
 
 Changes marked ![server update](https://img.shields.io/badge/-server%20update-e67e22) reach you once the Ruumble server you use is updated.
+
+## New
+
+### A paint bucket for setting up a room ![server update](https://img.shields.io/badge/-server%20update-e67e22)
+
+In Ruumble Client, rooms you may set up now have a small paint bucket next to the plant. Click it to change the room's name, description and seats, just like the new "Room setup" tile in the room menu. To make space, the doors sit a little further along the wall, and the plants have grown a bit.

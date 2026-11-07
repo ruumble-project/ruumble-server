@@ -14,6 +14,7 @@
     boardUnseen = 0,
     ontoggleboard,
     ontend,
+    onfurnish,
     onnudge,
     onchat,
     onparcel,
@@ -33,6 +34,8 @@
     ontoggleboard?: () => void;
     /** open the care dialog of a room or floor (ADR-0014) */
     ontend?: (target: { kind: "room" | "floor"; channelId: number }) => void;
+    /** open the room setup of a room (paint bucket); only where the room setup exists (Ruumble Client) */
+    onfurnish?: (channelId: number) => void;
     /** nudge a deafened person in the own room (ADR-0020) */
     onnudge?: (user: UserView) => void;
     /** send someone a direct message (ADR-0021) */
@@ -51,6 +54,7 @@
   const toggleListen = (channelId: number) => (ontogglelisten ? () => ontogglelisten(channelId) : undefined);
   const listenVolume = (channelId: number) => (onlistenvolume ? (db: number) => onlistenvolume(channelId, db) : undefined);
   const tendRoom = (channelId: number) => (ontend ? () => ontend({ kind: "room", channelId }) : undefined);
+  const furnishRoom = (channelId: number) => (onfurnish ? () => onfurnish(channelId) : undefined);
   const tendFloor = $derived(ontend ? () => ontend({ kind: "floor", channelId: floor.channelId }) : undefined);
 
   const rows = $derived(splitRows(floor.rooms));
@@ -109,7 +113,7 @@
     <div class="track" style:width={width > 1 ? `${width * 100}%` : undefined}>
       <div class="row top">
         {#each rows.top as room (room.channelId)}
-          <SpaceButton space={room} variant="room" row="top" title={room.name} pending={pendingChannel === room.channelId} {talking} {readonly} {onjoin} {onnudge} {onchat} {onparcel} {ondropfile} {onself} {boardOpen} {boardUnseen} {ontoggleboard} ontend={tendRoom(room.channelId)} listen={listenOf?.(room)} ontogglelisten={toggleListen(room.channelId)} onlistenvolume={listenVolume(room.channelId)} />
+          <SpaceButton space={room} variant="room" row="top" title={room.name} pending={pendingChannel === room.channelId} {talking} {readonly} {onjoin} {onnudge} {onchat} {onparcel} {ondropfile} {onself} {boardOpen} {boardUnseen} {ontoggleboard} ontend={tendRoom(room.channelId)} onfurnish={furnishRoom(room.channelId)} listen={listenOf?.(room)} ontogglelisten={toggleListen(room.channelId)} onlistenvolume={listenVolume(room.channelId)} />
         {/each}
       </div>
       <SpaceButton
@@ -125,7 +129,7 @@
       />
       <div class="row bottom">
         {#each rows.bottom as room (room.channelId)}
-          <SpaceButton space={room} variant="room" row="bottom" title={room.name} pending={pendingChannel === room.channelId} {talking} {readonly} {onjoin} {onnudge} {onchat} {onparcel} {ondropfile} {onself} {boardOpen} {boardUnseen} {ontoggleboard} ontend={tendRoom(room.channelId)} listen={listenOf?.(room)} ontogglelisten={toggleListen(room.channelId)} onlistenvolume={listenVolume(room.channelId)} />
+          <SpaceButton space={room} variant="room" row="bottom" title={room.name} pending={pendingChannel === room.channelId} {talking} {readonly} {onjoin} {onnudge} {onchat} {onparcel} {ondropfile} {onself} {boardOpen} {boardUnseen} {ontoggleboard} ontend={tendRoom(room.channelId)} onfurnish={furnishRoom(room.channelId)} listen={listenOf?.(room)} ontogglelisten={toggleListen(room.channelId)} onlistenvolume={listenVolume(room.channelId)} />
         {/each}
       </div>
     </div>

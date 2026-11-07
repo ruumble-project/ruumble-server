@@ -107,9 +107,9 @@
 {/if}
 
 <style>
-  /* the door at the corridor wall: the white strip cuts the opening into the wall; mirrored in the lower row. Only a
-     drawing: clicks go through to the room below (double click to enter, drops, the context menu) */
-  .door-spot { pointer-events: none; position: absolute; left: 34px; bottom: calc(-1 * var(--wall)); z-index: 2; display: block; width: 48px; height: 52px; line-height: 0; }
+  /* the door at the corridor wall: the white strip cuts the opening into the wall; mirrored in the lower row; further right by --door-shift
+     where the room keeps a place for the paint bucket (SpaceButton). Only a drawing: clicks go through to the room below (double click to enter, drops, the context menu) */
+  .door-spot { pointer-events: none; position: absolute; left: calc(34px + var(--door-shift, 0px)); bottom: calc(-1 * var(--wall)); z-index: 2; display: block; width: 48px; height: 52px; line-height: 0; }
   .door-spot.lower { bottom: auto; top: calc(-1 * var(--wall)); }
   .door-spot.lower .door { transform: scaleY(-1); }
   .door-button { pointer-events: auto; border: 0; padding: 0; margin: 0; background: transparent; cursor: pointer; border-radius: var(--radius-md); }
@@ -163,7 +163,7 @@
 
   /* the volume tag beside the open door, in the door strip: only while the pointer is over the room (or the tag has
      the keyboard focus or its popup open), so the floor plan stays calm */
-  .volume-spot { position: absolute; left: 84px; bottom: 6px; z-index: 2; display: block; line-height: 0; }
+  .volume-spot { position: absolute; left: calc(84px + var(--door-shift, 0px)); bottom: 6px; z-index: 2; display: block; line-height: 0; }
   .volume-spot.lower { bottom: auto; top: 6px; }
   .volume-tag {
     opacity: 0; pointer-events: none; width: 30px; height: 30px; padding: 0; display: grid; place-items: center;

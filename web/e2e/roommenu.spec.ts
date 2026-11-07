@@ -51,13 +51,15 @@ async function asDesk(page: Page): Promise<void> {
 const roomSign = (page: Page) => page.getByRole("button", { name: /Menu of Let's talk$/ });
 const roomMenu = (page: Page) => page.getByRole("group", { name: "Room menu" });
 
-test("in a browser: the room sign opens the room menu with the board and the room care, no edit", async ({ page }) => {
+test("in a browser: the room sign opens the room menu with the room care and the board, no setup", async ({ page }) => {
   await page.goto("/?fixture=sample&talking=0");
   await roomSign(page).click();
   const menu = roomMenu(page);
   await expect(menu.getByRole("button", { name: /^Board/ })).toHaveAttribute("aria-pressed", "false");
   await expect(menu.getByRole("button", { name: "Room care" })).toBeVisible();
-  await expect(menu.getByRole("button", { name: "Room setup …" })).toHaveCount(0);
+  await expect(menu.getByRole("button", { name: "Room setup", exact: true })).toHaveCount(0);
+  // no paint bucket either, and the doors keep their old place beside the plant
+  await expect(page.getByRole("button", { name: /^Room setup: / })).toHaveCount(0);
   await menu.getByRole("button", { name: /^Board/ }).click();
   await expect(menu).toHaveCount(0);
   await expect(page.locator("#board-panel")).toBeVisible();
@@ -76,6 +78,19 @@ test("from another floor the room sign leads back, without a menu", async ({ pag
   await expect(roomSign(page)).toBeVisible();
 });
 
+test("without Mumble Write the setup and care tiles stay in the menu, disabled; the first enabled tile gets the focus", async ({ page }) => {
+  await asDesk(page);
+  await page.goto("/?fixture=edge-cases&talking=0");
+  await page.getByRole("button", { name: /Menu of Anna's office$/ }).click();
+  const menu = roomMenu(page);
+  for (const name of ["Room setup", "Room care"]) {
+    await expect(menu.getByRole("button", { name, exact: true })).toBeDisabled();
+    await expect(menu.getByRole("button", { name, exact: true })).toHaveAttribute("title", "You need the Write permission in Mumble here");
+  }
+  await expect(menu.getByRole("button", { name: /^Board/ })).toBeFocused();
+  await expect(page.getByRole("button", { name: /^Room setup: / })).toHaveCount(0); // no paint bucket in the room
+});
+
 test.describe("inside Ruumble Client", () => {
   test.beforeEach(async ({ page }) => {
     await asDesk(page);
@@ -84,7 +99,7 @@ test.describe("inside Ruumble Client", () => {
 
   test("Room setup: name, Markdown description and maximum users go to Mumble as plain text, the dialog closes once taken over", async ({ page }) => {
     await roomSign(page).click();
-    await roomMenu(page).getByRole("button", { name: "Room setup …" }).click();
+    await roomMenu(page).getByRole("button", { name: "Room setup", exact: true }).click();
     const dialog = page.getByRole("dialog", { name: "Room setup" });
     await expect(dialog.getByLabel("Available seats")).toHaveValue("4");
     await expect(dialog.getByRole("button", { name: "Save" })).toBeDisabled(); // nothing changed yet
@@ -103,10 +118,24 @@ test.describe("inside Ruumble Client", () => {
     ]);
   });
 
+  test("the paint bucket beside the plant opens the room setup of that room; every door of the floor moves right by the same", async ({ page }) => {
+    const rooms = page.locator(".wrap-room");
+    const offsets: number[] = [];
+    for (let i = 0; i < (await rooms.count()); i++) {
+      const wrap = (await rooms.nth(i).boundingBox())!;
+      const door = (await rooms.nth(i).locator(".door-spot").boundingBox())!;
+      offsets.push(Math.round(door.x - wrap.x));
+    }
+    expect(new Set(offsets)).toEqual(new Set([70]));
+    await page.getByRole("button", { name: "Room setup: Let's talk" }).click();
+    const dialog = page.getByRole("dialog", { name: "Room setup" });
+    await expect(dialog.getByLabel("Room name")).toHaveValue("Let's talk");
+  });
+
   test("Room setup: a change Mumble does not take over is reported, the dialog stays", async ({ page }) => {
     await page.evaluate(() => ((window as unknown as { refuse: boolean }).refuse = true));
     await roomSign(page).click();
-    await roomMenu(page).getByRole("button", { name: "Room setup …" }).click();
+    await roomMenu(page).getByRole("button", { name: "Room setup", exact: true }).click();
     const dialog = page.getByRole("dialog", { name: "Room setup" });
     await dialog.getByLabel("Room name").fill("Retro corner");
     await dialog.getByRole("button", { name: "Save" }).click();

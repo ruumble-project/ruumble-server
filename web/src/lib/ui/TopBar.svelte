@@ -36,9 +36,9 @@
   import Avatar from "./Avatar.svelte";
   import { contextMenu, getDeskAdmin } from "../desk/admin.ts";
   import Key from "./Key.svelte";
+  import PaintBucket from "./PaintBucket.svelte";
   import Plant from "./Plant.svelte";
   import BoardNotes from "./board/BoardNotes.svelte";
-  import Pencil from "@lucide/svelte/icons/pencil";
   import Sparkles from "@lucide/svelte/icons/sparkles";
   import CircleArrowDown from "@lucide/svelte/icons/circle-arrow-down";
   import CircleDot from "@lucide/svelte/icons/circle-dot";
@@ -100,7 +100,8 @@
   $effect(() => {
     if (open === "user") app.markClientUpdateSeen();
   });
-  const canEdit = $derived(!!here && here.space.canTend && app.desk.available && app.desk.canEditChannels);
+  // room setup exists only inside Ruumble Client; without Mumble Write its tile (like the care tile) stays, disabled
+  const editAvailable = $derived(app.desk.available && app.desk.canEditChannels);
 
   // how the user transmits, inside a Ruumble Client that knows it (#9 in ruumble-client): in push-to-talk the microphone
   // is the talk button (hold = talk, double click = keep open), mute moves into the menu below the small tab next to it
@@ -196,7 +197,7 @@
   }
   /** keyboard: focus on the active floor or the first entry when a dropdown opens */
   function focusFirst(node: HTMLElement): void {
-    (node.querySelector<HTMLElement>("[aria-current='page']") ?? node.querySelector<HTMLElement>("button:not([aria-disabled])"))?.focus();
+    (node.querySelector<HTMLElement>("[aria-current='page']") ?? node.querySelector<HTMLElement>("button:not([aria-disabled]):not(:disabled)"))?.focus();
   }
 </script>
 
@@ -315,22 +316,21 @@
                 <span class="l">{t().floors.floor(here.floor.badge)} · {countText(place.people)}{#if here.space.recording} · {t().people.recording}{/if}</span>
               </div>
               <div class="quick" role="group" aria-label={t().core.quickSwitches}>
+                <!-- in the order of the room: the paint bucket (room setup, Ruumble Client), the plant (care), the board.
+                     Without the permission the tiles stay visible, disabled, so the menu keeps its shape -->
+                {#if editAvailable}
+                  <button type="button" class="tile" disabled={!here.space.canTend} title={here.space.canTend ? undefined : t().roomMenu.noPermission} onclick={() => { open = null; app.editChannelId = here.space.channelId; }}>
+                    <span class="tile-icon"><PaintBucket size={21} /></span><span>{here.kind === "room" ? t().roomMenu.editRoom : t().roomMenu.editFloor}</span>
+                  </button>
+                {/if}
+                <button type="button" class="tile" disabled={!here.space.canTend} title={here.space.canTend ? undefined : t().roomMenu.noPermission} onclick={() => { open = null; void app.openCare({ kind: here.kind, channelId: here.space.channelId }); }}>
+                  <span class="tile-icon"><Plant size={18} /></span><span>{here.kind === "room" ? t().roomMenu.roomCare : t().roomMenu.floorCare}</span>
+                </button>
                 <button type="button" class="tile" aria-pressed={app.boardOpen} aria-keyshortcuts={SHORTCUT_KEYS.toggleBoard.toUpperCase()}
                   title={`${t().roomMenu.board} (${SHORTCUT_KEYS.toggleBoard.toUpperCase()})`} onclick={() => { open = null; app.toggleBoard(); }}>
                   <span class="tile-icon"><BoardNotes /></span><span class="tile-label">{t().roomMenu.board}<kbd class="tile-key">{SHORTCUT_KEYS.toggleBoard.toUpperCase()}</kbd></span>
                 </button>
-                {#if here.space.canTend}
-                  <button type="button" class="tile" onclick={() => { open = null; void app.openCare({ kind: here.kind, channelId: here.space.channelId }); }}>
-                    <span class="tile-icon"><Plant size={18} /></span><span>{here.kind === "room" ? t().roomMenu.roomCare : t().roomMenu.floorCare}</span>
-                  </button>
-                {/if}
               </div>
-              {#if canEdit}
-                <hr class="sep" />
-                <button type="button" class="item" onclick={() => { open = null; app.editChannelId = here.space.channelId; }}>
-                  <Pencil size={18} aria-hidden="true" />{here.kind === "room" ? t().roomMenu.editRoom : t().roomMenu.editFloor}
-                </button>
-              {/if}
             </div>
           {/if}
         </div>
@@ -836,5 +836,7 @@
   .tile:hover { background: var(--color-blue-100); }
   .tile[aria-pressed="true"], .tile.on { background: var(--color-ink); border-color: var(--color-ink); color: var(--color-paper); }
   .tile:focus-visible { outline: 3px solid var(--color-sky); outline-offset: 2px; }
+  .tile:disabled, .tile:disabled:hover { opacity: 0.45; background: none; cursor: not-allowed; }
+  .tile:disabled :global(svg) { filter: saturate(0); }
   .versions { display: flex; justify-content: space-between; gap: 12px; padding: 10px 10px 4px; margin-top: 4px; border-top: 1px solid var(--color-blue-100); font-size: 12px; color: var(--color-blue-700); }
 </style>

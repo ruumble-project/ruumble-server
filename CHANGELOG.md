@@ -6,6 +6,11 @@ All notable changes to Ruumble. The service and the web UI share one version; th
 
 ## [Unreleased]
 
+### Added
+
+- **Paint bucket for the room setup (Ruumble Client):** whoever may set a room up (Mumble Write) finds a paint bucket with a brush beside the plant; a click opens the room setup, like the "Room setup" tile in the room menu. Inside Ruumble Client every door of the floor moves 36 px to the right to make room for it, also in rooms without the bucket, so the doors stay in line; browsers keep the old layout. The room plant is a little larger (30 px instead of 22) (#20)
+- **Room menu:** "Room setup" / "Floor setup" is now a tile with the paint bucket as its icon instead of a line with a pencil below the tiles; the tiles follow the room from the door: setup, care, board. Without Mumble Write the setup and care tiles stay, disabled, with a tooltip saying why (they were hidden before). German labels "Raum pflegen" / "Etage pflegen" instead of "Raumpflege" / "Etagenpflege", matching "Raum einrichten" (#20)
+
 ## [0.40.0] - 2026-11-07
 
 Plugin 0.5.0 (unchanged). Inside Ruumble Client you can listen in on another room of your floor through its door, with a volume per room, and choose how you transmit (push to talk with the microphone as the talk key). Room descriptions are always Markdown now. Nothing to do when updating; listening in and the transmit menu need the matching Ruumble Client.

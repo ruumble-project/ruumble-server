@@ -10,6 +10,7 @@
   import BoardNotes from "./board/BoardNotes.svelte";
   import DescriptionPopover from "./DescriptionPopover.svelte";
   import PersonCard from "./PersonCard.svelte";
+  import PaintBucket from "./PaintBucket.svelte";
   import Plant from "./Plant.svelte";
   import ListenDoor from "./listen/ListenDoor.svelte";
   import type { ListenView } from "../state.svelte.ts";
@@ -30,6 +31,7 @@
     boardUnseen = 0,
     ontoggleboard,
     ontend,
+    onfurnish,
     onnudge,
     onchat,
     onparcel,
@@ -58,6 +60,8 @@
     ontoggleboard?: () => void;
     /** open the care dialog of this room or floor (plant, ADR-0014) */
     ontend?: () => void;
+    /** open the room setup (paint bucket, Ruumble Client only): given wherever the room setup exists at all */
+    onfurnish?: () => void;
     /** nudge a deafened person in the own room (ADR-0020) */
     onnudge?: (user: UserView) => void;
     /** send someone else who uses Ruumble direct chat (ADR-0021) */
@@ -142,6 +146,13 @@
   // the plant: decoration for everyone, a button for whoever may tend the stored data here
   const tendable = $derived(space.canTend && !readonly && !!ontend);
   const tendLabel = $derived(variant === "room" ? t().care.roomPlant(space.name) : t().care.floorPlant(space.name));
+  // the paint bucket next to the plant: room setup for whoever may set this room up. Its place is kept in every room
+  // wherever the room setup exists (the door moves right by DOOR_SHIFT), so all doors of a floor stay in one line
+  const furnishPlace = $derived(variant === "room" && !readonly && !!onfurnish);
+  const furnishable = $derived(furnishPlace && space.canTend);
+  const furnishLabel = $derived(t().roomEdit.bucket(space.name));
+  const DOOR_SHIFT = 36;
+  const doorShift = $derived(furnishPlace ? DOOR_SHIFT : 0);
   const ariaLabel = $derived.by(() => {
     const s = t().space;
     const name = variant === "corridor" ? s.corridorName(space.name) : space.name;
@@ -162,7 +173,7 @@
   /** room width the door plate leaves for the door, the board and the binders */
   const VOLUME_TAG_WIDTH = 32;
   const plateReserve = $derived(
-    90 + (boardToggle ? BOARD_TOGGLE_WIDTH : 0) + (space.description ? BINDERS_WIDTH : 0) + (listen?.open && listen.interactive ? VOLUME_TAG_WIDTH : 0),
+    90 + doorShift + (boardToggle ? BOARD_TOGGLE_WIDTH : 0) + (space.description ? BINDERS_WIDTH : 0) + (listen?.open && listen.interactive ? VOLUME_TAG_WIDTH : 0),
   );
 
   // narrow rooms (see the @container rule): engines without container queries (Ruumble Client, Chromium 102) get the
@@ -235,7 +246,7 @@
   {#if space.recording}<span class="rec" title={t().space.recording}>{t().space.recordingBadge}</span>{/if}
 {/snippet}
 
-<div class="wrap wrap-{variant}" class:lower={row === "bottom"} class:narrow bind:clientWidth={wrapWidth} style:flex-grow={room ? room.grow : undefined} style:--plate-reserve="{plateReserve}px">
+<div class="wrap wrap-{variant}" class:lower={row === "bottom"} class:narrow bind:clientWidth={wrapWidth} style:flex-grow={room ? room.grow : undefined} style:--plate-reserve="{plateReserve}px" style:--door-shift="{doorShift}px">
 <button
   type="button"
   class="room {variant}"
@@ -315,11 +326,14 @@
 {/snippet}
 {#snippet plant()}
   {#if tendable}
-    <button type="button" class="plant-spot plant-{variant} tend" aria-label={tendLabel} title={tendLabel} onclick={ontend}><Plant size={variant === "room" ? 22 : 26} subtle /></button>
+    <button type="button" class="plant-spot plant-{variant} tend" aria-label={tendLabel} title={tendLabel} onclick={ontend}><Plant size={variant === "room" ? 30 : 26} subtle /></button>
   {:else}
-    <span class="plant-spot plant-{variant}"><Plant size={variant === "room" ? 22 : 26} subtle /></span>
+    <span class="plant-spot plant-{variant}"><Plant size={variant === "room" ? 30 : 26} subtle /></span>
   {/if}
 {/snippet}
+{#if furnishable}
+  <button type="button" class="bucket-spot furnish" aria-label={furnishLabel} title={furnishLabel} onclick={onfurnish}><PaintBucket subtle /></button>
+{/if}
 {#if variant === "room"}
   <!-- the door at the corridor wall (outside the room's button: inside Ruumble Client it is a button of its own, #19) -->
   <ListenDoor room={space.name} channelId={space.channelId} closed={disabled && !readonly} lower={row === "bottom"} {listen} ontoggle={ontogglelisten} onvolume={onlistenvolume} />
@@ -367,8 +381,8 @@
   .room.locked:hover { background: var(--color-paper); }
   .room.pending { cursor: progress; }
   /* a room the user listens to (#19): a soft glow spreading from its door (door centre 58 px from the left) */
-  .wrap-room > .room.listened { background-image: radial-gradient(circle 300px at 58px 100%, var(--listen-glow), transparent 100%); }
-  .wrap-room.lower > .room.listened { background-image: radial-gradient(circle 300px at 58px 0%, var(--listen-glow), transparent 100%); }
+  .wrap-room > .room.listened { background-image: radial-gradient(circle 300px at calc(58px + var(--door-shift, 0px)) 100%, var(--listen-glow), transparent 100%); }
+  .wrap-room.lower > .room.listened { background-image: radial-gradient(circle 300px at calc(58px + var(--door-shift, 0px)) 0%, var(--listen-glow), transparent 100%); }
   /* a file dragged over a space with someone to send it to (tube mail) */
   .room.dropping { outline: 3px dashed var(--color-blue-500); outline-offset: -6px; background: var(--color-surface); }
   .room.pending.slow .count { color: var(--color-link); }
@@ -437,8 +451,17 @@
     min-width: 44px; min-height: 44px; padding: 2px; border: 0; background: transparent; border-radius: var(--radius-md);
     pointer-events: none;
   }
-  .plant-spot.plant-room { left: 4px; right: auto; bottom: 8px; min-width: 30px; min-height: 32px; width: 30px; height: 32px; padding: 0; align-items: center; }
+  .plant-spot.plant-room { left: 4px; right: auto; bottom: 8px; min-width: 30px; min-height: 36px; width: 30px; height: 36px; padding: 0; }
   .lower .plant-spot.plant-room { bottom: auto; top: 8px; }
+  /* paint bucket (room setup): beside the plant, on the same floor as the plant (both drawings end on the same grid line) */
+  .bucket-spot {
+    position: absolute; left: 32px; bottom: 8px; display: flex; align-items: flex-end; justify-content: center;
+    width: 30px; height: 36px; padding: 0; border: 0; background: transparent; border-radius: var(--radius-md);
+    cursor: pointer; transition: transform var(--dur) var(--ease-out);
+  }
+  .lower .bucket-spot { bottom: auto; top: 8px; }
+  .bucket-spot:hover { transform: translateY(-2px) rotate(3deg) scale(1.08); }
+  .bucket-spot:focus-visible { outline: 3px solid var(--color-sky); outline-offset: 0; }
   /* at the right edge of the view, also when the floor plan scrolls sideways (FloorPlan sets --corridor-end) */
   .plant-spot.plant-corridor { bottom: auto; top: 50%; right: calc(14px + var(--corridor-end, 0px)); transform: translateY(-50%); }
   .plant-spot.tend { pointer-events: auto; cursor: pointer; transition: transform var(--dur) var(--ease-out); }
