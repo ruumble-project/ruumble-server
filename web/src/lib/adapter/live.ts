@@ -149,6 +149,7 @@ export class LiveAdapter implements MumbleAdapter {
   readonly chat: ChatApi = liveChat;
   /** parcels this tab holds (tube mail): told to the service on every connect */
   private heldIds: string[] = [];
+  private listened: number[] = [];
   readonly tube: TubeApi = {
     offer: (offer) => call(Parcel, "/api/parcels", { method: "POST", body: JSON.stringify(offer) }),
     accept: async (id) => {
@@ -221,6 +222,15 @@ export class LiveAdapter implements MumbleAdapter {
     });
   }
 
+  listening(channels: number[]): void {
+    this.listened = [...channels];
+    this.sendListening();
+  }
+
+  private sendListening(): void {
+    if (this.socket?.readyState === WebSocket.OPEN) this.socket.send(JSON.stringify({ v: PROTOCOL_VERSION, type: "listening", channels: this.listened }));
+  }
+
   private sendHeld(): void {
     if (this.socket?.readyState === WebSocket.OPEN) this.socket.send(JSON.stringify({ v: PROTOCOL_VERSION, type: "parcels-held", ids: this.heldIds }));
   }
@@ -231,6 +241,7 @@ export class LiveAdapter implements MumbleAdapter {
     socket.onopen = () => {
       this.retryMs = 500;
       this.sendHeld();
+      this.sendListening();
     };
     socket.onmessage = (e) => {
       const msg = parse(BridgeToUi, String(e.data));

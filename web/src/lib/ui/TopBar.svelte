@@ -362,9 +362,6 @@
                 <ListenVolume room={room.name} volume={listen.volumeOf(room.channelId)} onvolume={(db) => listen.setVolume(room.channelId, db)} />
               </div>
             {/each}
-            {#if building.listenersHidden}
-              <p class="listen-hidden" role="note"><EyeOff size={15} aria-hidden="true" /><span>{t().listen.hiddenSelf}</span></p>
-            {/if}
             <label class="quieter">
               <input type="checkbox" checked={listen.quieter} onchange={(e) => listen.setQuieter((e.currentTarget as HTMLInputElement).checked)} />
               <span>{t().listen.quieter}</span>

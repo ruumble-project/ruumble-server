@@ -129,6 +129,9 @@ export class Hub {
 
   // ---------------------------------------------------------------- Server state
 
+  /** what each web UI reports of its own listening (#25); shown where Mumble hides the listeners (Mumble 1.5) */
+  private reported = new Map<UiEntry, number[]>();
+
   setState(state: ServerState): void {
     this.state = state;
     this.rebroadcast();
@@ -421,9 +424,11 @@ export class Hub {
         const msg = parse(UiToBridge, raw);
         if (msg?.type === "command") this.command(ui, msg.id, msg.body);
         else if (msg?.type === "parcels-held" && certHash) this.watcher?.held(ui.handle, msg);
+        else if (msg?.type === "listening" && certHash) this.reportListening(ui, msg.channels);
       },
       onClose: () => {
         if (!this.uis.delete(ui)) return;
+        if (this.reported.delete(ui) && this.state && !this.state.listenersReadable) this.rebroadcast();
         for (const [id, p] of this.pending) if (p.ui === ui) this.pending.delete(id);
         if (certHash) this.watcher?.closed(ui.handle);
       },
@@ -445,7 +450,38 @@ export class Hub {
     plugin.conn.send({ v, type: "command", id: pluginId, body });
   }
 
+  private reportListening(ui: UiEntry, channels: number[]): void {
+    const next = [...new Set(channels)].sort((a, b) => a - b);
+    if (JSON.stringify(next) === JSON.stringify(this.reported.get(ui) ?? [])) return;
+    if (next.length) this.reported.set(ui, next);
+    else this.reported.delete(ui);
+    if (this.state && !this.state.listenersReadable) this.rebroadcast();
+  }
+
   // ---------------------------------------------------------------- internal
+
+  /**
+   * Who listens where: Mumble's list where Ice shows it; where it does not (Mumble 1.5), what the web UIs of paired
+   * users with a connected plugin report of their own listening (#25), for channels that exist
+   */
+  private listeners(): Record<string, number[]> {
+    const s = this.state;
+    if (!s) return {};
+    if (s.listenersReadable) return s.listeners;
+    const channels = new Set(s.channels.map((c) => c.id));
+    const sessions = new Set(s.users.map((u) => u.session));
+    const merged: Record<string, number[]> = {};
+    for (const [ui, list] of this.reported) {
+      const session = ui.certHash ? this.plugins.get(ui.certHash)?.session : undefined;
+      if (session === undefined || !sessions.has(session)) continue;
+      for (const c of list) {
+        if (!channels.has(c)) continue;
+        const key = String(c);
+        if (!merged[key]?.includes(session)) merged[key] = [...(merged[key] ?? []), session];
+      }
+    }
+    return merged;
+  }
 
   /**
    * The users as every web UI sees them: no addresses, the avatar version, and from the plugins whether they use
@@ -482,7 +518,7 @@ export class Hub {
       self: session ? { session } : null,
       channels: s.channels,
       users,
-      listeners: s.listeners,
+      listeners: this.listeners(),
       ...(s.listenersReadable ? {} : { listenersHidden: true as const }),
       canEnter: session ? (s.canEnter.get(session) ?? {}) : {},
       canListen: session ? (s.canListen.get(session) ?? {}) : {},

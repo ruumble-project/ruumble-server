@@ -677,6 +677,16 @@ export class MockAdapter implements MumbleAdapter {
     this.events?.chat(text === null ? { ...head, kind: "invite", channelId: other.channel, channelName: this.channelName(other.channel) } : { ...head, kind: "text", text });
   }
 
+  /** like the service: where Mumble hides the listeners, the own listening as the page reports it (#25) */
+  listening(channels: number[]): void {
+    const self = this.state.self?.session;
+    if (!this.opts.listenersHidden || self === undefined) return;
+    const listeners: Record<string, number[]> = {};
+    for (const c of channels) listeners[String(c)] = [self];
+    this.state = { ...this.state, listeners };
+    this.emit();
+  }
+
   async versions(): Promise<Versions> {
     // ?clientRelease=<version>: the latest Ruumble Client release the service knows of (#18)
     const client = new URLSearchParams(globalThis.location?.search ?? "").get("clientRelease");

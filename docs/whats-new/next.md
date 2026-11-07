@@ -24,6 +24,6 @@ In Ruumble Client, rooms you may set up now have a small paint bucket next to th
 ## Better
 
 - The user menu now shows the version of the Ruumble server and of Ruumble Client. ![server update](https://img.shields.io/badge/-server%20update-e67e22)
-- If your Mumble server cannot tell Ruumble who is listening in, the user menu now says so, and so does the list of rooms you listen to. Nobody can see listeners there until the Mumble server is updated to 1.6. ![server update](https://img.shields.io/badge/-server%20update-e67e22)
+- Older Mumble servers (1.5) do not tell Ruumble who is listening in. Ruumble Client now tells it itself, so you still see everyone who listens in through Ruumble Client. Only listening with plain Mumble stays hidden there, and the user menu says so. ![server update](https://img.shields.io/badge/-server%20update-e67e22)
 - Plants you can look after and the paint bucket are now shown in full colour. Plants stay pale only where they are just decoration. ![server update](https://img.shields.io/badge/-server%20update-e67e22)
 - When you go into a room you are listening in on, listening stops while you are inside. Leave the room again and you are back to listening in, at the same volume. ![server update](https://img.shields.io/badge/-server%20update-e67e22)

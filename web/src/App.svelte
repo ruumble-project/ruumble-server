@@ -45,6 +45,7 @@
   // listening in (#19): whatever breaks the rules (another floor, the own room, a closed room) ends at once, also
   // listening Mumble restored on connect or that was started from Mumble's own menu
   $effect(() => app.enforceListening());
+  $effect(() => app.reportListening());
 
   // floating board: on the side where the own room stays fully visible. Measured again when the floor or the people
   // change, when the window resizes and when the rooms have finished resizing (they animate their width).

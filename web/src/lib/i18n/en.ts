@@ -703,9 +703,8 @@ export const en: Messages = {
     title: "Listening in",
     stopOne: "Stop",
     stopAll: "Stop all",
-    hidden: "Listening in is not shown",
-    hiddenHint: "This Mumble server does not show Ruumble who is listening in where (Mumble server 1.6 does). Nobody here can see who is listening in on a room, you neither.",
-    hiddenSelf: "The others do not see that you are listening in: this Mumble server does not show it to Ruumble.",
+    hidden: "Listening in with plain Mumble is not shown",
+    hiddenHint: "This Mumble server does not show Ruumble who is listening in where (Mumble server 1.6 does). So Ruumble shows only who listens in through Ruumble Client; whoever listens in with plain Mumble stays invisible.",
     quieter: "Quieter when someone talks in my room",
     refused: {
       permission: (room: string) => `You may not listen in on ${room}.`,

@@ -150,7 +150,14 @@ export const UiCommand = z.object({ v, type: z.literal("command"), id: commandId
 export const UiParcelsHeld = z.object({ v, type: z.literal("parcels-held"), ids: z.array(parcelId).max(10) });
 export type UiParcelsHeld = z.infer<typeof UiParcelsHeld>;
 
-export const UiToBridge = z.discriminatedUnion("type", [UiCommand, UiParcelsHeld]);
+/**
+ * The rooms the own user listens in on, as Ruumble Client knows them (#25): sent on every connect and whenever they
+ * change. Where the Mumble server hides the listeners from Ice's read secret (Mumble 1.5), the service shows these.
+ */
+export const UiListening = z.object({ v, type: z.literal("listening"), channels: z.array(channelId).max(100) });
+export type UiListening = z.infer<typeof UiListening>;
+
+export const UiToBridge = z.discriminatedUnion("type", [UiCommand, UiParcelsHeld, UiListening]);
 export type UiToBridge = z.infer<typeof UiToBridge>;
 
 // ---------------------------------------------------------------- Service → web UI
@@ -171,7 +178,8 @@ export const Snapshot = z.object({
   listeners: z.record(channelKey, z.array(session)),
   /**
    * `true`: the Mumble server does not let Ruumble see who is listening in (Mumble 1.5 shows them only to the write
-   * secret), so `listeners` is always empty. Missing: they are shown.
+   * secret): `listeners` holds only what Ruumble Client reports of its own listening (#25), not Mumble's own clients.
+   * Missing: they are shown in full.
    */
   listenersHidden: z.literal(true).optional(),
   /** channel ID → may the own user enter the channel (PermissionEnter). A missing channel means `true`. */

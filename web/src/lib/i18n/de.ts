@@ -755,10 +755,9 @@ export const de = {
     title: "Du hörst mit",
     stopOne: "Beenden",
     stopAll: "Alle beenden",
-    /** the Mumble server hides who is listening in (Mumble 1.5): in the user menu and the list of rooms one listens to */
-    hidden: "Mithören wird nicht angezeigt",
-    hiddenHint: "Dieser Mumble-Server zeigt Ruumble nicht, wer wo mithört (erst Mumble-Server 1.6 tut das). Niemand sieht hier, wer in einem Raum mithört, auch du nicht.",
-    hiddenSelf: "Die anderen sehen nicht, dass du mithörst: dieser Mumble-Server zeigt es Ruumble nicht.",
+    /** the Mumble server hides who is listening in (Mumble 1.5), Ruumble shows only Ruumble Client's own reports: in the user menu */
+    hidden: "Mithören mit normalem Mumble wird nicht angezeigt",
+    hiddenHint: "Dieser Mumble-Server zeigt Ruumble nicht, wer wo mithört (erst Mumble-Server 1.6 tut das). Ruumble zeigt deshalb nur, wer über Ruumble Client mithört; wer mit normalem Mumble mithört, bleibt unsichtbar.",
     quieter: "Leiser, wenn bei mir gesprochen wird",
     refused: {
       permission: (room: string) => `Bei ${room} darfst du nicht mithören.`,

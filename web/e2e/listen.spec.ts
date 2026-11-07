@@ -255,20 +255,23 @@ test("Stop all also forgets a paused room (#22)", async ({ page }) => {
   expect((await calls(page)).filter((c) => (c as unknown[])[0] === "start")).toHaveLength(2);
 });
 
-test("a Mumble server that hides who is listening in: the user menu and the list of rooms one listens to say so", async ({ page }) => {
+test("a Mumble server that hides who is listening in: the page reports its own listening, the user menu says plain Mumble is not shown (#24, #25)", async ({ page }) => {
   await asDesk(page);
   await page.goto("/?fixture=edge-cases&talking=0&listeners=hidden");
-  await expect(page.locator(".person.guest")).toHaveCount(0);
-  const note = (await userMenu(page)).getByRole("note").filter({ hasText: "Listening in is not shown" });
+  await expect(page.locator(".person.guest")).toHaveCount(0); // Eva listens with plain Mumble: not shown
+  const note = (await userMenu(page)).getByRole("note").filter({ hasText: "Listening in with plain Mumble is not shown" });
   await expect(note).toBeVisible();
   await expect(note).toHaveAttribute("title", /Mumble server 1\.6/);
   await page.keyboard.press("Escape");
+  // listening through Ruumble Client: reported, so the own guest stands in the room
   await door(page, "Ben's office").click();
-  await page.getByRole("button", { name: "You are listening in on 1 room" }).click();
-  await expect(page.getByRole("note").filter({ hasText: "The others do not see that you are listening in" })).toBeVisible();
+  const ben = page.locator(".wrap-room").filter({ has: page.locator(".plate", { hasText: "Ben's office" }) });
+  await expect(ben.locator(".person.guest")).toHaveAttribute("aria-label", /^Anna \(you\).*listening in on Ben's office/);
+  await door(page, "Ben's office").click();
+  await expect(ben.locator(".person.guest")).toHaveCount(0);
 });
 
 test("without the hint where Mumble shows the listeners", async ({ page }) => {
   await page.goto("/?fixture=edge-cases&talking=0");
-  await expect((await userMenu(page)).getByText("Listening in is not shown")).toHaveCount(0);
+  await expect((await userMenu(page)).getByText(/is not shown/)).toHaveCount(0);
 });

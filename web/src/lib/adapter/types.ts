@@ -148,6 +148,8 @@ export interface MumbleAdapter {
   pairing: PairApi;
   /** versions of service and offered plugin (notice pages); null if unknown */
   versions(): Promise<Versions | null>;
+  /** the rooms the own user listens in on (Ruumble Client, #25): told to the service now and after every reconnect */
+  listening(channels: number[]): void;
   /** optional: custom address for avatar images (mock), otherwise /avatar/<id>?v=<version> */
   avatarUrl?(userId: number, version: string): string;
 }

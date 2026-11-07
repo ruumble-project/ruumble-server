@@ -307,6 +307,12 @@ export class RuumbleState {
    * ends listening that breaks the rules: called whenever the building or the listening changes (model/listening.ts).
    * Listening to the room the own user just entered only pauses: it starts again once they leave it (#22).
    */
+  /** tells the service where the own user listens in (#25): it shows it where Mumble hides the listeners */
+  reportListening(): void {
+    const channels = this.desk.listen?.channels;
+    if (channels) this.adapter.listening(channels);
+  }
+
   enforceListening(): void {
     const listen = this.desk.listen;
     if (!listen || !this.building) return;

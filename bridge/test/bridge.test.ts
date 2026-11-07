@@ -148,6 +148,34 @@ describe("Poller", () => {
     await poller.poll();
   });
 
+  it("Mumble hides the listeners: the own listening a paired web UI reports is shown, only there and only while it lasts (#25)", async () => {
+    const { source, hub, pairing, poller } = await setup();
+    source.listenersReadable = false;
+    for (let i = 0; i < 3; i++) await poller.poll(); // the listeners are read every 3rd round
+    expect(poller.state?.listenersReadable).toBe(false);
+    const plugin = recorder<BridgeToPlugin>();
+    await hub.pluginConnected(plugin.conn, "10.0.0.7").onMessage(hello(7, A, true));
+    const { ui, handler } = await pairedUi(hub, pairing);
+    handler.onMessage(JSON.stringify({ v: 1, type: "listening", channels: [2, 2, 999] }));
+    expect(ui.last("snapshot")?.listeners).toEqual({ "2": [7] }); // unknown channel 999 left out
+    expect(ui.last("snapshot")?.listenersHidden).toBe(true);
+    handler.onMessage(JSON.stringify({ v: 1, type: "listening", channels: [] }));
+    expect(ui.last("snapshot")?.listeners).toEqual({});
+    handler.onMessage(JSON.stringify({ v: 1, type: "listening", channels: [2] }));
+    handler.onClose();
+    const other = await pairedUi(hub, pairing);
+    expect(other.ui.last("snapshot")?.listeners).toEqual({}); // gone with its tab
+  });
+
+  it("where Mumble shows the listeners, reports of web UIs change nothing", async () => {
+    const { hub, pairing } = await setup();
+    const plugin = recorder<BridgeToPlugin>();
+    await hub.pluginConnected(plugin.conn, "10.0.0.7").onMessage(hello(7, A, true));
+    const { ui, handler } = await pairedUi(hub, pairing);
+    handler.onMessage(JSON.stringify({ v: 1, type: "listening", channels: [2] }));
+    expect(ui.last("snapshot")?.listeners).toEqual({});
+  });
+
   it("detects a restart by a smaller uptime", async () => {
     const source = new FakeSource();
     let restarts = 0;
