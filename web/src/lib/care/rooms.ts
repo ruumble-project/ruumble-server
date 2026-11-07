@@ -28,12 +28,3 @@ export function positionChanges(order: readonly number[], channels: readonly Pic
   const now = new Map(channels.map((c) => [c.id, c.position]));
   return order.flatMap((id, position) => (now.get(id) === position ? [] : [{ channelId: id, position }]));
 }
-
-export type NameProblem = "empty" | "taken";
-
-/** a room's name on its floor: not empty and not used by another room there (Mumble refuses the same name twice) */
-export function nameProblem(name: string, parentId: number, channels: readonly Pick<Channel, "id" | "parent" | "name">[], self?: number): NameProblem | null {
-  const n = name.trim().toLowerCase();
-  if (!n) return "empty";
-  return channels.some((c) => c.parent === parentId && c.id !== self && c.name.trim().toLowerCase() === n) ? "taken" : null;
-}

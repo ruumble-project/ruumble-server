@@ -77,12 +77,19 @@ export function formOf(channel: Pick<Channel, "name" | "description">, maxUsers:
 
 /** what keeps the form from being saved; the name must be unique among its siblings, as Mumble wants it */
 export function formProblem(form: ChannelForm, channel: Pick<Channel, "id" | "parent">, channels: readonly Pick<Channel, "id" | "parent" | "name">[]): FormProblem | null {
-  const name = form.name.trim();
-  if (!name) return "name-empty";
-  const taken = channels.some((c) => c.id !== channel.id && c.parent === channel.parent && c.name.trim().toLowerCase() === name.toLowerCase());
-  if (taken) return "name-taken";
+  const name = nameProblem(form.name, channel.parent ?? -1, channels, channel.id);
+  if (name) return name === "empty" ? "name-empty" : "name-taken";
   if (!Number.isInteger(form.maxUsers) || form.maxUsers < 0) return "max-users";
   return null;
+}
+
+export type NameProblem = "empty" | "taken";
+
+/** a room's name on its floor: not empty and not used by another room there (Mumble refuses the same name twice) */
+export function nameProblem(name: string, parentId: number, channels: readonly Pick<Channel, "id" | "parent" | "name">[], self?: number): NameProblem | null {
+  const n = name.trim().toLowerCase();
+  if (!n) return "empty";
+  return channels.some((c) => c.parent === parentId && c.id !== self && c.name.trim().toLowerCase() === n) ? "taken" : null;
 }
 
 /** only what changed; an unchanged description is not sent, so an old HTML one stays as it is */

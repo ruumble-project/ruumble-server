@@ -2,7 +2,7 @@
   import Unplug from "@lucide/svelte/icons/unplug";
   import { untrack } from "svelte";
   import type { MockAdapter } from "./lib/adapter/mock.ts";
-  import { FEW_ROOMS, ownPlace } from "./lib/model/building.ts";
+  import { FEW_ROOMS, ownPlace, spaceKind } from "./lib/model/building.ts";
   import { floatSide } from "./lib/model/float.ts";
   import type { RuumbleState } from "./lib/state.svelte.ts";
   import DebugPanel from "./lib/ui/DebugPanel.svelte";
@@ -192,7 +192,7 @@
     {#if app.helpOpen}<ShortcutsDialog onclose={() => (app.helpOpen = false)} />{/if}
     {#if app.editChannelId !== null}
       {@const editing = app.snapshot?.channels.find((c) => c.id === app.editChannelId)}
-      {#if editing}<RoomEditDialog {app} channel={editing} kind={editing.parent === 0 ? "floor" : "room"} />{/if}
+      {#if editing}<RoomEditDialog {app} channel={editing} kind={spaceKind(building, editing.id)} />{/if}
     {/if}
     {#if app.overviewOpen && building}<BuildingOverview {app} {building} />{/if}
     <!-- Ruumble in a box (#10): the room's log inside Ruumble Client, the quiet words wherever one is paired -->

@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { inBuildingOrder, moved, nameProblem, positionChanges } from "../src/lib/care/rooms.ts";
+import { inBuildingOrder, moved, positionChanges } from "../src/lib/care/rooms.ts";
+import { nameProblem } from "../src/lib/model/roomEdit.ts";
 
 describe("rooms in the floor care (client#12)", () => {
   it("rows follow the floor plan; rooms the building does not show come last", () => {

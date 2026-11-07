@@ -361,6 +361,11 @@ export function ownPlace(building: Building, snapshot: Snapshot): { name: string
   return { name, people: inChannel };
 }
 
+/** whether a channel is a floor (its corridor or open floor) or a room: for the room setup's titles and fields */
+export function spaceKind(building: Building | null, channelId: number): "floor" | "room" {
+  return building?.floors.some((f) => f.channelId === channelId) ? "floor" : "room";
+}
+
 /** Which floor is shown at start or on “Go to my floor”: your own, otherwise the first displayable one. */
 export function homeFloor(building: Building): Floor | null {
   const own = building.floors.find((f) => f.isSelf);

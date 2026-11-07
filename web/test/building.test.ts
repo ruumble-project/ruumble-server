@@ -12,6 +12,7 @@ import {
   countText,
   floorLabels,
   homeFloor,
+  spaceKind,
   ownPlace,
   ownBand,
   initials,
@@ -367,3 +368,11 @@ describe("fitPeople", () => {
   });
 });
 
+describe("spaceKind", () => {
+  it("a floor channel is a floor, anything else a room", () => {
+    const b = buildBuilding(snapshot([ch(0, null, "Root"), ch(1, 0, "1F"), ch(2, 1, "Office")]));
+    expect(spaceKind(b, 1)).toBe("floor");
+    expect(spaceKind(b, 2)).toBe("room");
+    expect(spaceKind(null, 1)).toBe("room");
+  });
+});

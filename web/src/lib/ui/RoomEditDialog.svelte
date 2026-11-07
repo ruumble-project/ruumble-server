@@ -6,14 +6,13 @@
   import { applied, changesOf, formOf, formProblem, type ChannelForm } from "../model/roomEdit.ts";
   import type { RuumbleState } from "../state.svelte.ts";
   import { showModal } from "./modal.ts";
+  import { pollUntil } from "../poll.ts";
 
   // Ruumble's edit dialog for a room or floor (#15): name, description in Markdown (stored as plain text with the
   // marker line, never as HTML), maximum users. The change goes through Ruumble Client to Mumble; the dialog waits
   // until the client's channel shows it, then closes. Password, position and ACL stay in Mumble.
   let { app, channel, kind }: { app: RuumbleState; channel: Channel; kind: "room" | "floor" } = $props();
 
-  const WAIT_MS = 6000;
-  const POLL_MS = 300;
 
   let dialog: HTMLDialogElement;
   $effect(() => showModal(dialog, () => close()));
@@ -56,14 +55,11 @@
       error = t().roomEdit.notSent;
       return;
     }
-    for (let waited = 0; waited < WAIT_MS; waited += POLL_MS) {
-      await new Promise((r) => setTimeout(r, POLL_MS));
+    const shown = await pollUntil(async () => {
       const now = await app.desk.channelProperties(channel.id);
-      if (now && applied(sent, result.descriptionHash, now)) {
-        close();
-        return;
-      }
-    }
+      return !!now && applied(sent, result.descriptionHash, now);
+    }, 6000, 300);
+    if (shown) return close();
     busy = false;
     error = t().roomEdit.notApplied;
   }

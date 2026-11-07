@@ -12,6 +12,7 @@ import { t } from "./i18n/index.svelte.ts";
 import type { BoardSide } from "./model/float.ts";
 import { avatarUrlOf, buildBuilding, homeFloor, type BuildOptions, type Building, type Floor, type Room } from "./model/building.ts";
 import { listenBlock, listeningToEnd } from "./model/listening.ts";
+import { pollUntil } from "./poll.ts";
 import { entrants, newPostAuthors } from "./notices/model.ts";
 import { NoticeCenter } from "./notices/center.svelte.ts";
 import { ChatState } from "./chat/state.svelte.ts";
@@ -634,22 +635,14 @@ export class RuumbleState {
   /** busy with a change of the floor's rooms in Mumble */
   roomsBusy = $state(false);
 
-  /** waits until the snapshot shows what was asked of Mumble; false after `ms` (refused, or no permission) */
-  private async until(seen: (s: Snapshot) => boolean, ms = 6000): Promise<boolean> {
-    for (let waited = 0; waited <= ms; waited += 200) {
-      if (this.snapshot && seen(this.snapshot)) return true;
-      await new Promise((r) => setTimeout(r, 200));
-    }
-    return false;
-  }
-
   /** runs a change of the floor's rooms: sends it, waits for the snapshot, then reloads the floor care */
   private async roomsChange(send: () => Promise<boolean>, seen: (s: Snapshot) => boolean, done: string): Promise<boolean> {
     if (this.roomsBusy) return false;
     this.roomsBusy = true;
     this.careMessage = null;
     this.careError = null;
-    const ok = (await send()) && (await this.until(seen));
+    // done once the snapshot shows what was asked of Mumble
+    const ok = (await send()) && (await pollUntil(() => !!this.snapshot && seen(this.snapshot)));
     this.roomsBusy = false;
     if (!ok) {
       this.setNotice({ text: t().care.roomsRefused });
@@ -705,21 +698,23 @@ export class RuumbleState {
     if (!gone || !withData) return gone;
     // the clean-up only takes rooms the service already counts as gone: wait until the floor care lists it there; a room
     // without a board never shows up there, then there is nothing to delete
-    for (let attempt = 0; attempt < 12; attempt++) {
+    let attempts = 0;
+    let deleted = false;
+    await pollUntil(async () => {
+      attempts++;
       const floor = await this.adapter.care.floor(floorId);
-      if (floor.ok && floor.value.orphans.some((o) => o.channelId === channelId)) {
-        const r = await this.adapter.care.cleanFloor(floorId, [channelId]);
-        if (!r.ok) break;
-        this.careMessage = t().care.roomDeleted(name);
-        await this.loadCare();
+      if (!floor.ok) return false;
+      if (floor.value.orphans.some((o) => o.channelId === channelId)) {
+        deleted = (await this.adapter.care.cleanFloor(floorId, [channelId])).ok;
         return true;
       }
-      if (floor.ok && !floor.value.rooms.some((x) => x.channelId === channelId) && attempt >= 2) {
-        this.careMessage = t().care.roomDeleted(name);
-        await this.loadCare();
-        return true;
-      }
-      await new Promise((res) => setTimeout(res, 500));
+      deleted = attempts > 2 && !floor.value.rooms.some((x) => x.channelId === channelId);
+      return deleted;
+    }, 5500, 500);
+    if (deleted) {
+      this.careMessage = t().care.roomDeleted(name);
+      await this.loadCare();
+      return true;
     }
     this.setNotice({ text: t().care.roomDataKept(name) });
     await this.loadCare();

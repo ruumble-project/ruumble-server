@@ -2,7 +2,8 @@
   import type { FloorCare } from "@ruumble/protocol";
   import { formatSize, relativeTime } from "../../board/model.ts";
   import { purgeDays } from "../../care/model.ts";
-  import { inBuildingOrder, nameProblem } from "../../care/rooms.ts";
+  import { inBuildingOrder } from "../../care/rooms.ts";
+  import { nameProblem } from "../../model/roomEdit.ts";
   import { t } from "../../i18n/index.svelte.ts";
   import type { RuumbleState } from "../../state.svelte.ts";
   import type { ConfirmRequest } from "./CareShell.svelte";
