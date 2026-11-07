@@ -123,9 +123,12 @@
     stroke: var(--color-blue-300); stroke-width: 1.5; stroke-dasharray: 69.12; stroke-dashoffset: 43.78;
     transition: stroke-dashoffset 150ms var(--ease-out), stroke var(--dur) var(--ease-out);
   }
-  .door .ear { stroke: var(--color-blue-500); stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; opacity: 0; transition: opacity 150ms var(--ease-out); }
+  .door .ear {
+    stroke: var(--color-blue-500); stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; opacity: 0;
+    transform-box: fill-box; transform-origin: center; transition: opacity 150ms var(--ease-out), transform 150ms var(--ease-out);
+  }
   /* the mirrored door would turn the ear upside down */
-  .door-spot.lower .ear { transform-box: fill-box; transform-origin: center; transform: scaleY(-1); }
+  .door-spot.lower .ear { transform: scaleY(-1); }
   .door.closed .leaf { transform: none; stroke: var(--color-blue-500); stroke-width: 3; stroke-linecap: butt; }
   .door.closed .swing { stroke-dashoffset: 69.12; }
   /* listening: 45°, the swing line stronger */
@@ -141,10 +144,11 @@
   .door-button:hover .door.ajar .swing, .door-button:focus-visible .door.ajar .swing { stroke-dashoffset: 34.56; }
   .door-button:hover .door.ajar .ear, .door-button:focus-visible .door.ajar .ear { opacity: 0.45; }
   /* an open door swings back a little: a click closes it */
-  /* an open door swings back to ajar, the swing line with it: a click closes it */
-  .door-button:hover .door.open .leaf, .door-button:focus-visible .door.open .leaf { transform: rotate(-33deg); }
-  .door-button:hover .door.open .swing, .door-button:focus-visible .door.open .swing { stroke-dashoffset: 43.78; }
-  .door-button:hover .door.open .ear, .door-button:focus-visible .door.open .ear { opacity: 0.45; }
+  /* an open door stays as it is; its ear grows and glows: here you listen, a click ends it */
+  .door-button:hover .door.open .ear, .door-button:focus-visible .door.open .ear {
+    transform: scale(1.35); stroke: var(--color-link); filter: drop-shadow(0 0 2px var(--color-sky));
+  }
+  .door-spot.lower.door-button:hover .door.open .ear, .door-spot.lower.door-button:focus-visible .door.open .ear { transform: scale(1.35, -1.35); }
   .door-button.pending .door.ajar .leaf { transform: rotate(-45deg); }
   .door-button.pending .door.ajar .swing { stroke-dashoffset: 34.56; }
 
