@@ -6,6 +6,8 @@ All notable changes to Ruumble. The service and the web UI share one version; th
 
 ## [Unreleased]
 
+## [0.40.0] - 2026-11-07
+
 Plugin 0.5.0 (unchanged). Inside Ruumble Client you can listen in on another room of your floor through its door, with a volume per room, and choose how you transmit (push to talk with the microphone as the talk key). Room descriptions are always Markdown now. Nothing to do when updating; listening in and the transmit menu need the matching Ruumble Client.
 
 ### Changed
@@ -517,6 +519,7 @@ Plugin 0.1.0 to 0.2.0.
 - Real Mumble avatars and presence (quiet, away, recording).
 - Docker image with the plugin bundle served under `/download`.
 
+[0.40.0]: https://github.com/ruumble-project/ruumble-server/releases/tag/v0.40.0
 [0.39.0]: https://github.com/ruumble-project/ruumble-server/releases/tag/v0.39.0
 [0.38.0]: https://github.com/ruumble-project/ruumble-server/releases/tag/v0.38.0
 [0.37.0]: https://github.com/ruumble-project/ruumble-server/releases/tag/v0.37.0
