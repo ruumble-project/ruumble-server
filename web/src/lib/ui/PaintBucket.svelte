@@ -1,11 +1,10 @@
 <script lang="ts">
   // the paint bucket in a room, next to the plant: room setup (Ruumble Client, Mumble Write), only for whoever may
   // set the room up. Drawn on the plant's grid (viewBox 30 x 36, floor at y = 34), so both stand on the same floor.
-  // `subtle`: small and pale like the plant; full colour where the button around it is hovered
-  let { size = 26, subtle = false }: { size?: number; subtle?: boolean } = $props();
+  let { size = 26 }: { size?: number } = $props();
 </script>
 
-<svg class="bucket" class:subtle width={size} height={Math.round(size * 1.2)} viewBox="0 0 30 36" aria-hidden="true">
+<svg class="bucket" width={size} height={Math.round(size * 1.2)} viewBox="0 0 30 36" aria-hidden="true">
   <path d="M6 19 V33 Q6 34 7 34 H21 Q22 34 22 33 V19 Z" class="tin" />
   <path d="M6 23.5 A8 2.2 0 0 0 22 23.5" class="band" />
   <rect x="8" y="23" width="1.4" height="9" rx="0.7" class="shine" />
@@ -27,8 +26,6 @@
 
 <style>
   .bucket { display: block; overflow: visible; filter: drop-shadow(0 1px 1.5px rgb(0 0 0 / 0.18)); transition: opacity var(--dur) var(--ease-out), filter var(--dur) var(--ease-out); }
-  .bucket.subtle { opacity: 0.55; filter: saturate(0.6); }
-  :global(.furnish:hover) .bucket.subtle, :global(.furnish:focus-visible) .bucket.subtle { opacity: 1; filter: drop-shadow(0 1px 1.5px rgb(0 0 0 / 0.18)); }
   .tin { fill: var(--color-steel); stroke: var(--color-ink); stroke-width: 1; stroke-linejoin: round; }
   .band { fill: none; stroke: var(--color-ink); stroke-width: 0.6; opacity: 0.3; }
   .shine { fill: #fff; opacity: 0.6; }

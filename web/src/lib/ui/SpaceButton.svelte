@@ -143,7 +143,7 @@
   const boardFresh = $derived(!boardOpen && boardUnseen > 0);
   const boardLabel = $derived(boardOpen ? t().board.hide : boardFresh ? t().board.showUnseen(boardUnseen) : t().board.show);
   const disabled = $derived((space.locked && !space.isSelf) || readonly);
-  // the plant: decoration for everyone, a button for whoever may tend the stored data here
+  // the plant: a button in full colour for whoever may tend the stored data here, pale decoration for everyone else
   const tendable = $derived(space.canTend && !readonly && !!ontend);
   const tendLabel = $derived(variant === "room" ? t().care.roomPlant(space.name) : t().care.floorPlant(space.name));
   // the paint bucket next to the plant: room setup for whoever may set this room up. Its place is kept in every room
@@ -340,13 +340,13 @@
 {/snippet}
 {#snippet plant()}
   {#if tendable}
-    <button type="button" class="plant-spot plant-{variant} tend" aria-label={tendLabel} title={tendLabel} onclick={ontend}><Plant size={variant === "room" ? 30 : 26} subtle /></button>
+    <button type="button" class="plant-spot plant-{variant} tend" aria-label={tendLabel} title={tendLabel} onclick={ontend}><Plant size={variant === "room" ? 30 : 26} /></button>
   {:else}
     <span class="plant-spot plant-{variant}"><Plant size={variant === "room" ? 30 : 26} subtle /></span>
   {/if}
 {/snippet}
 {#if furnishable}
-  <button type="button" class="bucket-spot furnish" aria-label={furnishLabel} title={furnishLabel} onclick={onfurnish}><PaintBucket subtle /></button>
+  <button type="button" class="bucket-spot furnish" aria-label={furnishLabel} title={furnishLabel} onclick={onfurnish}><PaintBucket /></button>
 {/if}
 {#if variant === "room"}
   <!-- the door at the corridor wall (outside the room's button: inside Ruumble Client it is a button of its own, #19) -->

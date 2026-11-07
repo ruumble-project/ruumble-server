@@ -23,4 +23,5 @@ In Ruumble Client, rooms you may set up now have a small paint bucket next to th
 
 ## Better
 
+- Plants you can look after and the paint bucket are now shown in full colour. Plants stay pale only where they are just decoration. ![server update](https://img.shields.io/badge/-server%20update-e67e22)
 - When you go into a room you are listening in on, listening stops while you are inside. Leave the room again and you are back to listening in, at the same volume. ![server update](https://img.shields.io/badge/-server%20update-e67e22)

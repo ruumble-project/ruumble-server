@@ -103,8 +103,8 @@
       <!-- the same action twice: only the left one is a stop for the keyboard and screen readers -->
       <button type="button" class="porch right tend" tabindex="-1" aria-hidden="true" title={t().care.buildingPlant} onclick={ontend}><Plant size={36} /></button>
     {:else}
-      <span class="porch left" aria-hidden="true"><Plant size={36} /></span>
-      <span class="porch right" aria-hidden="true"><Plant size={36} /></span>
+      <span class="porch left" aria-hidden="true"><Plant size={36} subtle /></span>
+      <span class="porch right" aria-hidden="true"><Plant size={36} subtle /></span>
     {/if}
   </div>
   <div class="ground-line" aria-hidden="true"></div>

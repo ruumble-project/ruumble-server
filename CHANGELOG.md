@@ -8,6 +8,7 @@ All notable changes to Ruumble. The service and the web UI share one version; th
 
 ### Changed
 
+- **Plant and paint bucket in full colour where they work:** a plant one may tend and the paint bucket are drawn in full colour; only a plant that is mere decoration (no Mumble Write) stays pale, also at the entrance of the building overview. Before, every plant and the bucket were pale until hovered (#20)
 - **Listening in resumes after a visit (Ruumble Client):** entering a room one listens to still ends listening, but only while inside: leaving it for another room or the corridor of the same floor listens in again, at the volume Mumble kept. Nothing shows the pause, neither for the user nor for the others. A floor change, "Stop all" or a room that can no longer be listened to forget it (#22)
 
 ### Added
