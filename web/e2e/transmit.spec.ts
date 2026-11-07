@@ -154,3 +154,17 @@ test("the bar lights up whenever Mumble transmits, and the menu says where the k
   await page.getByRole("button", { name: /More audio settings/ }).click();
   expect((await calls(page)).filter((c) => c[0] === "setPttOption" || c[0] === "settings")).toEqual([["setPttOption", "doublePush", true], ["settings"]]);
 });
+
+test("a key that works only in the window stays held while the client reports transmitting and the level", async ({ page }) => {
+  await asClient(page, { mode: "ptt", key: { ...RIGHT_CTRL, scope: "window" } });
+  await page.goto("/?fixture=sample&talking=0");
+  await expect(page.getByRole("button", { name: /^Hold to talk/ })).toBeVisible();
+  await page.keyboard.down("ControlRight");
+  const report = (changes: object) => page.evaluate((c) => (window as unknown as { deskTransmit: (c: object) => void }).deskTransmit(c), changes);
+  await report({ transmitting: true, micLevel: 0.4 });
+  await report({ micLevel: 0.7 });
+  await report({ micLevel: 0.2 });
+  expect((await calls(page)).filter((c) => c[0] === "pushToTalk")).toEqual([["pushToTalk", true]]);
+  await page.keyboard.up("ControlRight");
+  expect((await calls(page)).filter((c) => c[0] === "pushToTalk")).toEqual([["pushToTalk", true], ["pushToTalk", false]]);
+});

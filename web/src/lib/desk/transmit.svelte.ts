@@ -41,6 +41,8 @@ export interface TransmitObject {
   setPttOption(name: string, value: unknown, callback?: (ok: boolean) => void): void;
 }
 
+const sameJson = (a: unknown, b: unknown) => JSON.stringify(a) === JSON.stringify(b);
+
 export function hasTransmit(desk: object): desk is TransmitObject {
   const d = desk as Partial<TransmitObject>;
   return typeof d.transmitMode === "string" && typeof d.pushToTalk === "function" && typeof d.captureKey === "function";
@@ -83,8 +85,13 @@ export class DeskTransmit {
     this.transmitting = d.transmitting === true;
     this.level = parseLevel(d.micLevel);
     this.latched = d.latched === true;
-    this.key = parseKey(d.pttKey);
-    this.options = parseOptions(d.pttOptions);
+    // every signal reads everything (the level fires up to 20 times a second): the key and the options are replaced
+    // only when they really changed, else whatever depends on them starts over (the key watch in the window let go
+    // of a held key as soon as the client reported that the user transmits)
+    const key = parseKey(d.pttKey);
+    if (!sameJson(key, this.key)) this.key = key;
+    const options = parseOptions(d.pttOptions);
+    if (!sameJson(options, this.options)) this.options = options;
     if (this.mode !== "ptt") this.letGo();
   }
 
