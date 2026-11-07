@@ -88,8 +88,12 @@
 {/if}
 
 {#if open && interactive && onvolume && listen}
+  <!-- one element of its own around the tag and its popup: the popup moves under <body>, and Svelte removes a block as
+       the run of nodes from its first to its last; without the wrapper that run went on into the room's other parts
+       (the plant and the tag were gone after listening ended) -->
+  <span class="volume-spot" class:lower>
   <button
-    bind:this={tag} type="button" class="volume-tag" class:lower aria-label={t().listen.volumeOf(room)} title={t().listen.volumeOf(room)}
+    bind:this={tag} type="button" class="volume-tag" aria-label={t().listen.volumeOf(room)} title={t().listen.volumeOf(room)}
     aria-expanded={volumeOpen} aria-controls={popoverId} popovertarget={popoverId}
   >
     <Volume1 size={15} aria-hidden="true" />
@@ -99,6 +103,7 @@
     <ListenVolume {room} volume={listen.volume} {onvolume} />
     <button type="button" class="stop" onclick={stop}>{t().listen.stop(room)}</button>
   </div>
+  </span>
 {/if}
 
 <style>
@@ -156,13 +161,16 @@
     .door .leaf, .door .swing, .door .ear { transition: none; }
   }
 
-  /* the volume tag beside the open door, in the door strip */
+  /* the volume tag beside the open door, in the door strip: only while the pointer is over the room (or the tag has
+     the keyboard focus or its popup open), so the floor plan stays calm */
+  .volume-spot { position: absolute; left: 84px; bottom: 6px; z-index: 2; display: block; line-height: 0; }
+  .volume-spot.lower { bottom: auto; top: 6px; }
   .volume-tag {
-    position: absolute; left: 84px; bottom: 6px; z-index: 2; width: 30px; height: 30px; padding: 0; display: grid; place-items: center;
+    opacity: 0; pointer-events: none; width: 30px; height: 30px; padding: 0; display: grid; place-items: center;
     border: 1.5px solid var(--color-blue-300); border-radius: 50%; background: var(--color-paper); color: var(--color-blue-700); cursor: pointer;
-    transition: transform var(--dur) var(--ease-out);
+    transition: transform var(--dur) var(--ease-out), opacity var(--dur) var(--ease-out);
   }
-  .volume-tag.lower { bottom: auto; top: 6px; }
+  :global(.wrap-room:hover) .volume-tag, .volume-tag:focus-visible, .volume-tag[aria-expanded="true"] { opacity: 1; pointer-events: auto; }
   .volume-tag:hover, .volume-tag[aria-expanded="true"] { transform: scale(1.08); border-color: var(--color-blue-500); }
   .volume-tag:focus-visible { outline: 3px solid var(--color-sky); outline-offset: 1px; }
 

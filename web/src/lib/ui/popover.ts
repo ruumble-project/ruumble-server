@@ -6,7 +6,11 @@
  * as position: fixed in place, where a transformed or scrolling ancestor would become their containing block.
  */
 
-/** attachment: moves the popup under <body> for as long as it exists */
+/**
+ * attachment: moves the popup under <body> for as long as it exists. Keep the popup and its button inside an element
+ * of their own: Svelte removes a block as the run of nodes from its first to its last, and with the popup moved away
+ * that run would go on into the siblings that follow.
+ */
 export function toBody(node: HTMLElement): () => void {
   document.body.appendChild(node);
   return () => node.remove();

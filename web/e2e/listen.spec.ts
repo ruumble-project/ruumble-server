@@ -165,3 +165,25 @@ test("in a browser a click on the door's spot still belongs to the room: a doubl
   await page.mouse.dblclick(box.x + box.width / 2, box.y + box.height / 2);
   await expect(page.getByRole("button", { name: /Menu of Retrospective$/ })).toBeVisible();
 });
+
+test("the volume tag shows only while hovering a room one listens to, also after listening again", async ({ page }) => {
+  await asDesk(page);
+  await page.goto("/?fixture=sample&talking=0");
+  const tag = page.getByRole("button", { name: "Volume for Let's play" });
+  const room = page.locator('[data-channel="4"]');
+  for (let round = 0; round < 2; round++) {
+    await door(page, "Let's play").click();
+    await expect(door(page, "Let's play")).toHaveAttribute("aria-pressed", "true");
+    await page.mouse.move(700, 800); // over another room
+    await expect(tag).toHaveCSS("opacity", "0");
+    await room.hover();
+    await expect(tag).toHaveCSS("opacity", "1");
+    await tag.click();
+    await expect(page.getByRole("dialog", { name: "Volume for Let's play" })).toBeVisible();
+    await page.getByRole("button", { name: "Stop listening to Let's play" }).last().click();
+    await expect(door(page, "Let's play")).toHaveAttribute("aria-pressed", "false");
+    await expect(tag).toHaveCount(0);
+  }
+  // nothing else of the room went with it
+  await expect(page.locator('[data-channel="4"]').locator("..").locator(".plant-spot")).toHaveCount(1);
+});
