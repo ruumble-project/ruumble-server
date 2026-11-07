@@ -6,6 +6,10 @@ All notable changes to Ruumble. The service and the web UI share one version; th
 
 ## [Unreleased]
 
+### Changed
+
+- **Listening in resumes after a visit (Ruumble Client):** entering a room one listens to still ends listening, but only while inside: leaving it for another room or the corridor of the same floor listens in again, at the volume Mumble kept. Nothing shows the pause, neither for the user nor for the others. A floor change, "Stop all" or a room that can no longer be listened to forget it (#22)
+
 ### Added
 
 - **Who is listening in, for everyone:** a person listening in on a room stands in it as a guest after the people present: their avatar with a dashed ring on a pale ground, an ear and the name in italics, not counted in the occupancy and no drop target; hovering shows their person card. The door of a room someone listens to stands open (45°) for everyone, without the own ear and glow. A listener's own avatar carries an ear with the rooms in its tooltip, and the ear at the door plate names the listeners instead of counting them. Data from Ice as before, no protocol change (#21)

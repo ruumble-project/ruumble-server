@@ -43,6 +43,26 @@ export function listeningToEnd(building: Building, listening: readonly number[])
   });
 }
 
+/**
+ * Rooms whose listening paused while the own user is inside (#22): entering a room one listens to ends listening,
+ * leaving it again starts it anew. `resume`: left, and it may be listened to again; `forget`: left for another floor,
+ * or it can no longer be listened to. Rooms the own user is still in stay paused.
+ */
+export function pausedListening(building: Building, paused: readonly number[]): { resume: number[]; forget: number[] } {
+  const floorId = ownFloorId(building);
+  const floor = building.floors.find((f) => f.channelId === floorId);
+  const resume: number[] = [];
+  const forget: number[] = [];
+  if (!building.self) return { resume, forget };
+  for (const channel of paused) {
+    const room = floor?.rooms.find((r) => r.channelId === channel);
+    if (room?.isSelf) continue;
+    if (floor && room && listenBlock(building, floor, room) === null) resume.push(channel);
+    else forget.push(channel);
+  }
+  return { resume, forget };
+}
+
 /** a volume in dB as the slider shows it: within its range, whole steps; anything else is the start value */
 export function clampVolume(db: unknown): number {
   if (typeof db !== "number" || !Number.isFinite(db)) return LISTEN_VOLUME.start;

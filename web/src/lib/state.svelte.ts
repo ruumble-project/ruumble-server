@@ -11,7 +11,7 @@ import { clientUpdate } from "./desk/update.ts";
 import { t } from "./i18n/index.svelte.ts";
 import type { BoardSide } from "./model/float.ts";
 import { avatarUrlOf, buildBuilding, homeFloor, type BuildOptions, type Building, type Floor, type Room } from "./model/building.ts";
-import { listenBlock, listeningToEnd } from "./model/listening.ts";
+import { listenBlock, listeningToEnd, pausedListening } from "./model/listening.ts";
 import { pollUntil } from "./poll.ts";
 import { entrants, newPostAuthors } from "./notices/model.ts";
 import { NoticeCenter } from "./notices/center.svelte.ts";
@@ -303,12 +303,24 @@ export class RuumbleState {
     return { open, interactive: !!listen && !this.readonly && (open || allowed), pending: !!listen?.pending.includes(room.channelId), volume: listen?.volumeOf(room.channelId) ?? 0 };
   }
 
-  /** ends listening that breaks the rules: called whenever the building or the listening changes (model/listening.ts) */
+  /**
+   * ends listening that breaks the rules: called whenever the building or the listening changes (model/listening.ts).
+   * Listening to the room the own user just entered only pauses: it starts again once they leave it (#22).
+   */
   enforceListening(): void {
     const listen = this.desk.listen;
     if (!listen || !this.building) return;
+    const self = this.building.self;
     const end = listeningToEnd(this.building, listen.channels).filter((c) => !listen.pending.includes(c));
+    for (const c of end) if (self?.kind === "room" && self.channelId === c) listen.paused.add(c);
     if (end.length) listen.stop(end);
+    const { resume, forget } = pausedListening(this.building, [...listen.paused]);
+    for (const c of forget) listen.paused.delete(c);
+    // a room still waiting for Mumble to end it stays paused: the next pass starts it
+    for (const c of resume.filter((c) => !listen.pending.includes(c))) {
+      listen.paused.delete(c);
+      listen.start(c);
+    }
   }
 
   async join(channelId: number): Promise<void> {

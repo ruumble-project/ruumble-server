@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { Channel, Snapshot, User } from "@ruumble/protocol";
 import { buildBuilding } from "../src/lib/model/building.ts";
-import { clampVolume, LISTEN_VOLUME, listenBlock, listenedRooms, listeningToEnd, ownFloorId } from "../src/lib/model/listening.ts";
+import { clampVolume, LISTEN_VOLUME, listenBlock, listenedRooms, listeningToEnd, ownFloorId, pausedListening } from "../src/lib/model/listening.ts";
 
 const ch = (id: number, parent: number | null, name: string, position = 0): Channel => ({ id, parent, name, position, links: [], temporary: false });
 const user = (session: number, channel: number): User => ({
@@ -60,6 +60,20 @@ describe("Listening in (#19)", () => {
       v: 1, type: "snapshot", server: { name: "HQ", version: "1" }, self: { session: 1 },
       channels: [...channels, ch(15, 11, "Too deep")], users: [user(1, 15)], listeners: {}, canEnter: {},
     }), [14])).toEqual([14]);
+  });
+
+  it("a room paused while the own user is inside resumes once they leave it on the same floor (#22)", () => {
+    // still inside: stays paused
+    expect(pausedListening(building(14), [14])).toEqual({ resume: [], forget: [] });
+    // left for another room or the corridor of the floor: listening starts again
+    expect(pausedListening(building(11), [14])).toEqual({ resume: [14], forget: [] });
+    expect(pausedListening(building(1), [14])).toEqual({ resume: [14], forget: [] });
+    // another floor, the entrance, a room that can no longer be listened to: forgotten
+    expect(pausedListening(building(21), [14])).toEqual({ resume: [], forget: [14] });
+    expect(pausedListening(building(0), [14])).toEqual({ resume: [], forget: [14] });
+    expect(pausedListening(building(11), [12, 13, 99])).toEqual({ resume: [], forget: [12, 13, 99] });
+    // own place unknown: nothing decided yet
+    expect(pausedListening(building(null), [14])).toEqual({ resume: [], forget: [] });
   });
 
   it("nothing ends while the own place is unknown", () => {

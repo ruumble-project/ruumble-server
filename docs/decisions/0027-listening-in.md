@@ -20,6 +20,8 @@ and restored on connect, kept when the user moves, and allowed by its own `Liste
 | **Interfaces** | The service stays read-only (ADR-0002): it reads the `Listen` permission (0x800) via Ice and sends `canListen` in the snapshot (optional, older web UIs ignore it). Switching goes through the `desk` object of Ruumble Client (`startListening`, `stopListening`, `setListeningVolume`, `setListenQuieter`, `listening`, `listeningRefused`); Mumble is not changed. The rules live in the web UI (`web/src/lib/model/listening.ts`). |
 | **Without Ruumble Client** | The browser and older clients show the state (an open door where the own user listens, from Ice) but cannot switch it. |
 
+Current state (#22): entering the room one listens to only pauses listening. It ends in Mumble as before (no guest, no ear while inside), and Ruumble Client starts it again once the user leaves the room for another place on the same floor. A floor change, "Stop all" or a room that can no longer be listened to forget the pause.
+
 Current state (#21): the listeners are no longer anonymous. Everyone sees them as guests in the room they listen to (by name, after the people present, not counted), the door of a room someone listens to stands open for everyone, and a listener's own avatar carries an ear. Mumble lists them by name anyway, and the people in a room should know who hears them.
 
 ## Rejected options

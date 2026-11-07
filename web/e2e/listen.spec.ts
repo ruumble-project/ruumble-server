@@ -202,3 +202,55 @@ test("whoever listens in stands in the room as a guest, for everyone; the door s
   await gotoFloor(page, /Lobby/);
   await expect(page.locator('.person[data-session="3"] .ear')).toHaveAttribute("title", "Listening in on Clara's office");
 });
+
+test("going into the room one listens to pauses listening, unseen; leaving it again listens in anew (#22)", async ({ page }) => {
+  await asDesk(page);
+  await page.goto("/?fixture=sample&talking=0");
+  await door(page, "Let's play").click();
+  await expect(door(page, "Let's play")).toHaveAttribute("aria-pressed", "true");
+  // inside: listening has ended, nothing hints at it
+  await page.locator('[data-channel="4"]').dblclick();
+  await expect(page.getByRole("button", { name: /Menu of Let's play$/ })).toBeVisible();
+  await expect(page.getByRole("button", { name: /^You are listening in/ })).toHaveCount(0);
+  expect((await calls(page)).at(-1)).toEqual(["stop", [4]]);
+  // back into the old room: listening to Let's play starts again
+  await page.locator('[data-channel="3"]').dblclick();
+  await expect(door(page, "Let's play")).toHaveAttribute("aria-pressed", "true");
+  await expect(page.getByRole("button", { name: "You are listening in on 1 room" })).toBeVisible();
+  expect((await calls(page)).filter((c) => (c as unknown[])[0] === "start")).toEqual([["start", 4], ["start", 4]]);
+});
+
+test("on another floor a paused room is forgotten: it does not listen again (#22)", async ({ page }) => {
+  await asDesk(page);
+  await page.goto("/?fixture=sample&talking=0");
+  await door(page, "Let's play").click();
+  await expect(door(page, "Let's play")).toHaveAttribute("aria-pressed", "true");
+  await page.locator('[data-channel="4"]').dblclick();
+  await expect(page.getByRole("button", { name: /Menu of Let's play$/ })).toBeVisible();
+  await gotoFloor(page, /Support/);
+  await page.locator('[data-channel="10"]').dblclick();
+  await expect(page.getByRole("button", { name: /Menu of Office 2$/ })).toBeVisible();
+  await gotoFloor(page, /Development/);
+  await page.locator('[data-channel="3"]').dblclick();
+  await expect(page.getByRole("button", { name: /Menu of Let's talk$/ })).toBeVisible();
+  await expect(door(page, "Let's play")).toHaveAttribute("aria-pressed", "false");
+  expect((await calls(page)).filter((c) => (c as unknown[])[0] === "start")).toHaveLength(1);
+});
+
+test("Stop all also forgets a paused room (#22)", async ({ page }) => {
+  await asDesk(page);
+  await page.goto("/?fixture=sample&talking=0");
+  for (const room of ["Let's play", "Clara's office"]) {
+    await door(page, room).click();
+    await expect(door(page, room)).toHaveAttribute("aria-pressed", "true");
+  }
+  await page.locator('[data-channel="4"]').dblclick();
+  await expect(page.getByRole("button", { name: "You are listening in on 1 room" })).toBeVisible();
+  await page.getByRole("button", { name: "You are listening in on 1 room" }).click();
+  await page.getByRole("button", { name: "Stop all" }).click();
+  await expect(page.getByRole("button", { name: /^You are listening in/ })).toHaveCount(0);
+  await page.locator('[data-channel="3"]').dblclick();
+  await expect(page.getByRole("button", { name: /Menu of Let's talk$/ })).toBeVisible();
+  await expect(door(page, "Let's play")).toHaveAttribute("aria-pressed", "false");
+  expect((await calls(page)).filter((c) => (c as unknown[])[0] === "start")).toHaveLength(2);
+});

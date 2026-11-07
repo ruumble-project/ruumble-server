@@ -42,6 +42,8 @@ export class DeskListen {
   /** rooms whose door was clicked and the server has not answered yet */
   pending = $state<number[]>([]);
 
+  /** rooms whose listening ended because the own user went in: it starts again when they leave (#22); not shown */
+  paused = new Set<number>();
   /** the rooms started from Ruumble: they get the discreet start volume */
   private started = new Set<number>();
   private timers = new Map<number, ReturnType<typeof setTimeout>>();
@@ -101,6 +103,12 @@ export class DeskListen {
   toggle(channel: number): void {
     if (this.pending.includes(channel)) return;
     if (this.isListening(channel)) return this.stop([channel]);
+    this.start(channel);
+  }
+
+  /** listen in on a room (the door, or listening resumed after leaving the room, #22) */
+  start(channel: number): void {
+    if (this.pending.includes(channel) || this.isListening(channel)) return;
     this.started.add(channel);
     this.wait(channel);
     this.desk.startListening(channel);
@@ -114,6 +122,7 @@ export class DeskListen {
   }
 
   stopAll(): void {
+    this.paused.clear();
     this.stop(this.channels);
   }
 

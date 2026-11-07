@@ -20,3 +20,7 @@ When someone listens in on a room, everyone now sees who it is. They stand in th
 ### A paint bucket for setting up a room ![server update](https://img.shields.io/badge/-server%20update-e67e22)
 
 In Ruumble Client, rooms you may set up now have a small paint bucket next to the plant. Click it to change the room's name, description and seats, just like the new "Room setup" tile in the room menu. To make space, the doors sit a little further along the wall, and the plants have grown a bit.
+
+## Better
+
+- When you go into a room you are listening in on, listening stops while you are inside. Leave the room again and you are back to listening in, at the same volume. ![server update](https://img.shields.io/badge/-server%20update-e67e22)
