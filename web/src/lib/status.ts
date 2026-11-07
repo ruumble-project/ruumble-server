@@ -38,6 +38,7 @@ export function personLabel(user: UserView, talking = false, now = Date.now()): 
     talking ? p.talking : null,
     presence === "away" ? p.away : presence === "quiet" ? p.quiet(user.idleMinutes) : null,
     user.recording ? p.recording : null,
+    user.listensIn.length ? p.listensIn(user.listensIn.join(", ")) : null,
     user.usesRuumble ? null : p.withoutRuumble,
     user.status ? statusLabel(user.status, now) : null,
   ]

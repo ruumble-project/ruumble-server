@@ -187,3 +187,18 @@ test("the volume tag shows only while hovering a room one listens to, also after
   // nothing else of the room went with it
   await expect(page.locator('[data-channel="4"]').locator("..").locator(".plant-spot")).toHaveCount(1);
 });
+
+test("whoever listens in stands in the room as a guest, for everyone; the door stands open, their own avatar carries an ear (#21)", async ({ page }) => {
+  await page.goto("/?fixture=edge-cases&talking=0");
+  const clara = page.locator(".wrap-room").filter({ has: page.locator(".plate", { hasText: "Clara's office" }) });
+  const eva = clara.locator(".person.guest");
+  await expect(eva).toHaveCount(1);
+  await expect(eva).toHaveAttribute("aria-label", /^Eva, .*listening in on Clara's office/);
+  await expect(clara.locator(".person:not(.guest)")).toHaveCount(1); // Nils, the only one in the room
+  await expect(clara.locator(".count")).toHaveText("1 person"); // the guest is not counted
+  await expect(clara.getByTitle("Eva is listening in")).toBeVisible();
+  await expect(clara.locator(".door.heard")).toHaveCount(1);
+  await expect(page.locator(".wrap-room .door.heard")).toHaveCount(1); // no other door opens
+  await gotoFloor(page, /Lobby/);
+  await expect(page.locator('.person[data-session="3"] .ear')).toHaveAttribute("title", "Listening in on Clara's office");
+});

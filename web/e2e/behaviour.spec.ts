@@ -138,7 +138,7 @@ test.describe("Edge cases", () => {
   test("entrance, lock, listeners, status icons", async ({ page }) => {
     await expect((await elevator(page)).getByRole("region", { name: "Entrance" }).getByRole("img")).toHaveCount(2);
     await page.keyboard.press("Escape");
-    await expect(page.getByTitle("1 person is listening")).toBeVisible();
+    await expect(page.getByTitle("Eva is listening in")).toBeVisible();
     await expect(page.getByRole("img", { name: "Nils, muted by the server" })).toBeVisible();
     await expect(page.getByTitle("Muted by the server", { exact: true })).toHaveCount(2); // Nils (suppressed), Mia (server mute)
     await gotoFloor(page, "Ground floor: Lobby");

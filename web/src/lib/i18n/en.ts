@@ -37,6 +37,8 @@ export const en: Messages = {
     count: (n) => (n === 0 ? "free" : plural(n, "1 person", `${n} people`)),
     you: "you",
     listening: (n) => plural(n, "1 person is listening", `${n} people are listening`),
+    listeningNames: (n, names) => plural(n, `${names} is listening in`, `${names} are listening in`),
+    listensIn: (rooms) => `listening in on ${rooms}`,
     deaf: "deafened",
     muted: "muted",
     serverMuted: "muted by the server",

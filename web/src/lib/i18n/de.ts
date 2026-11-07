@@ -32,6 +32,10 @@ export const de = {
     count: (n: number) => (n === 0 ? "frei" : plural(n, "1 Person", `${n} Personen`)),
     you: "du",
     listening: (n: number) => plural(n, "1 Person hört mit", `${n} Personen hören mit`),
+    /** who listens in on a room (#21), on the ear at the door plate */
+    listeningNames: (n: number, names: string) => plural(n, `${names} hört mit`, `${names} hören mit`),
+    /** a person who listens in somewhere (#21): the ear on their avatar */
+    listensIn: (rooms: string) => `hört mit in ${rooms}`,
     deaf: "taub",
     muted: "stumm",
     serverMuted: "vom Server stummgeschaltet",

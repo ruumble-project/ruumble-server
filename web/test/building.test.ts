@@ -187,6 +187,26 @@ describe("Edge cases", () => {
     expect(onFloors + b.entrance.length).toBe(13 - 4); // Gregor + Hanna (Kitchen↔Coffee corner), Lena (Guest office) and Karl (below a room) are hidden
   });
 
+  it("the people listening in: by name as guests of the room, an ear on their own avatar (#21)", () => {
+    const clara = floor("DEVELOPMENT")!.rooms.find((r) => r.name === "Clara's office")!;
+    expect(clara.listening.map((u) => u.name)).toEqual(["Eva"]);
+    expect(clara.users.map((u) => u.name)).toEqual(["Nils"]); // a guest is not counted among the people present
+    expect(floor("Lobby")!.corridor.users.find((u) => u.name === "Eva")?.listensIn).toEqual(["Clara's office"]);
+    expect(floor("Lobby")!.corridor.users.find((u) => u.name === "Ben")?.listensIn).toEqual([]);
+  });
+
+  it("listening in: names sorted, unknown sessions and the own channel left out, several rooms per person", () => {
+    const b = buildBuilding(
+      snapshot([ch(0, null, "HQ"), ch(1, 0, "Floor"), ch(2, 1, "Room B"), ch(3, 1, "Room A")], [user(1, "Zoe", 1), user(2, "Adam", 2)], 1, {
+        listeners: { "2": [1, 2, 99], "3": [1], "77": [1] },
+      }),
+    );
+    const [roomB, roomA] = [b.floors[0]!.rooms.find((r) => r.name === "Room B")!, b.floors[0]!.rooms.find((r) => r.name === "Room A")!];
+    expect(roomB.listening.map((u) => u.name)).toEqual(["Zoe"]);
+    expect(roomA.listening.map((u) => u.name)).toEqual(["Zoe"]);
+    expect(b.floors[0]!.corridor.users[0]).toMatchObject({ name: "Zoe", isSelf: true, listensIn: ["Room A", "Room B"] });
+  });
+
   it("listeners, lock and user status", () => {
     expect(floor("DEVELOPMENT")!.rooms.find((r) => r.name === "Clara's office")?.listeners).toEqual([3]);
     expect(floor("SALES")!.rooms.find((r) => r.name === "Gregor's office")?.locked).toBe(true);

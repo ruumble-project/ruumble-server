@@ -4,6 +4,7 @@
   // Inside Ruumble Client, on the own floor, it is a button: a click opens it (listen in) or closes it again. Hovering
   // the room strengthens its swing line a little; hovering the door swings the leaf a bit further and shows a faint
   // ear. While open, a small tag beside it opens the volume. Elsewhere it is only the drawing it always was.
+  // Someone else listening in stands the door open for everyone, without the ear (#21).
   import Volume1 from "@lucide/svelte/icons/volume-1";
   import type { ListenView } from "../../state.svelte.ts";
   import ListenVolume from "./ListenVolume.svelte";
@@ -11,12 +12,14 @@
   import { placeNear, swallowClickBeside, toBody } from "../popover.ts";
 
   let {
-    room, channelId, closed, lower, listen, ontoggle, onvolume,
+    room, channelId, closed, heard = false, lower, listen, ontoggle, onvolume,
   }: {
     room: string;
     channelId: number;
     /** no Enter permission: the door is shut */
     closed: boolean;
+    /** someone listens in on this room (#21): the door stands open for everyone */
+    heard?: boolean;
     /** lower row: the corridor is above, the door mirrored */
     lower: boolean;
     listen?: ListenView;
@@ -25,7 +28,7 @@
   } = $props();
 
   const open = $derived(!!listen?.open);
-  const doorState = $derived(open ? "open" : closed ? "closed" : "ajar");
+  const doorState = $derived(open ? "open" : closed ? "closed" : heard ? "heard" : "ajar");
   const interactive = $derived(!!listen?.interactive);
   const label = $derived(listen?.pending ? t().listen.waiting(room) : open ? t().listen.stop(room) : t().listen.start(room));
 
@@ -140,6 +143,10 @@
   .door.open .leaf { transform: rotate(-45deg); }
   .door.open .swing { stroke-dashoffset: 34.56; stroke: var(--color-blue-500); }
   .door.open .ear { opacity: 1; }
+  /* someone else listens in: open as far, without the own ear */
+  .door.heard .leaf { transform: rotate(-45deg); }
+  .door.heard .swing { stroke-dashoffset: 34.56; stroke: var(--color-blue-500); }
+  .door-button:hover .door.heard .ear, .door-button:focus-visible .door.heard .ear { opacity: 0.45; }
 
   /* hovering the room: the swing line of a door one can open gets a little stronger */
   :global(.wrap-room:hover) .door.hint.ajar .swing { stroke: var(--color-blue-500); }

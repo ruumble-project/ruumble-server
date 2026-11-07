@@ -40,6 +40,8 @@ export interface UserView {
   person: string | null;
   /** status set in Ruumble (B, ADR-0018); `until` null: no expiry */
   status: { text: string; until: number | null } | null;
+  /** names of the channels this person listens in on (#21): an ear on their avatar; empty: none */
+  listensIn: string[];
 }
 
 /** An enterable area: room, corridor or open floor. */
@@ -52,6 +54,8 @@ export interface Space {
   locked: boolean;
   /** Sessions listening here */
   listeners: number[];
+  /** the people listening here, by name (#21): shown to everyone as guests after the people present */
+  listening: UserView[];
   /** Someone in the room is recording (AP10) */
   recording: boolean;
   /** The own user may tend its stored data: the plant is a button (Mumble Write, ADR-0014) */
@@ -238,7 +242,12 @@ export function floorLabels(index: number): { level: string; badge: string } {
 // ---------------------------------------------------------------- Building
 
 /** a user as the web UI shows them; `selfSession`: the own session, null without one */
-export function userViewOf(u: User, selfSession: number | null, avatarUrl: BuildOptions["avatarUrl"] = defaultAvatarUrl): UserView {
+export function userViewOf(
+  u: User,
+  selfSession: number | null,
+  avatarUrl: BuildOptions["avatarUrl"] = defaultAvatarUrl,
+  listensIn: string[] = [],
+): UserView {
   return {
     session: u.session,
     name: u.name,
@@ -255,6 +264,7 @@ export function userViewOf(u: User, selfSession: number | null, avatarUrl: Build
     usesRuumble: u.ruumble ?? false,
     person: u.person ?? null,
     status: u.status ?? null,
+    listensIn,
   };
 }
 
@@ -282,9 +292,26 @@ export function buildBuilding(snapshot: Snapshot, options: BuildOptions = {}): B
 
   const usersIn = new Map<number, User[]>();
   for (const u of snapshot.users) usersIn.set(u.channel, [...(usersIn.get(u.channel) ?? []), u]);
-  const userView = (u: User): UserView => userViewOf(u, selfSession, avatarUrl);
-  const viewsIn = (id: number) =>
-    (usersIn.get(id) ?? []).slice().sort((a, b) => collator.compare(a.name, b.name)).map(userView);
+  // who listens where (#21): the channel names per session, for the ear on the avatar
+  const channelName = new Map(snapshot.channels.map((c) => [c.id, c.name]));
+  const listensIn = new Map<number, string[]>();
+  for (const [channel, sessions] of Object.entries(snapshot.listeners)) {
+    const name = channelName.get(Number(channel));
+    if (name === undefined) continue;
+    for (const s of sessions) listensIn.set(s, [...(listensIn.get(s) ?? []), name]);
+  }
+  for (const names of listensIn.values()) names.sort(collator.compare);
+  const userView = (u: User): UserView => userViewOf(u, selfSession, avatarUrl, listensIn.get(u.session));
+  const byName = (a: User, b: User) => collator.compare(a.name, b.name);
+  const viewsIn = (id: number) => (usersIn.get(id) ?? []).slice().sort(byName).map(userView);
+  const bySession = new Map(snapshot.users.map((u) => [u.session, u]));
+  /** the people listening in on a channel; sessions no longer on the server are left out */
+  const listeningIn = (id: number) =>
+    (snapshot.listeners[String(id)] ?? [])
+      .map((s) => bySession.get(s))
+      .filter((u): u is User => u !== undefined && u.channel !== id)
+      .sort(byName)
+      .map(userView);
 
   const selfUser = snapshot.users.find((u) => u.session === selfSession);
   const care = new Set(snapshot.care ?? []);
@@ -295,6 +322,7 @@ export function buildBuilding(snapshot: Snapshot, options: BuildOptions = {}): B
     isSelf: selfUser?.channel === c.id,
     locked: snapshot.canEnter[String(c.id)] === false,
     listeners: snapshot.listeners[String(c.id)] ?? [],
+    listening: listeningIn(c.id),
     recording: (usersIn.get(c.id) ?? []).some((u) => u.recording),
     canTend: care.has(c.id),
     description: c.description?.trim() ?? "",

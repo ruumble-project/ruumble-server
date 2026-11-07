@@ -182,7 +182,12 @@
   const NARROW_ROOM = 220;
   const narrow = $derived(variant === "room" && wrapWidth > 0 && wrapWidth <= NARROW_ROOM);
 
-  const fit = $derived(variant === "room" ? fitPeople(space.users, peopleWidth, peopleHeight) : { shown: space.users, hidden: [] });
+  // the people listening in from elsewhere stand after the people present, as guests (#21); they share the room's tiles
+  const guests = $derived(space.listening);
+  const isGuest = (user: UserView) => guests.includes(user);
+  const fit = $derived(
+    variant === "room" ? fitPeople([...space.users, ...guests], peopleWidth, peopleHeight) : { shown: [...space.users, ...guests], hidden: [] },
+  );
   // "entering …" only when Mumble takes a while: a quick move would only make it flicker (the aria-label says it at once)
   const ENTERING_TEXT_AFTER_MS = 600;
   let slow = $state(false);
@@ -198,11 +203,11 @@
 
   // the person card instead of the tooltip: for someone else who uses Ruumble (direct chat, ADR-0021) and for a
   // deafened person in the own room (nudge, ADR-0020); it stays while the pointer moves from the avatar onto the card
-  const nudgeable = (user: UserView) => !!onnudge && !readonly && canNudge(user, space.isSelf);
+  const nudgeable = (user: UserView) => !!onnudge && !readonly && !isGuest(user) && canNudge(user, space.isSelf);
   const chatable = (user: UserView) => !!onchat && !readonly && canChat(user, true);
   const cardable = (user: UserView) => nudgeable(user) || chatable(user);
   let card = $state<{ session: number; anchor: HTMLElement } | null>(null);
-  const cardUser = $derived(card ? space.users.find((u) => u.session === card!.session && cardable(u)) : undefined);
+  const cardUser = $derived(card ? [...space.users, ...guests].find((u) => u.session === card!.session && cardable(u)) : undefined);
   /** a new card waits a moment, so moving across a room does not flash one card after the other */
   const CARD_DELAY_MS = 200;
   let hideTimer: ReturnType<typeof setTimeout> | undefined;
@@ -217,7 +222,7 @@
   }
   function overPerson(e: PointerEvent): void {
     const anchor = (e.target as HTMLElement).closest<HTMLElement>("[data-session]");
-    const user = anchor && space.users.find((u) => u.session === Number(anchor.dataset.session));
+    const user = anchor && [...space.users, ...guests].find((u) => u.session === Number(anchor.dataset.session));
     if (!anchor || !user || !cardable(user)) return;
     keepCard();
     if (card?.anchor === anchor) return;
@@ -237,10 +242,19 @@
   }
 </script>
 
+{#snippet person(user: UserView)}
+  {#if isGuest(user)}
+    <!-- a guest talks in their own room, not here: no talking ring -->
+    <Avatar {user} guest tooltip={!cardable(user)} />
+  {:else}
+    <Avatar {user} {movable} talking={talking[user.session] ?? false} tooltip={!cardable(user)} dropTarget={dropSession === user.session} action={user.isSelf && onself && !readonly ? t().status.clickHint : undefined} />
+  {/if}
+{/snippet}
+
 {#snippet icons()}
   {#if room?.muted}<span class="icon" title={t().space.mutedRoom}><VolumeX size={variant === "room" ? 16 : 18} /></span>{/if}
   {#if space.listeners.length > 0}
-    <span class="icon" title={t().people.listening(space.listeners.length)}><Ear size={variant === "room" ? 16 : 18} /></span>
+    <span class="icon" title={guests.length ? t().people.listeningNames(guests.length, guests.map((u) => u.name).join(", ")) : t().people.listening(space.listeners.length)}><Ear size={variant === "room" ? 16 : 18} /></span>
   {/if}
   {#if space.locked && !space.isSelf}<span class="icon" title={t().space.noAccessTitle}><Lock size={variant === "room" ? 14 : 16} /></span>{/if}
   {#if space.recording}<span class="rec" title={t().space.recording}>{t().space.recordingBadge}</span>{/if}
@@ -275,7 +289,7 @@
     <!-- svelte-ignore a11y_no_static_element_interactions -->
     <span class="people" bind:clientWidth={peopleWidth} bind:clientHeight={peopleHeight} onpointerover={overPerson} onpointerout={dropCard}>
       {#each fit.shown as user (user.session)}
-        <Avatar {user} {movable} talking={talking[user.session] ?? false} tooltip={!cardable(user)} dropTarget={dropSession === user.session} action={user.isSelf && onself && !readonly ? t().status.clickHint : undefined} />
+        {@render person(user)}
       {/each}
       {#if fit.hidden.length}
         {@const names = t().space.morePeople(fit.hidden.map((u) => u.name).join(", "))}
@@ -297,11 +311,11 @@
       </span>
       <span class="count">{countLine}</span>
     </span>
-    {#if space.users.length > 0}
+    {#if fit.shown.length > 0}
       <!-- svelte-ignore a11y_no_static_element_interactions -->
       <span class="people" onpointerover={overPerson} onpointerout={dropCard}>
-        {#each space.users as user (user.session)}
-          <Avatar {user} {movable} talking={talking[user.session] ?? false} tooltip={!cardable(user)} dropTarget={dropSession === user.session} action={user.isSelf && onself && !readonly ? t().status.clickHint : undefined} />
+        {#each fit.shown as user (user.session)}
+          {@render person(user)}
         {/each}
       </span>
     {/if}
@@ -336,7 +350,7 @@
 {/if}
 {#if variant === "room"}
   <!-- the door at the corridor wall (outside the room's button: inside Ruumble Client it is a button of its own, #19) -->
-  <ListenDoor room={space.name} channelId={space.channelId} closed={disabled && !readonly} lower={row === "bottom"} {listen} ontoggle={ontogglelisten} onvolume={onlistenvolume} />
+  <ListenDoor room={space.name} channelId={space.channelId} closed={disabled && !readonly} heard={space.listeners.length > 0} lower={row === "bottom"} {listen} ontoggle={ontogglelisten} onvolume={onlistenvolume} />
 {/if}
 {#if boardToggle}{@render notesToggle()}{/if}
 {#if space.description}

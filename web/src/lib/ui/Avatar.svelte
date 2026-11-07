@@ -1,5 +1,6 @@
 <script lang="ts">
   import { SESSION_DRAG } from "../desk/admin.ts";
+  import Ear from "@lucide/svelte/icons/ear";
   import HeadphoneOff from "@lucide/svelte/icons/headphone-off";
   import Tag from "@lucide/svelte/icons/tag";
   import MicOff from "@lucide/svelte/icons/mic-off";
@@ -16,6 +17,7 @@
     dropTarget = false,
     action,
     movable = false,
+    guest = false,
   }: {
     user: UserView;
     talking?: boolean;
@@ -28,6 +30,8 @@
     action?: string;
     /** inside Ruumble Client: can be dragged onto another room to move the person (lib/desk/admin.ts) */
     movable?: boolean;
+    /** listening in from elsewhere, shown after the people present (#21): dashed, pale, the name in italics */
+    guest?: boolean;
   } = $props();
 
   function dragStart(e: DragEvent): void {
@@ -52,7 +56,7 @@
 </script>
 
 <!-- svelte-ignore a11y_no_static_element_interactions -->
-<span class="person" class:action={!!action} class:movable title={tooltip ? title : undefined} aria-label={label} role="img" data-session={user.session} draggable={movable ? "true" : undefined} ondragstart={dragStart}>
+<span class="person" class:guest class:action={!!action} class:movable title={tooltip ? title : undefined} aria-label={label} role="img" data-session={user.session} draggable={movable ? "true" : undefined} ondragstart={dragStart}>
   <span class="av {presence}" class:me={user.isSelf} class:talking class:drop={dropTarget} aria-hidden="true">
     {#if imageUrl}
       <img src={imageUrl} alt="" onerror={() => (failedUrl = imageUrl)} />
@@ -65,8 +69,11 @@
     {#if status}
       <span class="status-tag" title={status}><Tag size={12} strokeWidth={2.5} /></span>
     {/if}
+    {#if user.listensIn.length}
+      <span class="ear" title={cap(p.listensIn(user.listensIn.join(", ")))}><Ear size={11} strokeWidth={2.5} /></span>
+    {/if}
     {#if user.recording}
-      <span class="rec" title={cap(p.recording)}></span>
+      <span class="rec" class:beside={user.listensIn.length > 0} title={cap(p.recording)}></span>
     {/if}
     {#if user.serverMuted}
       <span class="flag server" title={cap(p.serverMuted)}><MicOff size={12} strokeWidth={2.5} /></span>
@@ -126,5 +133,16 @@
     background: var(--color-paper); border: 1px solid var(--color-blue-300); color: var(--color-ink);
     display: flex; align-items: center; justify-content: center;
   }
+  /* listening in somewhere (#21): an ear at the top left; a recording dot moves beside it */
+  .ear {
+    position: absolute; left: -6px; top: -6px; width: 19px; height: 19px; border-radius: 50%; box-sizing: border-box;
+    background: var(--color-paper); border: 1.5px solid var(--color-ink); color: var(--color-ink);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .rec.beside { left: 13px; top: -6px; }
+  /* a guest: here only to listen. A dashed ring on a pale ground, so nobody takes them for someone in the room */
+  .guest .av, .guest .av.me { background: rgb(255 255 255 / 0.7); color: var(--color-blue-500); border: 2px dashed var(--color-blue-500); box-shadow: none; box-sizing: border-box; }
+  .guest .av img { opacity: 0.6; }
+  .guest .name { font-style: italic; color: var(--color-blue-700); }
   .flag.server { background: var(--color-ink); border-color: var(--color-ink); color: var(--color-paper); }
 </style>

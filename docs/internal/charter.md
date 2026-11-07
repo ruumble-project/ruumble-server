@@ -60,7 +60,7 @@ Update 2026-10-02: a floor with **more than 8 rooms** is no longer locked ("Too 
 - **Entrance:** Users in the root channel stand in the entrance, shown below the elevator box (since 2026-10-02 at the bottom of the elevator dropdown).
 - **Temporary channels** on the second level are normal rooms (but have no board, see ADR-0011).
 - **Linked channels disappear completely**, including all their subchannels. Any channel with a non-empty `Channel.links` is not shown. Links in Mumble are always bidirectional, so both sides disappear. The remaining rooms share the space, and hidden rooms do not count towards the limit of 8. Edge cases: O2–O4.
-- **Listening:** If someone listens to a room (channel listener), an ear icon next to the room name shows it, with the tooltip "N people are listening", without names (E27).
+- **Listening:** If someone listens to a room (channel listener), an ear icon next to the room name shows it, with the listeners' names in the tooltip (E27). The listeners stand in the room as guests after the people present (dashed ring, pale, ear, not counted), the door stands open for everyone, and a listener's own avatar carries an ear (#21).
 - **Listening in yourself** (update 2026-11-07, ADR-0027): inside Ruumble Client a click on a room's door listens in, only on rooms of the own floor, never the own room or a closed one. Changing the floor or entering the room ends it. Doors stand ajar at 33°; while listening at 45° with an ear in the opening, and the room gets a soft glow from the door. The volume is set per room.
 - **Badges** at the avatar (E28): server mute, server deaf and suppressed as a dark badge with microphone-off; self-mute light with microphone-off; self-deaf light with headphones-off. Each badge has a tooltip.
 - **Talking:** A pulsing ring around the avatar, mid-blue, not yellow. Only what the user's own client hears (E19).
@@ -134,7 +134,7 @@ Feasibility studies S1 (Ice from Node.js) and S2 (minimal plugin) passed: [feasi
 | E24 | Publication | Public repo; design handover neutralised (no company tokens, internal names or people). |
 | E25 | Deployment | The project owner's home server (existing Docker setup with Mumble); tests locally (ADR-0008). |
 | E26 | GPL via Ice (O13) | Accepted: the code stays BSD-3; a published image of the service is labelled as a GPL-2.0 combined work (ADR-0006). |
-| E27 | Listening (O5) | Ear icon at the room, tooltip "N people are listening", no names. |
+| E27 | Listening (O5) | Ear icon at the room with the listeners' names; the listeners as guests in the room, the door open for everyone, an ear on the listener's avatar (#21; until then "N people are listening", no names). |
 | E28 | Server mute (O6) | Dark badge with microphone-off. Self-mute light with microphone-off, self-deaf light with headphones-off. Each badge has a tooltip. |
 | E29 | Settings (O7) | Button visible but disabled ("no function yet"). *Superseded, see E10.* |
 | E30 | Presence thresholds (O14) | Quiet = 15 min without talking; away = self-deafened + 5 min quiet. |

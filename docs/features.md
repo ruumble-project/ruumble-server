@@ -35,7 +35,7 @@ How to use Ruumble: [user-guide.md](user-guide.md). How to run it: [operations.m
 | Self-mute, self-deafen, server mute/deafen, suppressed (badges with tooltips) | Ice |
 | **Quiet** (15 min without talking) and **away** (self-deafened and quiet for 5 min) | Ice `idlesecs` |
 | **Recording** (red dot at the avatar, hint at the room) | Ice |
-| **Listening** (ear icon at the room, "N people are listening", no names) | Ice |
+| **Listening** (ear icon at the room with the names; whoever listens in stands in the room as a dashed guest, not counted, the door open for everyone; an ear on the listener's avatar; #21) | Ice |
 | **Listening in** on a room of the own floor (click on its door, volume per room, quieter while someone talks in the own room; ADR-0027) | Ruumble Client (`desk`), Ice for the Listen permission |
 | **Mumble avatars** of registered users, otherwise initials | Ice `getTexture` |
 | **Status** (tag at the avatar, text and expiry in the tooltip) | set in Ruumble, kept by the service (ADR-0018) |
