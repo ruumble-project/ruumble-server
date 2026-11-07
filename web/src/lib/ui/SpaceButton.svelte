@@ -241,6 +241,7 @@
   class="room {variant}"
   class:raster={variant === "corridor"}
   class:mine={space.isSelf}
+  class:listened={!!listen?.open}
   class:locked={disabled && !readonly}
   class:readonly
   class:pending
@@ -365,6 +366,9 @@
   .room.readonly { cursor: default; }
   .room.locked:hover { background: var(--color-paper); }
   .room.pending { cursor: progress; }
+  /* a room the user listens to (#19): a soft glow spreading from its door (door centre 58 px from the left) */
+  .wrap-room > .room.listened { background-image: radial-gradient(circle 280px at 58px 100%, rgb(90 166 231 / 0.2), rgb(90 166 231 / 0) 100%); }
+  .wrap-room.lower > .room.listened { background-image: radial-gradient(circle 280px at 58px 0%, rgb(90 166 231 / 0.2), rgb(90 166 231 / 0) 100%); }
   /* a file dragged over a space with someone to send it to (tube mail) */
   .room.dropping { outline: 3px dashed var(--color-blue-500); outline-offset: -6px; background: var(--color-surface); }
   .room.pending.slow .count { color: var(--color-link); }

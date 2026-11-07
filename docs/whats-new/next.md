@@ -21,7 +21,7 @@ The first time you choose push to talk, Ruumble asks for a talk key and suggests
 
 ### Listen in on another room ![server update](https://img.shields.io/badge/-server%20update-e67e22)
 
-In Ruumble Client, click the door of another room on your floor to listen in without going in. The door opens wide and you hear the room, quietly at first. The small speaker next to the door sets the volume. Click the door again to stop.
+In Ruumble Client, click the door of another room on your floor to listen in without going in. The door opens a little further, the room lights up softly, and you hear it, quietly at first. The small speaker next to the door sets the volume. Click the door again to stop.
 
 ![The open door of a room you listen to, with its volume](images/next/listen-in.png)
 

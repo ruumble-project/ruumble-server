@@ -656,12 +656,13 @@
   .room-menu .quick { grid-template-columns: none; grid-auto-flow: column; grid-auto-columns: 1fr; }
   .tile-icon { position: relative; display: inline-flex; height: 22px; align-items: center; }
   .room-sign :global(.back) { flex-shrink: 0; align-self: center; color: var(--color-link); }
-  /* listening in (#19): a small tab hanging at the right of the room sign, the list below it */
+  /* listening in (#19): a badge beside the room sign, the list below it */
   .listen-dropdown { flex: none; align-self: center; }
+  /* a round badge beside the room sign, in its colours */
   .listen-tab {
-    display: flex; align-items: center; gap: 3px; height: 36px; padding: 0 9px 0 7px; margin-left: -2px;
-    border: 2px solid var(--color-ink); border-left-width: 0; border-radius: 0 var(--radius-md) var(--radius-md) 0;
-    background: var(--color-blue-100); color: var(--color-link); font: inherit; font-size: 13px; font-weight: 700; cursor: pointer;
+    display: flex; align-items: center; gap: 4px; height: 34px; padding: 0 12px 0 10px; margin-left: 8px;
+    border: 2px solid var(--color-ink); border-radius: 999px;
+    background: var(--color-blue-100); color: var(--color-link); font: inherit; font-size: 14px; font-weight: 700; cursor: pointer;
     box-shadow: 0 2px 0 rgb(0 56 105 / 0.2); transition: transform var(--dur) var(--ease-out);
   }
   .listen-tab:hover { transform: translateY(-1px); }

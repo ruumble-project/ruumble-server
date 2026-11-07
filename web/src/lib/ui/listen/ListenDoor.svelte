@@ -1,6 +1,6 @@
 <script lang="ts">
-  // The door of a room at the corridor wall (#19). Closed where Mumble does not let the user in, ajar (45°) where it
-  // does, wide open (90°) with an ear in the opening while the user listens in.
+  // The door of a room at the corridor wall (#19). Closed where Mumble does not let the user in, ajar (33°) where it
+  // does, a little further open (45°) with an ear in the opening while the user listens in.
   // Inside Ruumble Client, on the own floor, it is a button: a click opens it (listen in) or closes it again. Hovering
   // the room strengthens its swing line a little; hovering the door swings the leaf a bit further and shows a faint
   // ear. While open, a small tag beside it opens the volume. Elsewhere it is only the drawing it always was.
@@ -66,7 +66,7 @@
     <path d="M46 50A44 44 0 0 0 2 6" class="swing" />
     <!-- Lucide's ear, small in the opening: faint on hover, solid while listening -->
     <g class="ear">
-      <g transform="translate(21 25) scale(0.62)">
+      <g transform="translate(25 31) scale(0.55)">
         <path d="M6 8.5a6.5 6.5 0 1 1 13 0c0 6-6 6-6 10a3.5 3.5 0 1 1-7 0" />
         <path d="M15 8.5a2.5 2.5 0 0 0-5 0v1a2 2 0 1 1 0 4" />
       </g>
@@ -116,11 +116,11 @@
   /* the leaf turns about its hinge (2, 50); the swing shows the part of the quarter circle (length 69.12) it has opened */
   .door .leaf {
     stroke: var(--color-blue-700); stroke-width: 2; stroke-linecap: round;
-    transform-box: view-box; transform-origin: 2px 50px; transform: rotate(-45deg);
+    transform-box: view-box; transform-origin: 2px 50px; transform: rotate(-33deg);
     transition: transform 150ms var(--ease-out);
   }
   .door .swing {
-    stroke: var(--color-blue-300); stroke-width: 1.5; stroke-dasharray: 69.12; stroke-dashoffset: 34.56;
+    stroke: var(--color-blue-300); stroke-width: 1.5; stroke-dasharray: 69.12; stroke-dashoffset: 43.78;
     transition: stroke-dashoffset 150ms var(--ease-out), stroke var(--dur) var(--ease-out);
   }
   .door .ear { stroke: var(--color-blue-500); stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; opacity: 0; transition: opacity 150ms var(--ease-out); }
@@ -128,19 +128,25 @@
   .door-spot.lower .ear { transform-box: fill-box; transform-origin: center; transform: scaleY(-1); }
   .door.closed .leaf { transform: none; stroke: var(--color-blue-500); stroke-width: 3; stroke-linecap: butt; }
   .door.closed .swing { stroke-dashoffset: 69.12; }
-  .door.open .leaf { transform: rotate(-90deg); }
-  .door.open .swing { stroke-dashoffset: 0; stroke: var(--color-blue-500); }
+  /* listening: 45°, the swing line stronger */
+  .door.open .leaf { transform: rotate(-45deg); }
+  .door.open .swing { stroke-dashoffset: 34.56; stroke: var(--color-blue-500); }
   .door.open .ear { opacity: 1; }
 
   /* hovering the room: the swing line of a door one can open gets a little stronger */
   :global(.wrap-room:hover) .door.hint.ajar .swing { stroke: var(--color-blue-500); }
   /* hovering the door: the leaf swings a bit further, a faint ear shows in the opening */
-  .door-button:hover .door.ajar .leaf, .door-button:focus-visible .door.ajar .leaf { transform: rotate(-65deg); }
-  .door-button:hover .door.ajar .swing, .door-button:focus-visible .door.ajar .swing { stroke-dashoffset: 19.2; }
+  /* hovering the door: it opens a little, to where it stands while listening, a faint ear shows in the opening */
+  .door-button:hover .door.ajar .leaf, .door-button:focus-visible .door.ajar .leaf { transform: rotate(-45deg); }
+  .door-button:hover .door.ajar .swing, .door-button:focus-visible .door.ajar .swing { stroke-dashoffset: 34.56; }
   .door-button:hover .door.ajar .ear, .door-button:focus-visible .door.ajar .ear { opacity: 0.45; }
   /* an open door swings back a little: a click closes it */
-  .door-button:hover .door.open .leaf { transform: rotate(-78deg); }
-  .door-button.pending .door.ajar .leaf { transform: rotate(-70deg); }
+  /* an open door swings back to ajar, the swing line with it: a click closes it */
+  .door-button:hover .door.open .leaf, .door-button:focus-visible .door.open .leaf { transform: rotate(-33deg); }
+  .door-button:hover .door.open .swing, .door-button:focus-visible .door.open .swing { stroke-dashoffset: 43.78; }
+  .door-button:hover .door.open .ear, .door-button:focus-visible .door.open .ear { opacity: 0.45; }
+  .door-button.pending .door.ajar .leaf { transform: rotate(-45deg); }
+  .door-button.pending .door.ajar .swing { stroke-dashoffset: 34.56; }
 
   @media (prefers-reduced-motion: reduce) {
     .door .leaf, .door .swing, .door .ear { transition: none; }
