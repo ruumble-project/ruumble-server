@@ -694,6 +694,16 @@
                 "type": "boolean"
               }
             },
+            "canListen": {
+              "type": "object",
+              "propertyNames": {
+                "type": "string",
+                "pattern": "^\\d+$"
+              },
+              "additionalProperties": {
+                "type": "boolean"
+              }
+            },
             "care": {
               "type": "array",
               "items": {

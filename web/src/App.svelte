@@ -42,6 +42,10 @@
     app.boardOpen && !app.boardFloating && !app.readonly && !!floor && floor.rooms.length > 0 && floor.rooms.length <= FEW_ROOMS,
   );
 
+  // listening in (#19): whatever breaks the rules (another floor, the own room, a closed room) ends at once, also
+  // listening Mumble restored on connect or that was started from Mumble's own menu
+  $effect(() => app.enforceListening());
+
   // floating board: on the side where the own room stays fully visible. Measured again when the floor or the people
   // change, when the window resizes and when the rooms have finished resizing (they animate their width).
   let plan = $state<HTMLElement | null>(null);
@@ -167,6 +171,9 @@
           onparcel={(user) => { if (user.person) app.tube.compose(null, [user.person]); }}
           ondropfile={(file, people) => app.tube.compose(file, people)}
           onself={() => void app.openStatus()}
+          listenOf={(room) => app.listenView(floor, room)}
+          ontogglelisten={(id) => app.desk.listen?.toggle(id)}
+          onlistenvolume={(id, db) => app.desk.listen?.setVolume(id, db)}
         />
       {:else}
         <div class="vacancy" role="status">

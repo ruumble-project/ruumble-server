@@ -23,6 +23,10 @@
   import Menu from "@lucide/svelte/icons/menu";
   import Settings from "@lucide/svelte/icons/settings";
   import Inbox from "@lucide/svelte/icons/inbox";
+  import Ear from "@lucide/svelte/icons/ear";
+  import EarOff from "@lucide/svelte/icons/ear-off";
+  import ListenVolume from "./listen/ListenVolume.svelte";
+  import { listenedRooms } from "../model/listening.ts";
   import { locale, setLocale, t } from "../i18n/index.svelte.ts";
   import { countText, initials, ownPlace, type Building, type Floor } from "../model/building.ts";
   import type { RuumbleState } from "../state.svelte.ts";
@@ -149,7 +153,8 @@
   }
 
   // one dropdown at a time; closes on a choice, Escape (focus back to its button) and a click elsewhere
-  let open = $state<"floors" | "user" | "room" | "transmit" | null>(null);
+  let open = $state<"floors" | "user" | "room" | "transmit" | "listen" | null>(null);
+  let listenButton = $state<HTMLButtonElement | null>(null);
   let modeButton = $state<HTMLButtonElement | null>(null);
   let floorsButton = $state<HTMLButtonElement | null>(null);
   let userButton = $state<HTMLButtonElement | null>(null);
@@ -161,7 +166,7 @@
     const onkeydown = (e: KeyboardEvent) => {
       if (e.key !== "Escape") return;
       open = null;
-      (which === "floors" ? floorsButton : which === "room" ? roomButton : which === "transmit" ? modeButton : userButton)?.focus();
+      (which === "floors" ? floorsButton : which === "room" ? roomButton : which === "transmit" ? modeButton : which === "listen" ? listenButton : userButton)?.focus();
     };
     window.addEventListener("click", onclick);
     window.addEventListener("keydown", onkeydown);
@@ -170,7 +175,14 @@
       window.removeEventListener("keydown", onkeydown);
     };
   });
-  const toggle = (which: "floors" | "user" | "room" | "transmit") => (open = open === which ? null : which);
+  const toggle = (which: "floors" | "user" | "room" | "transmit" | "listen") => (open = open === which ? null : which);
+
+  // listening in (#19): a tab at the room sign while the user listens, with the rooms, their volume and the switch
+  const listen = $derived(app.desk.listen);
+  const listened = $derived(listen ? listenedRooms(building, listen.channels) : []);
+  $effect(() => {
+    if (open === "listen" && !listened.length) open = null;
+  });
 
   /** a button in the elevator's footer: closes the elevator, then does its thing */
   function act(run: () => void): void {
@@ -328,6 +340,38 @@
           <span class="plate-name"><span class="room-name">{place.name}</span></span>
         </div>
       {/if}
+    {/if}
+    {#if listen && listened.length}
+      <div class="dropdown listen-dropdown" data-dropdown="listen">
+        <button
+          type="button" class="listen-tab" bind:this={listenButton} aria-expanded={open === "listen"} aria-controls="listen-menu"
+          aria-label={t().listen.tab(listened.length)} title={t().listen.tab(listened.length)} onclick={() => toggle("listen")}
+        >
+          <Ear size={16} aria-hidden="true" /><span class="listen-count" aria-hidden="true">{listened.length}</span>
+        </button>
+        {#if open === "listen"}
+          <div id="listen-menu" class="menu listen-menu" role="group" aria-label={t().listen.title} {@attach focusFirst}>
+            <div class="me-row"><span class="n">{t().listen.title}</span></div>
+            {#each listened as room (room.channelId)}
+              <div class="listen-row" data-listened={room.channelId}>
+                <div class="listen-head">
+                  <span class="listen-name">{room.name}</span>
+                  <button type="button" class="listen-stop" aria-label={t().listen.stop(room.name)} onclick={() => listen.stop([room.channelId])}>{t().listen.stopOne}</button>
+                </div>
+                <ListenVolume room={room.name} volume={listen.volumeOf(room.channelId)} onvolume={(db) => listen.setVolume(room.channelId, db)} />
+              </div>
+            {/each}
+            <label class="quieter">
+              <input type="checkbox" checked={listen.quieter} onchange={(e) => listen.setQuieter((e.currentTarget as HTMLInputElement).checked)} />
+              <span>{t().listen.quieter}</span>
+            </label>
+            <hr class="sep" />
+            <button type="button" class="item" onclick={() => { open = null; listen.stopAll(); }}>
+              <EarOff size={18} aria-hidden="true" />{t().listen.stopAll}
+            </button>
+          </div>
+        {/if}
+      </div>
     {/if}
   </div>
 
@@ -612,6 +656,31 @@
   .room-menu .quick { grid-template-columns: none; grid-auto-flow: column; grid-auto-columns: 1fr; }
   .tile-icon { position: relative; display: inline-flex; height: 22px; align-items: center; }
   .room-sign :global(.back) { flex-shrink: 0; align-self: center; color: var(--color-link); }
+  /* listening in (#19): a small tab hanging at the right of the room sign, the list below it */
+  .listen-dropdown { flex: none; align-self: center; }
+  .listen-tab {
+    display: flex; align-items: center; gap: 3px; height: 36px; padding: 0 9px 0 7px; margin-left: -2px;
+    border: 2px solid var(--color-ink); border-left-width: 0; border-radius: 0 var(--radius-md) var(--radius-md) 0;
+    background: var(--color-blue-100); color: var(--color-link); font: inherit; font-size: 13px; font-weight: 700; cursor: pointer;
+    box-shadow: 0 2px 0 rgb(0 56 105 / 0.2); transition: transform var(--dur) var(--ease-out);
+  }
+  .listen-tab:hover { transform: translateY(-1px); }
+  .listen-tab[aria-expanded="true"] { transform: translateY(1px); }
+  .listen-tab:focus-visible { outline: 3px solid var(--color-sky); outline-offset: 2px; }
+  .listen-count { color: var(--color-ink); }
+  .menu.listen-menu { right: auto; left: 50%; width: 300px; margin-left: -150px; transform-origin: top center; box-sizing: border-box; }
+  .listen-row { display: flex; flex-direction: column; gap: 4px; padding: 6px 10px 8px; border-bottom: 1px solid var(--color-blue-100); }
+  .listen-head { display: flex; align-items: center; gap: 8px; min-width: 0; }
+  .listen-name { flex: 1; min-width: 0; font-size: 14px; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .listen-stop {
+    flex: none; padding: 3px 9px; border: 1px solid var(--color-blue-300); border-radius: var(--radius-md); background: transparent;
+    color: var(--color-ink); font: inherit; font-size: 12px; cursor: pointer;
+  }
+  .listen-stop:hover { background: var(--color-blue-100); }
+  .listen-stop:focus-visible { outline: 3px solid var(--color-sky); outline-offset: 1px; }
+  .quieter { display: flex; align-items: center; gap: 8px; padding: 8px 10px 4px; font-size: 13px; cursor: pointer; }
+  .quieter input { width: 16px; height: 16px; margin: 0; accent-color: var(--color-blue-500); cursor: pointer; flex: none; }
+  .quieter input:focus-visible { outline: 3px solid var(--color-sky); outline-offset: 2px; }
 
   .tool {
     width: 40px; height: 40px; border: 1px solid var(--color-blue-300); border-radius: var(--radius-md); background: var(--color-paper);

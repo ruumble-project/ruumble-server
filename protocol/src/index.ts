@@ -172,6 +172,11 @@ export const Snapshot = z.object({
   /** channel ID → may the own user enter the channel (PermissionEnter). A missing channel means `true`. */
   canEnter: z.record(channelKey, z.boolean()),
   /**
+   * channel ID → may the own user listen to the channel (Mumble's Listen permission, #19). A missing channel means
+   * `true`; missing entirely (older services): unknown, treated as `true`.
+   */
+  canListen: z.record(channelKey, z.boolean()).optional(),
+  /**
    * Channels whose stored data the own user may tend (Mumble Write permission, ADR-0014): rooms, floors and the
    * root channel (0) for the whole building. Missing: none.
    */

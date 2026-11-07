@@ -11,6 +11,8 @@
   import DescriptionPopover from "./DescriptionPopover.svelte";
   import PersonCard from "./PersonCard.svelte";
   import Plant from "./Plant.svelte";
+  import ListenDoor from "./listen/ListenDoor.svelte";
+  import type { ListenView } from "../state.svelte.ts";
   import { t } from "../i18n/index.svelte.ts";
   import { SHORTCUT_KEYS } from "../shortcuts.ts";
 
@@ -33,6 +35,9 @@
     onparcel,
     ondropfile,
     onself,
+    listen,
+    ontogglelisten,
+    onlistenvolume,
   }: {
     space: Space | Room;
     variant: "room" | "corridor" | "open";
@@ -63,6 +68,10 @@
     ondropfile?: (file: File, people: string[]) => void;
     /** a click on the own avatar: change the own status (ADR-0018) */
     onself?: () => void;
+    /** the door for listening in (#19): state, and whether it is a button */
+    listen?: ListenView;
+    ontogglelisten?: () => void;
+    onlistenvolume?: (db: number) => void;
   } = $props();
 
   // the own avatar answers a single click (the room itself only a double click)
@@ -151,7 +160,10 @@
   const BINDERS_WIDTH = 34;
   const descriptionRight = $derived(variant === "room" ? `${14 + plateWidth + 6 + (boardToggle ? BOARD_TOGGLE_WIDTH + 2 : 0)}px` : undefined);
   /** room width the door plate leaves for the door, the board and the binders */
-  const plateReserve = $derived(90 + (boardToggle ? BOARD_TOGGLE_WIDTH : 0) + (space.description ? BINDERS_WIDTH : 0));
+  const VOLUME_TAG_WIDTH = 32;
+  const plateReserve = $derived(
+    90 + (boardToggle ? BOARD_TOGGLE_WIDTH : 0) + (space.description ? BINDERS_WIDTH : 0) + (listen?.open && listen.interactive ? VOLUME_TAG_WIDTH : 0),
+  );
 
   // narrow rooms (see the @container rule): engines without container queries (Ruumble Client, Chromium 102) get the
   // class instead, the CSS only uses it there
@@ -160,7 +172,6 @@
   const narrow = $derived(variant === "room" && wrapWidth > 0 && wrapWidth <= NARROW_ROOM);
 
   const fit = $derived(variant === "room" ? fitPeople(space.users, peopleWidth, peopleHeight) : { shown: space.users, hidden: [] });
-  const doorState = $derived(disabled && !readonly ? "closed" : "ajar");
   // "entering …" only when Mumble takes a while: a quick move would only make it flicker (the aria-label says it at once)
   const ENTERING_TEXT_AFTER_MS = 600;
   let slow = $state(false);
@@ -248,13 +259,6 @@
   ondrop={dropFile}
 >
   {#if variant === "room"}
-    <!-- door at the corridor wall: the white strip cuts the opening into the wall; mirrored in the lower row.
-         Ajar (45°) where the user may enter, closed where Mumble does not let them in -->
-    <svg class="door {doorState}" width="48" height="52" viewBox="0 0 48 52" fill="none" aria-hidden="true">
-      <rect x="2" y="48" width="44" height="4" class="opening" />
-      <path d="M46 50A44 44 0 0 0 2 6" class="swing" />
-      <path d="M2 50H46" class="leaf" />
-    </svg>
     <!-- hovering someone with Ruumble shows the person card; the keyboard way is the directory board -->
     <!-- svelte-ignore a11y_no_static_element_interactions -->
     <span class="people" bind:clientWidth={peopleWidth} bind:clientHeight={peopleHeight} onpointerover={overPerson} onpointerout={dropCard}>
@@ -315,6 +319,10 @@
     <span class="plant-spot plant-{variant}"><Plant size={variant === "room" ? 22 : 26} subtle /></span>
   {/if}
 {/snippet}
+{#if variant === "room"}
+  <!-- the door at the corridor wall (outside the room's button: inside Ruumble Client it is a button of its own, #19) -->
+  <ListenDoor room={space.name} channelId={space.channelId} closed={disabled && !readonly} lower={row === "bottom"} {listen} ontoggle={ontogglelisten} onvolume={onlistenvolume} />
+{/if}
 {#if boardToggle}{@render notesToggle()}{/if}
 {#if space.description}
   <span class="description-spot description-{variant}" style:right={descriptionRight}>
@@ -366,17 +374,6 @@
      Upper row: corridor side below; lower row (.lower): mirrored. */
   .wrap-room > .room { padding: 12px 14px calc(var(--door-strip) + 8px); gap: 0; }
   .wrap-room.lower > .room { padding: calc(var(--door-strip) + 8px) 14px 12px; }
-  .door { position: absolute; left: 34px; bottom: calc(-1 * var(--wall)); z-index: 2; overflow: visible; }
-  .lower .door { bottom: auto; top: calc(-1 * var(--wall)); transform: scaleY(-1); }
-  .door .opening { fill: var(--color-paper); }
-  /* the leaf turns about its hinge (2, 50); the swing shows the part of the quarter circle (length 69.12) it has opened */
-  .door .leaf {
-    stroke: var(--color-blue-700); stroke-width: 2; stroke-linecap: round;
-    transform-box: view-box; transform-origin: 2px 50px; transform: rotate(-45deg);
-  }
-  .door .swing { stroke: var(--color-blue-300); stroke-width: 1.5; stroke-dasharray: 69.12; stroke-dashoffset: 34.56; }
-  .door.closed .leaf { transform: none; stroke: var(--color-blue-500); stroke-width: 3; stroke-linecap: butt; }
-  .door.closed .swing { stroke-dashoffset: 69.12; }
   .wrap-room .people { flex: 1 1 auto; min-height: 0; width: 100%; display: flex; flex-wrap: wrap; justify-content: center; align-content: center; gap: 6px 3px; }
   /* the people stand in the middle of their area: one alone, two side by side, every row centred */
   /* no clipping: fitPeople renders only the tiles that fit, and the rings of the own and talking people reach beyond the tile */

@@ -484,6 +484,7 @@ export class Hub {
       users,
       listeners: s.listeners,
       canEnter: session ? (s.canEnter.get(session) ?? {}) : {},
+      canListen: session ? (s.canListen.get(session) ?? {}) : {},
       care: session ? (s.care.get(session) ?? []) : [],
     };
     ui.conn.send(snapshot);

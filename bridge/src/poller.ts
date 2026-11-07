@@ -1,5 +1,5 @@
 /**
- * Polling per ADR-0002: basic query every second, listening every 3 s, access and care permissions on
+ * Polling per ADR-0002: basic query every second, listening every 3 s, access, listen and care permissions on
  * structure change and every 10 s (only for paired sessions), server name every 60 s.
  * Reports a change only when the state has really changed.
  */
@@ -11,6 +11,8 @@ export interface ServerState extends Basics {
   listeners: Record<string, number[]>;
   /** session → channel → false if access is denied */
   canEnter: Map<number, Record<string, boolean>>;
+  /** session → channel → false if Mumble's Listen permission is missing (#19) */
+  canListen: Map<number, Record<string, boolean>>;
   /** session → channels whose stored data it may tend: every room, floor and the root channel for building admins
    * (Write on the root channel), none otherwise (ADR-0014) */
   care: Map<number, number[]>;
@@ -85,15 +87,18 @@ export class Poller {
     const info = !prev || this.tick % INFO_EVERY === 0 ? await this.source.serverInfo() : prev.info;
     const listeners = !prev || this.tick % LISTENER_EVERY === 0 ? await this.source.listeners(channelIds) : prev.listeners;
     let canEnter = prev?.canEnter ?? new Map<number, Record<string, boolean>>();
+    let canListen = prev?.canListen ?? new Map<number, Record<string, boolean>>();
     let care = prev?.care ?? new Map<number, number[]>();
     const livingSessions = new Set(basics.users.map((u) => u.session));
     if (this.permissionsDirty || this.tick % PERMISSION_EVERY === 0 || [...this.sessions].some((s) => livingSessions.has(s) && !canEnter.has(s))) {
       canEnter = new Map();
+      canListen = new Map();
       care = new Map();
       const careIds = careChannels(basics.channels);
       for (const s of this.sessions) {
         if (!livingSessions.has(s)) continue;
         canEnter.set(s, await this.source.canEnter(s, channelIds));
+        canListen.set(s, await this.source.canListen(s, channelIds));
         // care is for building admins only: Write on the root channel tends every plant (ADR-0014)
         care.set(s, (await this.source.canWrite(s, 0)) ? careIds : []);
       }
@@ -102,8 +107,8 @@ export class Poller {
     this.tick++;
     this.opts.onPolled?.();
 
-    this.state = { ...basics, info, listeners, canEnter, care };
-    const json = JSON.stringify({ ...this.state, uptime: 0, canEnter: [...canEnter], care: [...care] });
+    this.state = { ...basics, info, listeners, canEnter, canListen, care };
+    const json = JSON.stringify({ ...this.state, uptime: 0, canEnter: [...canEnter], canListen: [...canListen], care: [...care] });
     if (json !== this.lastJson) {
       this.lastJson = json;
       this.opts.onChange(this.state);

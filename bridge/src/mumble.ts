@@ -24,6 +24,8 @@ export interface MumbleSource {
   serverInfo(): Promise<ServerInfo>;
   listeners(channelIds: number[]): Promise<Record<string, number[]>>;
   canEnter(session: number, channelIds: number[]): Promise<Record<string, boolean>>;
+  /** Mumble's Listen permission per channel (#19): only the denied channels, as `false` */
+  canListen(session: number, channelIds: number[]): Promise<Record<string, boolean>>;
   /** write permission (PermissionWrite) on a channel, e.g. for deleting other people's board posts (ADR-0011) */
   canWrite(session: number, channelId: number): Promise<boolean>;
   /** SHA1 hex of certs[0], `null` without a certificate or for an unknown session */
@@ -60,6 +62,8 @@ export class IceMumbleSource implements MumbleSource {
   private readonly server: any;
   private readonly permissionEnter: number;
   private readonly permissionWrite: number;
+  /** ChanACL::Listen (Mumble's src/ACL.h): the Ice file has no constant for it */
+  private static readonly PERMISSION_LISTEN = 0x800;
 
   private constructor(communicator: { destroy(): Promise<void> }, meta: any, server: any, permissions: { enter: number; write: number }) {
     this.communicator = communicator;
@@ -151,7 +155,15 @@ export class IceMumbleSource implements MumbleSource {
   }
 
   async canEnter(session: number, channelIds: number[]): Promise<Record<string, boolean>> {
-    const perms = await Promise.all(channelIds.map((id) => this.server.hasPermission(session, id, this.permissionEnter).catch(() => true)));
+    return this.denied(session, channelIds, this.permissionEnter);
+  }
+
+  async canListen(session: number, channelIds: number[]): Promise<Record<string, boolean>> {
+    return this.denied(session, channelIds, IceMumbleSource.PERMISSION_LISTEN);
+  }
+
+  private async denied(session: number, channelIds: number[], permission: number): Promise<Record<string, boolean>> {
+    const perms = await Promise.all(channelIds.map((id) => this.server.hasPermission(session, id, permission).catch(() => true)));
     const result: Record<string, boolean> = {};
     channelIds.forEach((id, i) => {
       if (!perms[i]) result[String(id)] = false; // a missing channel means true (protocol)

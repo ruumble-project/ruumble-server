@@ -125,6 +125,7 @@ describe("Poller", () => {
     poller.watchSessions([7]);
     await poller.poll();
     expect(poller.state?.canEnter.get(7)).toEqual({ "3": false });
+    expect(poller.state?.canListen.get(7)).toEqual({ "2": false });
     source.users[1]!.selfMute = true;
     await poller.poll();
     expect(changes).toBe(3);
@@ -332,6 +333,7 @@ describe("Hub: web UI", () => {
     expect(ui.last("status")?.plugin).toBe("connected");
     expect(snap.self).toEqual({ session: 7 });
     expect(snap.canEnter).toEqual({ "3": false });
+    expect(snap.canListen).toEqual({ "2": false });
     expect(JSON.stringify(snap)).not.toContain("10.0.0.");
   });
 

@@ -6,6 +6,7 @@
   import { renderChannelDescription } from "../board/render.ts";
   import { t } from "../i18n/index.svelte.ts";
   import Binders from "./Binders.svelte";
+  import { placeNear, swallowClickBeside, toBody } from "./popover.ts";
 
   let { channelId, name, description, size = 26 }: { channelId: number; name: string; description: string; size?: number } = $props();
 
@@ -15,21 +16,6 @@
   let button = $state<HTMLButtonElement | null>(null);
   let popover = $state<HTMLElement | null>(null);
   let open = $state(false);
-
-  /** next to the binders, inside the window: opens towards the middle of the window, below if it fits, else above */
-  function place(): void {
-    if (!button || !popover) return;
-    const margin = 16;
-    const gap = 6;
-    const anchor = button.getBoundingClientRect();
-    const { width, height } = popover.getBoundingClientRect();
-    const clamp = (value: number, max: number) => Math.max(margin, Math.min(value, max - margin));
-    const left = anchor.left + anchor.width / 2 > innerWidth / 2 ? anchor.right - width : anchor.left;
-    const below = anchor.bottom + gap;
-    const top = below + height <= innerHeight - margin ? below : anchor.top - gap - height;
-    popover.style.left = `${clamp(left, innerWidth - width)}px`;
-    popover.style.top = `${clamp(top, innerHeight - height)}px`;
-  }
 
   // the toggle event comes a moment after the popover is shown: until then it stays invisible, not in the corner
   function onbeforetoggle(e: ToggleEvent): void {
@@ -43,37 +29,16 @@
   function ontoggle(e: ToggleEvent): void {
     open = e.newState === "open";
     if (!open && openedByPointer && document.activeElement === button) button?.blur();
-    if (!open || !popover) return;
-    place();
+    if (!open || !popover || !button) return;
+    placeNear(button, popover);
     popover.style.visibility = "";
     popover.focus({ preventScroll: true });
   }
 
-  // light dismiss lets the click through to what lies below: swallow the click a press beside the popover ends in.
-  // Dropped after that press in any case, so a press that ends without a click (dragged away) swallows nothing later
-  const swallow = (e: MouseEvent) => {
-    e.stopPropagation();
-    e.preventDefault();
-  };
+  // a click beside it only closes it
   $effect(() => {
-    if (!open) return;
-    const onpointerdown = (e: PointerEvent) => {
-      const target = e.target as Node;
-      if (popover?.contains(target) || button?.contains(target)) return;
-      window.addEventListener("click", swallow, { capture: true, once: true });
-      window.addEventListener("pointerup", () => setTimeout(() => window.removeEventListener("click", swallow, { capture: true })), { capture: true, once: true });
-    };
-    window.addEventListener("pointerdown", onpointerdown, { capture: true });
-    return () => window.removeEventListener("pointerdown", onpointerdown, { capture: true });
+    if (open) return swallowClickBeside(() => [popover, button]);
   });
-
-  // straight under <body>: Qt WebEngine 6.4 (Chromium 102) has no top layer for popovers, the polyfill shows them as
-  // position: fixed in place, and the corridor's binders sit in a transformed box. That box became the containing
-  // block: the popup landed far to the right, widened the floor plan and focusing it scrolled the plan over there
-  function toBody(node: HTMLElement) {
-    document.body.appendChild(node);
-    return () => node.remove();
-  }
 
   function onclick(e: MouseEvent): void {
     if ((e.target as HTMLElement).closest("a")) popover?.hidePopover();

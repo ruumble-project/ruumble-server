@@ -19,6 +19,16 @@ In Ruumble Client, a small tab next to the microphone lets you choose how you tr
 
 The first time you choose push to talk, Ruumble asks for a talk key and suggests Right Ctrl. On X11 desktops the key works everywhere, even while another window is in front. On Wayland it works while Ruumble Client is in front. You need the new Ruumble Client for this.
 
+### Listen in on another room ![server update](https://img.shields.io/badge/-server%20update-e67e22)
+
+In Ruumble Client, click the door of another room on your floor to listen in without going in. The door opens wide and you hear the room, quietly at first. The small speaker next to the door sets the volume. Click the door again to stop.
+
+![The open door of a room you listen to, with its volume](images/next/listen-in.png)
+
+While you listen, an ear tab hangs next to "You are here". It lists the rooms you are listening to and lets you stop them all. Your own room comes first: when someone talks there, the other rooms get quieter. You can turn that off in the list.
+
+You can only listen to rooms on your own floor. Changing the floor or going into the room ends it. You need the new Ruumble Client for this.
+
 ## Fixed ![server update](https://img.shields.io/badge/-server%20update-e67e22)
 
 - In Ruumble Client, opening the description of a corridor no longer breaks the floor plan.

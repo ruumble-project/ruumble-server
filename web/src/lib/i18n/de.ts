@@ -735,6 +735,27 @@ export const de = {
     leave: "Verlassen",
     leaveHint: "Gebäude verlassen (Verbindung zum Server trennen)",
   },
+  /** listening in on another room of the own floor, inside Ruumble Client (#19) */
+  listen: {
+    start: (room: string) => `Bei ${room} mithören`,
+    stop: (room: string) => `Mithören bei ${room} beenden`,
+    waiting: (room: string) => `Tür zu ${room} geht auf …`,
+    volumeOf: (room: string) => `Lautstärke für ${room}`,
+    volumeValue: (db: number) => (db === 0 ? "normal" : db > 0 ? `${db} dB lauter` : `${-db} dB leiser`),
+    softer: "leiser",
+    louder: "lauter",
+    tab: (n: number) => plural(n, "Du hörst in 1 Raum mit", `Du hörst in ${n} Räumen mit`),
+    title: "Du hörst mit",
+    stopOne: "Beenden",
+    stopAll: "Alle beenden",
+    quieter: "Leiser, wenn bei mir gesprochen wird",
+    refused: {
+      permission: (room: string) => `Bei ${room} darfst du nicht mithören.`,
+      "channel-limit": (room: string) => `Bei ${room} hören schon so viele mit, wie der Server erlaubt.`,
+      "user-limit": (_room: string) => "Du hörst schon in so vielen Räumen mit, wie der Server erlaubt.",
+      other: (room: string) => `Mithören bei ${room} hat nicht geklappt.`,
+    },
+  },
   /** how the user transmits, inside Ruumble Client (#9 in ruumble-client) */
   transmit: {
     modeTab: "Sendeart wählen",

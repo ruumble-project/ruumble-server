@@ -6,6 +6,8 @@
  */
 import type { DeskAdmin } from "./admin.ts";
 import { DeskTransmit, hasTransmit } from "./transmit.svelte.ts";
+import { DeskListen, hasListen } from "./listen.svelte.ts";
+import type { ListenRefusal } from "./listen.ts";
 import {
   firstUnreadId, mergeEntries, outgoing, parseEntry, parseFilter, unreadCount, visibleEntries, type DeskEntry, type DeskFilter,
 } from "./model.ts";
@@ -64,6 +66,10 @@ export class DeskState implements DeskAdmin {
   clientVersion = $state<string | null>(null);
   /** how the user transmits (#9 in ruumble-client); null in a browser and with older clients */
   transmit = $state<DeskTransmit | null>(null);
+  /** listening in on other rooms (#19); null in a browser and with older clients */
+  listen = $state<DeskListen | null>(null);
+  /** the server refused to let the user listen: set by the app to show a message */
+  onListenRefused: (channel: number, reason: ListenRefusal) => void = () => {};
 
   readonly unread = $derived(this.open ? 0 : unreadCount(this.entries, this.seenId));
   readonly visible = $derived(visibleEntries(this.entries, this.query, this.filter));
@@ -81,6 +87,7 @@ export class DeskState implements DeskAdmin {
       this.clientVersion = typeof desk.clientVersion === "string" && desk.clientVersion !== "unknown" ? desk.clientVersion : null;
       this.canManageChannels = this.canEditChannels && typeof desk.createChannel === "function" && typeof desk.removeChannel === "function";
       if (hasTransmit(desk)) this.transmit = new DeskTransmit(desk);
+      if (hasListen(desk)) this.listen = new DeskListen(desk, (channel, reason) => this.onListenRefused(channel, reason));
       desk.logged.connect((raw) => this.add([raw]));
       desk.history((list) => this.add(list));
     });

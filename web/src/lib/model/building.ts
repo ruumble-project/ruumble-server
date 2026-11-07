@@ -63,6 +63,10 @@ export interface Space {
 export interface Room extends Space {
   /** Name contains “(stumm)” */
   muted: boolean;
+  /** Mumble's Listen permission for the own user (#19); unknown counts as allowed */
+  canListen: boolean;
+  /** the own user listens to this room, as the server reports it (Ice, up to 3 s late; Ruumble Client knows sooner) */
+  selfListening: boolean;
   /** flex-grow by the number of people in it (roomGrow) */
   grow: number;
 }
@@ -309,6 +313,8 @@ export function buildBuilding(snapshot: Snapshot, options: BuildOptions = {}): B
       rooms: roomChannels.map((r) => ({
         ...space(r),
         muted: isMutedRoomName(r.name),
+        canListen: snapshot.canListen?.[String(r.id)] !== false,
+        selfListening: selfSession !== null && (snapshot.listeners[String(r.id)] ?? []).includes(selfSession),
         grow: roomGrow(usersIn.get(r.id)?.length ?? 0),
       })),
       open: roomChannels.length === 0,

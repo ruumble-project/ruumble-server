@@ -1,5 +1,6 @@
 <script lang="ts">
-  import { countText, rowsWidth, splitRows, type Floor, type UserView } from "../model/building.ts";
+  import { countText, rowsWidth, splitRows, type Floor, type Room, type UserView } from "../model/building.ts";
+  import type { ListenView } from "../state.svelte.ts";
   import SpaceButton from "./SpaceButton.svelte";
   import { t } from "../i18n/index.svelte.ts";
 
@@ -18,6 +19,9 @@
     onparcel,
     ondropfile,
     onself,
+    listenOf,
+    ontogglelisten,
+    onlistenvolume,
   }: {
     floor: Floor;
     readonly?: boolean;
@@ -39,7 +43,13 @@
     ondropfile?: (file: File, people: string[]) => void;
     /** a click on the own avatar: the own status (ADR-0018) */
     onself?: () => void;
+    /** the door of a room for listening in (#19) */
+    listenOf?: (room: Room) => ListenView;
+    ontogglelisten?: (channelId: number) => void;
+    onlistenvolume?: (channelId: number, db: number) => void;
   } = $props();
+  const toggleListen = (channelId: number) => (ontogglelisten ? () => ontogglelisten(channelId) : undefined);
+  const listenVolume = (channelId: number) => (onlistenvolume ? (db: number) => onlistenvolume(channelId, db) : undefined);
   const tendRoom = (channelId: number) => (ontend ? () => ontend({ kind: "room", channelId }) : undefined);
   const tendFloor = $derived(ontend ? () => ontend({ kind: "floor", channelId: floor.channelId }) : undefined);
 
@@ -99,7 +109,7 @@
     <div class="track" style:width={width > 1 ? `${width * 100}%` : undefined}>
       <div class="row top">
         {#each rows.top as room (room.channelId)}
-          <SpaceButton space={room} variant="room" row="top" title={room.name} pending={pendingChannel === room.channelId} {talking} {readonly} {onjoin} {onnudge} {onchat} {onparcel} {ondropfile} {onself} {boardOpen} {boardUnseen} {ontoggleboard} ontend={tendRoom(room.channelId)} />
+          <SpaceButton space={room} variant="room" row="top" title={room.name} pending={pendingChannel === room.channelId} {talking} {readonly} {onjoin} {onnudge} {onchat} {onparcel} {ondropfile} {onself} {boardOpen} {boardUnseen} {ontoggleboard} ontend={tendRoom(room.channelId)} listen={listenOf?.(room)} ontogglelisten={toggleListen(room.channelId)} onlistenvolume={listenVolume(room.channelId)} />
         {/each}
       </div>
       <SpaceButton
@@ -115,7 +125,7 @@
       />
       <div class="row bottom">
         {#each rows.bottom as room (room.channelId)}
-          <SpaceButton space={room} variant="room" row="bottom" title={room.name} pending={pendingChannel === room.channelId} {talking} {readonly} {onjoin} {onnudge} {onchat} {onparcel} {ondropfile} {onself} {boardOpen} {boardUnseen} {ontoggleboard} ontend={tendRoom(room.channelId)} />
+          <SpaceButton space={room} variant="room" row="bottom" title={room.name} pending={pendingChannel === room.channelId} {talking} {readonly} {onjoin} {onnudge} {onchat} {onparcel} {ondropfile} {onself} {boardOpen} {boardUnseen} {ontoggleboard} ontend={tendRoom(room.channelId)} listen={listenOf?.(room)} ontogglelisten={toggleListen(room.channelId)} onlistenvolume={listenVolume(room.channelId)} />
         {/each}
       </div>
     </div>

@@ -25,6 +25,11 @@ export class FakeSource implements MumbleSource {
     this.calls.push(`canEnter:${session}`);
     return Object.fromEntries(ids.filter((id) => this.denied[session]?.includes(id)).map((id) => [String(id), false]));
   }
+  listenDenied: Record<number, number[]> = { 7: [2] };
+  async canListen(session: number, ids: number[]) {
+    this.calls.push(`canListen:${session}`);
+    return Object.fromEntries(ids.filter((id) => this.listenDenied[session]?.includes(id)).map((id) => [String(id), false]));
+  }
   async certHash(session: number) { return this.hashes[session] ?? null; }
   /** Write everywhere (admins) or only on these channels */
   admins = new Set<number>();

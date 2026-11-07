@@ -22,6 +22,13 @@ const deskScript = () => {
     channelProperties: (_id, cb) => cb({ name: "", maxUsers: 8, descriptionHash: "" }), updateChannel: (_id, _c, cb) => cb({ sent: true }),
     createChannel: (_p, _n, cb) => cb({ sent: true }), removeChannel: (_id, cb) => cb({ sent: true }),
     logged: { connect() {} }, serverChanged: { connect() {} },
+    // listening in (#19): the server confirms at once
+    listening: [], listenQuieter: true,
+    listeningChanged: { connect(h) { (desk.onListen ??= []).push(h); } }, listenQuieterChanged: { connect() {} }, listeningRefused: { connect() {} },
+    startListening(c) { desk.listening = [...desk.listening, { channel: c, volume: 0 }]; desk.onListen?.forEach((h) => h()); },
+    stopListening(cs) { desk.listening = desk.listening.filter((l) => !cs.includes(l.channel)); desk.onListen?.forEach((h) => h()); },
+    setListeningVolume(c, db) { desk.listening = desk.listening.map((l) => (l.channel === c ? { ...l, volume: db } : l)); desk.onListen?.forEach((h) => h()); },
+    setListenQuieter() {},
   };
   Object.assign(window, { qt: { webChannelTransport: {} }, QWebChannel: class { constructor(_t, ready) { ready({ objects: { desk } }); } } });
 };
@@ -67,6 +74,15 @@ const SHOTS = {
     await badge.click();
     const entry = page.getByRole("link", { name: "Ruumble Client 0.39.0 is out" });
     return around([before, await entry.boundingBox()], 14);
+  },
+  "listen-in": async (page) => {
+    await page.getByRole("button", { name: "Listen in on Retrospective" }).click();
+    const tag = page.getByRole("button", { name: "Volume for Retrospective" });
+    await tag.click();
+    const room = page.locator('[data-channel="5"]');
+    const box = await room.boundingBox();
+    const popup = await page.getByRole("dialog", { name: "Volume for Retrospective" }).boundingBox();
+    return around([{ ...box, height: 70 }, popup], 12);
   },
   "light-switch": async (page) => {
     await page.getByRole("button", { name: "User menu" }).click();

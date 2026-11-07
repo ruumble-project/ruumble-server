@@ -686,6 +686,27 @@ export const en: Messages = {
     leave: "Leave",
     leaveHint: "Leave the building (disconnect from the server)",
   },
+  /** listening in on another room of the own floor, inside Ruumble Client (#19) */
+  listen: {
+    start: (room: string) => `Listen in on ${room}`,
+    stop: (room: string) => `Stop listening to ${room}`,
+    waiting: (room: string) => `Opening the door to ${room} …`,
+    volumeOf: (room: string) => `Volume for ${room}`,
+    volumeValue: (db: number) => (db === 0 ? "normal" : db > 0 ? `${db} dB louder` : `${-db} dB quieter`),
+    softer: "quieter",
+    louder: "louder",
+    tab: (n: number) => plural(n, "You are listening in on 1 room", `You are listening in on ${n} rooms`),
+    title: "Listening in",
+    stopOne: "Stop",
+    stopAll: "Stop all",
+    quieter: "Quieter when someone talks in my room",
+    refused: {
+      permission: (room: string) => `You may not listen in on ${room}.`,
+      "channel-limit": (room: string) => `As many people as the server allows are already listening to ${room}.`,
+      "user-limit": (_room: string) => "You are already listening to as many rooms as the server allows.",
+      other: (room: string) => `Listening in on ${room} did not work.`,
+    },
+  },
   /** how the user transmits, inside Ruumble Client (#9 in ruumble-client) */
   transmit: {
     modeTab: "Choose how you transmit",

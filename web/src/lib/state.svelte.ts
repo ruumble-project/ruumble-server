@@ -10,7 +10,8 @@ import { moved, positionChanges } from "./care/rooms.ts";
 import { clientUpdate } from "./desk/update.ts";
 import { t } from "./i18n/index.svelte.ts";
 import type { BoardSide } from "./model/float.ts";
-import { avatarUrlOf, buildBuilding, homeFloor, type BuildOptions, type Building, type Floor } from "./model/building.ts";
+import { avatarUrlOf, buildBuilding, homeFloor, type BuildOptions, type Building, type Floor, type Room } from "./model/building.ts";
+import { listenBlock, listeningToEnd } from "./model/listening.ts";
 import { entrants, newPostAuthors } from "./notices/model.ts";
 import { NoticeCenter } from "./notices/center.svelte.ts";
 import { ChatState } from "./chat/state.svelte.ts";
@@ -55,6 +56,18 @@ export function careErrorText(error: BoardErrorCode): string {
 }
 
 export type { CareTarget };
+/** a room's door for listening in (#19) */
+export interface ListenView {
+  /** the own user listens there */
+  open: boolean;
+  /** the door is a button (Ruumble Client, allowed by the rules) */
+  interactive: boolean;
+  /** clicked, the server has not answered yet */
+  pending: boolean;
+  /** volume in dB while open */
+  volume: number;
+}
+
 export type CareView = { kind: "room"; value: RoomCare } | { kind: "floor"; value: FloorCare } | { kind: "building"; value: BuildingCare };
 
 /** a nudge for the own user stays longer than other notices: whoever was away from the screen should still see it */
@@ -193,6 +206,10 @@ export class RuumbleState {
       },
       room: () => this.desk.available,
     });
+    this.desk.onListenRefused = (channel, reason) => {
+      const name = this.snapshot?.channels.find((c) => c.id === channel)?.name ?? "";
+      this.setNotice({ text: t().listen.refused[reason](name) });
+    };
     this.tube = new TubeState(adapter, {
       notice: (text) => this.setNotice({ text }),
       download: startDownload,
@@ -272,6 +289,25 @@ export class RuumbleState {
 
   goHome(): void {
     this.viewFloorId = null;
+  }
+
+  /**
+   * The door of a room on the floor plan (#19): open while the own user listens there, a button only inside Ruumble
+   * Client and where the rules allow it (an open door can always be closed).
+   */
+  listenView(floor: Floor, room: Room): ListenView {
+    const listen = this.desk.listen;
+    const open = listen ? listen.isListening(room.channelId) : room.selfListening;
+    const allowed = !!listen && !this.readonly && !!this.building && listenBlock(this.building, floor, room) === null;
+    return { open, interactive: !!listen && !this.readonly && (open || allowed), pending: !!listen?.pending.includes(room.channelId), volume: listen?.volumeOf(room.channelId) ?? 0 };
+  }
+
+  /** ends listening that breaks the rules: called whenever the building or the listening changes (model/listening.ts) */
+  enforceListening(): void {
+    const listen = this.desk.listen;
+    if (!listen || !this.building) return;
+    const end = listeningToEnd(this.building, listen.channels).filter((c) => !listen.pending.includes(c));
+    if (end.length) listen.stop(end);
   }
 
   async join(channelId: number): Promise<void> {
