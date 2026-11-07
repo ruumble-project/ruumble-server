@@ -1,6 +1,7 @@
 <script lang="ts">
   import ArrowDownUp from "@lucide/svelte/icons/arrow-down-up";
   import Bell from "@lucide/svelte/icons/bell";
+  import EyeOff from "@lucide/svelte/icons/eye-off";
   import BellOff from "@lucide/svelte/icons/bell-off";
   import Building2 from "@lucide/svelte/icons/building-2";
   import ChevronDown from "@lucide/svelte/icons/chevron-down";
@@ -361,6 +362,9 @@
                 <ListenVolume room={room.name} volume={listen.volumeOf(room.channelId)} onvolume={(db) => listen.setVolume(room.channelId, db)} />
               </div>
             {/each}
+            {#if building.listenersHidden}
+              <p class="listen-hidden" role="note"><EyeOff size={15} aria-hidden="true" /><span>{t().listen.hiddenSelf}</span></p>
+            {/if}
             <label class="quieter">
               <input type="checkbox" checked={listen.quieter} onchange={(e) => listen.setQuieter((e.currentTarget as HTMLInputElement).checked)} />
               <span>{t().listen.quieter}</span>
@@ -517,7 +521,13 @@
           <a class="item" href={__WHATS_NEW_URL__} target="_blank" rel="noopener noreferrer" onclick={() => (open = null)}>
             <Sparkles size={18} aria-hidden="true" />{t().core.whatsNew}
           </a>
-          <div class="versions"><span>{t().core.server(building.serverVersion)}</span><span>{t().core.ui(__UI_VERSION__)}</span></div>
+          {#if building.listenersHidden}
+            <p class="listen-hidden menu-note" role="note" title={t().listen.hiddenHint}><EyeOff size={16} aria-hidden="true" /><span>{t().listen.hidden}</span></p>
+          {/if}
+          <div class="versions">
+            <span>{t().core.serverVersion((app.versions?.service ?? __UI_VERSION__).replace(/^v/, ""))}</span>
+            {#if app.desk.clientVersion}<span>{t().core.clientVersion(app.desk.clientVersion)}</span>{/if}
+          </div>
         </div>
       {/if}
     </div>
@@ -838,5 +848,9 @@
   .tile:focus-visible { outline: 3px solid var(--color-sky); outline-offset: 2px; }
   .tile:disabled, .tile:disabled:hover { opacity: 0.45; background: none; cursor: not-allowed; }
   .tile:disabled :global(svg) { filter: saturate(0); }
+  /* the Mumble server hides who is listening in (Mumble 1.5): said where it matters */
+  .listen-hidden { display: flex; align-items: flex-start; gap: 6px; margin: 8px 0 0; padding: 6px 8px; border-radius: var(--radius-md); background: var(--color-blue-50); border: 1px solid var(--color-blue-300); color: var(--color-ink); font-size: 12px; line-height: 1.35; }
+  .listen-hidden :global(svg) { flex: none; margin-top: 1px; color: var(--color-link); }
+  .listen-hidden.menu-note { margin: 6px 6px 0; cursor: help; }
   .versions { display: flex; justify-content: space-between; gap: 12px; padding: 10px 10px 4px; margin-top: 4px; border-top: 1px solid var(--color-blue-100); font-size: 12px; color: var(--color-blue-700); }
 </style>

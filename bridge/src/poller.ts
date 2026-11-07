@@ -9,6 +9,8 @@ import type { Basics, MumbleSource, ServerInfo } from "./mumble.ts";
 export interface ServerState extends Basics {
   info: ServerInfo;
   listeners: Record<string, number[]>;
+  /** false: the Mumble server does not show the listeners to the read secret (Mumble 1.5): nobody can see them */
+  listenersReadable: boolean;
   /** session → channel → false if access is denied */
   canEnter: Map<number, Record<string, boolean>>;
   /** session → channel → false if Mumble's Listen permission is missing (#19) */
@@ -34,6 +36,8 @@ export interface PollerOptions {
   onChange: (state: ServerState) => void;
   onError?: (error: unknown) => void;
   onRestart?: () => void;
+  /** the listeners became unreadable (true) or readable again (false): logged once per change */
+  onListenersUnreadable?: (unreadable: boolean) => void;
   /** after every successful query (health check) */
   onPolled?: () => void;
 }
@@ -85,7 +89,15 @@ export class Poller {
     this.lastStructure = structure;
 
     const info = !prev || this.tick % INFO_EVERY === 0 ? await this.source.serverInfo() : prev.info;
-    const listeners = !prev || this.tick % LISTENER_EVERY === 0 ? await this.source.listeners(channelIds) : prev.listeners;
+    let listeners = prev?.listeners ?? {};
+    let listenersReadable = prev?.listenersReadable ?? true;
+    if (!prev || this.tick % LISTENER_EVERY === 0) {
+      const got = await this.source.listeners(channelIds);
+      listeners = got ?? {};
+      // readable is assumed at the start: only a change is reported, so a 1.5 server is logged once
+      if ((got !== null) !== listenersReadable) this.opts.onListenersUnreadable?.(got === null);
+      listenersReadable = got !== null;
+    }
     let canEnter = prev?.canEnter ?? new Map<number, Record<string, boolean>>();
     let canListen = prev?.canListen ?? new Map<number, Record<string, boolean>>();
     let care = prev?.care ?? new Map<number, number[]>();
@@ -107,7 +119,7 @@ export class Poller {
     this.tick++;
     this.opts.onPolled?.();
 
-    this.state = { ...basics, info, listeners, canEnter, canListen, care };
+    this.state = { ...basics, info, listeners, listenersReadable, canEnter, canListen, care };
     const json = JSON.stringify({ ...this.state, uptime: 0, canEnter: [...canEnter], canListen: [...canListen], care: [...care] });
     if (json !== this.lastJson) {
       this.lastJson = json;

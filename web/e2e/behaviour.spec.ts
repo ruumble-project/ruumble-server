@@ -26,8 +26,7 @@ test.describe("Sample building", () => {
     await expect(currentFloor(page)).toBeFocused();
     const menu = await userMenu(page);
     await expect(menu.getByText("Let's talk · Floor 1")).toBeVisible();
-    await expect(menu.getByText(/^Mumble \d/)).toBeVisible();
-    await expect(menu.getByText(/^Ruumble \d/)).toBeVisible();
+    await expect(menu.getByText(/^Ruumble server \d/)).toBeVisible();
     await page.getByRole("heading", { name: "Development" }).click(); // opens the elevator, closes the menu
     await expect(menu).toHaveCount(0);
     await expect(page.getByRole("navigation", { name: "Elevator – floors" })).toBeVisible();

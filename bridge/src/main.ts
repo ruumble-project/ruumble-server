@@ -171,6 +171,10 @@ const poller: Poller = new Poller(source, {
     log("Mumble server restarted");
     hub.serverRestarted();
   },
+  onListenersUnreadable: (unreadable) => {
+    if (unreadable) app.log.warn("Mumble does not show who is listening in to the read secret (Mumble server 1.5): nobody sees listeners. Mumble server 1.6 or later shows them.");
+    else log("Mumble shows who is listening in again");
+  },
   onError: (e) => {
     lastError = String(e);
     app.log.warn({ error: lastError }, "Query failed");

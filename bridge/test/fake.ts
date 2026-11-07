@@ -20,7 +20,8 @@ export class FakeSource implements MumbleSource {
 
   async basics() { this.calls.push("basics"); return structuredClone({ channels: this.channels, users: this.users, uptime: this.uptime }); }
   async serverInfo() { this.calls.push("info"); return { name: "House", version: "1.6.870" }; }
-  async listeners() { this.calls.push("listeners"); return {}; }
+  listenersReadable = true;
+  async listeners() { this.calls.push("listeners"); return this.listenersReadable ? {} : null; }
   async canEnter(session: number, ids: number[]) {
     this.calls.push(`canEnter:${session}`);
     return Object.fromEntries(ids.filter((id) => this.denied[session]?.includes(id)).map((id) => [String(id), false]));

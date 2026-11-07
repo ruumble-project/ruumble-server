@@ -684,6 +684,10 @@
                 }
               }
             },
+            "listenersHidden": {
+              "type": "boolean",
+              "const": true
+            },
             "canEnter": {
               "type": "object",
               "propertyNames": {

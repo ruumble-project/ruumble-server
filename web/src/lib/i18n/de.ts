@@ -88,8 +88,9 @@ export const de = {
     mute: "Mikrofon stummschalten",
     deaf: "Taub schalten",
     home: "Zu meiner Etage",
-    server: (v: string) => `Mumble ${v}`,
-    ui: (v: string) => `Ruumble ${v}`,
+    /** the versions at the foot of the user menu: Ruumble's server, and Ruumble Client where it runs */
+    serverVersion: (v: string) => `Ruumble-Server ${v}`,
+    clientVersion: (v: string) => `Ruumble Client ${v}`,
     switchLanguage: (to: string) => `Sprache wechseln: ${to}`,
     languageName: { de: "Deutsch", en: "English" },
     /** the theme switch in the user menu, as the light in the building: what a click does */
@@ -754,6 +755,10 @@ export const de = {
     title: "Du hörst mit",
     stopOne: "Beenden",
     stopAll: "Alle beenden",
+    /** the Mumble server hides who is listening in (Mumble 1.5): in the user menu and the list of rooms one listens to */
+    hidden: "Mithören wird nicht angezeigt",
+    hiddenHint: "Dieser Mumble-Server zeigt Ruumble nicht, wer wo mithört (erst Mumble-Server 1.6 tut das). Niemand sieht hier, wer in einem Raum mithört, auch du nicht.",
+    hiddenSelf: "Die anderen sehen nicht, dass du mithörst: dieser Mumble-Server zeigt es Ruumble nicht.",
     quieter: "Leiser, wenn bei mir gesprochen wird",
     refused: {
       permission: (room: string) => `Bei ${room} darfst du nicht mithören.`,

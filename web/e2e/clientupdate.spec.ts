@@ -50,3 +50,16 @@ test("nothing in a browser", async ({ page }) => {
   await expect(badge(page)).toHaveAccessibleName("User menu");
   await expect((await userMenu(page)).getByRole("link", { name: /is out$/ })).toHaveCount(0);
 });
+
+test("the foot of the user menu names Ruumble's server and, inside Ruumble Client, its version; no Mumble version", async ({ page }) => {
+  await asClient(page, "0.40.0");
+  await page.goto("/?fixture=sample&talking=0");
+  const menu = await userMenu(page);
+  await expect(menu.locator(".versions")).toHaveText(/^Ruumble server \d+\.\d+\.\d+\s*Ruumble Client 0\.40\.0$/);
+  await expect(menu.getByText(/^Mumble /)).toHaveCount(0);
+});
+
+test("in a browser only the server's version", async ({ page }) => {
+  await page.goto("/?fixture=sample&talking=0");
+  await expect((await userMenu(page)).locator(".versions")).toHaveText(/^Ruumble server \d+\.\d+\.\d+\s*$/);
+});

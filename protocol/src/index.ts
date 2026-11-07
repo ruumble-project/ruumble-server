@@ -169,6 +169,11 @@ export const Snapshot = z.object({
   users: z.array(User),
   /** channel ID → sessions listening there */
   listeners: z.record(channelKey, z.array(session)),
+  /**
+   * `true`: the Mumble server does not let Ruumble see who is listening in (Mumble 1.5 shows them only to the write
+   * secret), so `listeners` is always empty. Missing: they are shown.
+   */
+  listenersHidden: z.literal(true).optional(),
   /** channel ID → may the own user enter the channel (PermissionEnter). A missing channel means `true`. */
   canEnter: z.record(channelKey, z.boolean()),
   /**

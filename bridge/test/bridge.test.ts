@@ -131,6 +131,23 @@ describe("Poller", () => {
     expect(changes).toBe(3);
   });
 
+  it("listeners Mumble does not show to the read secret (Mumble 1.5): reported once per change, sent as listenersHidden", async () => {
+    const { source, hub, pairing, poller } = await setup();
+    const reports: boolean[] = [];
+    const watched = new Poller(source, { onChange: (s) => hub.setState(s), onListenersUnreadable: (u) => reports.push(u) });
+    source.listenersReadable = false;
+    for (let i = 0; i < 4; i++) await watched.poll();
+    expect(watched.state?.listenersReadable).toBe(false);
+    expect(reports).toEqual([true]);
+    const { ui } = await pairedUi(hub, pairing);
+    expect(ui.last("snapshot")?.listenersHidden).toBe(true);
+    source.listenersReadable = true;
+    for (let i = 0; i < 3; i++) await watched.poll();
+    expect(reports).toEqual([true, false]);
+    expect(ui.last("snapshot")?.listenersHidden).toBeUndefined();
+    await poller.poll();
+  });
+
   it("detects a restart by a smaller uptime", async () => {
     const source = new FakeSource();
     let restarts = 0;

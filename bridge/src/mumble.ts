@@ -22,7 +22,11 @@ export interface ServerInfo {
 export interface MumbleSource {
   basics(): Promise<Basics>;
   serverInfo(): Promise<ServerInfo>;
-  listeners(channelIds: number[]): Promise<Record<string, number[]>>;
+  /**
+   * channel → sessions listening there; `null`: this server does not let the read secret see them (Mumble 1.5 needs the
+   * write secret for `getListeningUsers`, 1.6 opened it to the read secret)
+   */
+  listeners(channelIds: number[]): Promise<Record<string, number[]> | null>;
   canEnter(session: number, channelIds: number[]): Promise<Record<string, boolean>>;
   /** Mumble's Listen permission per channel (#19): only the denied channels, as `false` */
   canListen(session: number, channelIds: number[]): Promise<Record<string, boolean>>;
@@ -145,8 +149,17 @@ export class IceMumbleSource implements MumbleSource {
     return { name, version: `${version[0]}.${version[1]}.${version[2]}` };
   }
 
-  async listeners(channelIds: number[]): Promise<Record<string, number[]>> {
-    const lists = await Promise.all(channelIds.map((id) => this.server.getListeningUsers(id).catch(() => [])));
+  async listeners(channelIds: number[]): Promise<Record<string, number[]> | null> {
+    let unreadable = false;
+    const lists = await Promise.all(
+      channelIds.map((id) =>
+        this.server.getListeningUsers(id).catch((e: unknown) => {
+          if (typeof (e as { ice_id?: unknown })?.ice_id === "function" && (e as { ice_id(): string }).ice_id() === "::MumbleServer::InvalidSecretException") unreadable = true;
+          return [];
+        }),
+      ),
+    );
+    if (unreadable) return null;
     const result: Record<string, number[]> = {};
     channelIds.forEach((id, i) => {
       if (lists[i].length > 0) result[String(id)] = [...lists[i]];

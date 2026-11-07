@@ -13,13 +13,13 @@ if (!("showPopover" in HTMLElement.prototype)) await import("@oddbird/popover-po
 
 // Served by the service: LiveAdapter. Mock with ?fixture=<name> or ?mock, by default in the Vite dev server
 // (there ?live for the service via the proxy) and always in the demo build (`build:demo`).
-// Further parameters for the mock: ?debug, ?talking=0, ?paired=0
+// Further parameters for the mock: ?debug, ?talking=0, ?paired=0, ?listeners=hidden (a Mumble 1.5 server)
 const params = new URLSearchParams(location.search);
 const useMock =
   import.meta.env.MODE === "demo" || params.has("fixture") || params.has("mock") || (import.meta.env.DEV && !params.has("live"));
 const requested = params.get("fixture") ?? "sample";
 const fixture = (requested in FIXTURES ? requested : "sample") as FixtureName;
-const mock = useMock ? new MockAdapter(fixture, { talking: params.get("talking") !== "0", paired: params.get("paired") !== "0" }) : null;
+const mock = useMock ? new MockAdapter(fixture, { talking: params.get("talking") !== "0", paired: params.get("paired") !== "0", listenersHidden: params.get("listeners") === "hidden" }) : null;
 const app = new RuumbleState(mock ?? new LiveAdapter());
 // the e2e tests' fake Ruumble Client changes channels through the mock, as the real client does through Mumble
 if (mock) Object.assign(window, { ruumbleMock: mock });

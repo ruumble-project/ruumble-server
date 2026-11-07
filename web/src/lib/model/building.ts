@@ -108,6 +108,8 @@ export interface Building {
   self: SelfLocation | null;
   /** The own user may tend the whole building: the plant at the entrance (Write on the root channel, ADR-0014) */
   canTendBuilding: boolean;
+  /** the Mumble server does not let Ruumble see who is listening in (Mumble 1.5): nobody sees listeners, said in the UI */
+  listenersHidden: boolean;
 }
 
 // ---------------------------------------------------------------- individual rules
@@ -369,6 +371,7 @@ export function buildBuilding(snapshot: Snapshot, options: BuildOptions = {}): B
     online: snapshot.users.length,
     self,
     canTendBuilding: care.has(0),
+    listenersHidden: snapshot.listenersHidden === true,
   };
 }
 

@@ -175,6 +175,8 @@ export interface MockOptions {
   paired?: boolean;
   /** the others answer direct messages and come over when invited (ADR-0021) */
   replies?: boolean;
+  /** a Mumble server that hides who is listening in (Mumble 1.5): no listeners, `listenersHidden` set */
+  listenersHidden?: boolean;
 }
 
 /** code that pairs in the mock */
@@ -496,10 +498,11 @@ export class MockAdapter implements MumbleAdapter {
   };
 
   constructor(fixture: FixtureName | Snapshot = "sample", opts: MockOptions = {}) {
-    this.opts = { confirmMs: 250, rejectMs: 3000, talking: true, paired: true, replies: true, ...opts };
+    this.opts = { confirmMs: 250, rejectMs: 3000, talking: true, paired: true, replies: true, listenersHidden: false, ...opts };
     this.paired = this.opts.paired;
     this.state = clone(typeof fixture === "string" ? FIXTURES[fixture]! : fixture);
     if (!this.state.self) this.plugin = "disconnected";
+    if (opts.listenersHidden) this.state = { ...this.state, listeners: {}, listenersHidden: true };
   }
 
   readonly pairing: PairApi = {

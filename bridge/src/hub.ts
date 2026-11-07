@@ -483,6 +483,7 @@ export class Hub {
       channels: s.channels,
       users,
       listeners: s.listeners,
+      ...(s.listenersReadable ? {} : { listenersHidden: true as const }),
       canEnter: session ? (s.canEnter.get(session) ?? {}) : {},
       canListen: session ? (s.canListen.get(session) ?? {}) : {},
       care: session ? (s.care.get(session) ?? []) : [],
