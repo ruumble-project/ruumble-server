@@ -142,7 +142,8 @@
   .rec.beside { left: 13px; top: -6px; }
   /* a guest: here only to listen. A dashed ring on a pale ground, so nobody takes them for someone in the room */
   .guest .av, .guest .av.me { background: rgb(255 255 255 / 0.7); color: var(--color-blue-500); border: 2px dashed var(--color-blue-500); box-shadow: none; box-sizing: border-box; }
-  .guest .av img { opacity: 0.6; }
+  /* an own picture would still look like someone in the room: grey, faint and inside the ring with a gap */
+  .guest .av img { width: calc(100% - 6px); height: calc(100% - 6px); opacity: 0.4; filter: grayscale(1); }
   .guest .name { font-style: italic; color: var(--color-blue-700); }
   .flag.server { background: var(--color-ink); border-color: var(--color-ink); color: var(--color-paper); }
 </style>

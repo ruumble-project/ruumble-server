@@ -8,6 +8,7 @@ All notable changes to Ruumble. The service and the web UI share one version; th
 
 ### Changed
 
+- Someone listening in with their own picture shows it grey and faint inside the dashed ring, so they are not taken for someone in the room
 - The service asks GitHub for the latest Ruumble Client release every hour instead of every 6 hours, so a new release shows up in the user menu sooner (#18)
 - Board: the post kept on top stands out from the other posts: a tinted note with the yellow edge of the windows on its left, a slight shadow and the yellow pin of the board graphic
 
