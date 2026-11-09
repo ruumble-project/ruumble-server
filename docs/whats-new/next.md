@@ -17,6 +17,6 @@ Changes marked ![server update](https://img.shields.io/badge/-server%20update-e6
 
 ![server update](https://img.shields.io/badge/-server%20update-e67e22)
 
-The post kept on top of the board is easy to spot now: it sits on a tinted note with a yellow pin, above all other posts.
+The post kept on top of the board is easy to spot now: it sits on a tinted note with a yellow edge and a yellow pin, above all other posts.
 
 ![The post kept on top of the board](images/next/pinned-post.png)
