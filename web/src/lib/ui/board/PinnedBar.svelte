@@ -51,10 +51,10 @@
 </section>
 
 <style>
-  /* stands out from the cards below: a tinted note with a strong frame, the yellow edge of the windows on its left,
+  /* stands out from the cards below: a tinted note with the light frame and the yellow edge of the windows (on its left),
      lifted a little, and the yellow pin of the board graphic in the room */
   .pinned {
-    margin: 8px 12px 0; border: 1px solid var(--color-ink); border-left: 5px solid var(--color-accent); border-radius: var(--radius-md);
+    margin: 8px 12px 0; border: 1px solid var(--color-blue-300); border-left: 5px solid var(--color-accent); border-radius: var(--radius-md);
     background: var(--color-blue-100); box-shadow: 0 2px 6px rgb(0 0 0 / 0.14);
   }
   .pin {
