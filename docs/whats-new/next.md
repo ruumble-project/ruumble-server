@@ -20,3 +20,5 @@ Changes marked ![server update](https://img.shields.io/badge/-server%20update-e6
 The post kept on top of the board is easy to spot now: it sits on a tinted note with a yellow edge and a yellow pin, above all other posts.
 
 ![The post kept on top of the board](images/next/pinned-post.png)
+
+A new Ruumble Client now shows up within an hour on your name badge and in the user menu. ![server update](https://img.shields.io/badge/-server%20update-e67e22)

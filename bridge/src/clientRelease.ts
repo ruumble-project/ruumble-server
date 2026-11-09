@@ -1,5 +1,5 @@
 /**
- * The latest Ruumble Client release (#18): the service asks GitHub every few hours and passes the answer on in
+ * The latest Ruumble Client release (#18): the service asks GitHub every hour and passes the answer on in
  * /api/version, so the web UI inside an older Ruumble Client can say that a newer one is out. The web UI itself may only
  * talk to its own service (Content-Security-Policy, ADR-0011), and one request per server is kinder to GitHub and to
  * the users' privacy than one per client. CLIENT_RELEASE_CHECK=off switches it off.
@@ -19,7 +19,7 @@ export function parseRelease(json: unknown): ClientRelease | null {
 
 export interface WatchOptions {
   fetch?: typeof globalThis.fetch;
-  /** between two checks (6 hours) */
+  /** between two checks (1 hour: a new release shows up soon, and GitHub allows 60 anonymous requests an hour) */
   intervalMs?: number;
   log?: (msg: string, extra?: Record<string, unknown>) => void;
 }
@@ -38,7 +38,7 @@ export function watchClientRelease(onRelease: (release: ClientRelease) => void, 
     }
   };
   void check();
-  const timer = setInterval(check, o.intervalMs ?? 6 * 60 * 60_000);
+  const timer = setInterval(check, o.intervalMs ?? 60 * 60_000);
   timer.unref?.();
   return () => clearInterval(timer);
 }
