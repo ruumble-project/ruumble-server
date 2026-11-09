@@ -10,19 +10,3 @@
 -->
 
 Changes marked ![server update](https://img.shields.io/badge/-server%20update-e67e22) reach you once the Ruumble server you use is updated.
-
-## Better
-
-### The pinned post stands out
-
-![server update](https://img.shields.io/badge/-server%20update-e67e22)
-
-The post kept on top of the board is easy to spot now: it sits on a tinted note with a yellow edge and a yellow pin, above all other posts.
-
-![The post kept on top of the board](images/next/pinned-post.png)
-
-A new Ruumble Client now shows up within an hour on your name badge and in the user menu. ![server update](https://img.shields.io/badge/-server%20update-e67e22)
-
-Someone listening in with their own picture now shows it grey and faint, so you can tell them apart from the people in the room. ![server update](https://img.shields.io/badge/-server%20update-e67e22)
-
-![A guest with a grey picture next to someone in the room](images/next/guest-avatar.png)
