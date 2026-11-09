@@ -6,11 +6,13 @@ All notable changes to Ruumble. The service and the web UI share one version; th
 
 ## [Unreleased]
 
+Plugin 0.5.0 (unchanged).
+
 ### Changed
 
-- Someone listening in with their own picture shows it grey and faint inside the dashed ring, so they are not taken for someone in the room
-- The service asks GitHub for the latest Ruumble Client release every hour instead of every 6 hours, so a new release shows up in the user menu sooner (#18)
-- Board: the post kept on top stands out from the other posts: a tinted note with the yellow edge of the windows on its left, a slight shadow and the yellow pin of the board graphic
+- **The post kept on top stands out:** on the board it sits on a tinted note with a light frame, the yellow edge of the windows on its left, a slight shadow and the yellow pin of the board graphic, so it no longer looks like the posts below it
+- **Guests with their own picture:** someone listening in shows their picture grey and faint inside the dashed ring, with a gap to it, so they are not taken for someone in the room
+- **A new Ruumble Client shows up sooner:** the service asks GitHub for the latest Ruumble Client release every hour instead of every 6 hours (#18)
 
 ## [0.41.0] - 2026-11-08
 
