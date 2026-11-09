@@ -6,6 +6,10 @@ All notable changes to Ruumble. The service and the web UI share one version; th
 
 ## [Unreleased]
 
+### Changed
+
+- Board: the post kept on top stands out from the other posts: a tinted note with a strong frame and a slight shadow, and the yellow pin of the board graphic
+
 ## [0.41.0] - 2026-11-08
 
 ### Changed

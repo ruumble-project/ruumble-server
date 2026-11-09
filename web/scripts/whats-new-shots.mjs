@@ -89,6 +89,19 @@ const SHOTS = {
     const tiles = page.getByRole("group", { name: "Quick switches" });
     return around([await tiles.boundingBox()], 12);
   },
+  "pinned-post": async (page) => {
+    await page.getByRole("button", { name: "Show board" }).click();
+    const board = page.getByRole("complementary", { name: "Board" });
+    const anna = board.getByRole("article", { name: "Post by Anna" });
+    await anna.hover();
+    await anna.getByRole("button", { name: "Keep on top" }).click();
+    const title = board.getByRole("textbox", { name: "Title on top" });
+    await title.fill("Team notes");
+    await title.press("Enter");
+    const bar = board.getByRole("region", { name: "Kept on top: Team notes" });
+    const first = await board.getByRole("article").first().boundingBox();
+    return around([await bar.boundingBox(), first], 12);
+  },
 };
 
 const wanted = process.argv.slice(2).length ? process.argv.slice(2) : Object.keys(SHOTS);
