@@ -743,6 +743,142 @@
                 "minimum": 0,
                 "maximum": 9007199254740991
               }
+            },
+            "equipment": {
+              "type": "object",
+              "propertyNames": {
+                "type": "string",
+                "pattern": "^\\d+$"
+              },
+              "additionalProperties": {
+                "type": "object",
+                "properties": {
+                  "binders": {
+                    "type": "boolean"
+                  },
+                  "taskboard": {
+                    "type": "boolean"
+                  },
+                  "waveMinutes": {
+                    "anyOf": [
+                      {
+                        "type": "number",
+                        "const": 15
+                      },
+                      {
+                        "type": "number",
+                        "const": 30
+                      },
+                      {
+                        "type": "number",
+                        "const": 60
+                      },
+                      {
+                        "type": "number",
+                        "const": 120
+                      },
+                      {
+                        "type": "number",
+                        "const": 240
+                      }
+                    ]
+                  },
+                  "clearDays": {
+                    "anyOf": [
+                      {
+                        "type": "number",
+                        "const": 1
+                      },
+                      {
+                        "type": "number",
+                        "const": 3
+                      },
+                      {
+                        "type": "number",
+                        "const": 7
+                      },
+                      {
+                        "type": "number",
+                        "const": 14
+                      },
+                      {
+                        "type": "number",
+                        "const": 30
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "binders",
+                  "taskboard",
+                  "waveMinutes",
+                  "clearDays"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "taskboards": {
+              "type": "object",
+              "propertyNames": {
+                "type": "string",
+                "pattern": "^\\d+$"
+              },
+              "additionalProperties": {
+                "type": "object",
+                "properties": {
+                  "open": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 9007199254740991
+                  },
+                  "oldest": {
+                    "anyOf": [
+                      {
+                        "type": "integer",
+                        "minimum": -9007199254740991,
+                        "maximum": 9007199254740991
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "newest": {
+                    "anyOf": [
+                      {
+                        "type": "integer",
+                        "minimum": -9007199254740991,
+                        "maximum": 9007199254740991
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "asking": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "pattern": "^[0-9a-f]{16}$"
+                    }
+                  },
+                  "helping": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "pattern": "^[0-9a-f]{16}$"
+                    }
+                  }
+                },
+                "required": [
+                  "open",
+                  "oldest",
+                  "newest",
+                  "asking",
+                  "helping"
+                ],
+                "additionalProperties": false
+              }
             }
           },
           "required": [
@@ -1299,6 +1435,182 @@
             "v",
             "type",
             "ids"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "v": {
+              "type": "number",
+              "const": 1
+            },
+            "type": {
+              "type": "string",
+              "const": "taskboard"
+            },
+            "event": {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "type": "string",
+                  "enum": [
+                    "asked",
+                    "plus",
+                    "taken",
+                    "back",
+                    "done",
+                    "solved",
+                    "reopened",
+                    "thanks"
+                  ]
+                },
+                "channelId": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 9007199254740991
+                },
+                "room": {
+                  "type": "string"
+                },
+                "requestId": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 64
+                },
+                "by": {
+                  "type": "object",
+                  "properties": {
+                    "person": {
+                      "type": "string",
+                      "pattern": "^[0-9a-f]{16}$"
+                    },
+                    "name": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "person",
+                    "name"
+                  ],
+                  "additionalProperties": false
+                },
+                "text": {
+                  "type": "string"
+                },
+                "asker": {
+                  "type": "object",
+                  "properties": {
+                    "person": {
+                      "type": "string",
+                      "pattern": "^[0-9a-f]{16}$"
+                    },
+                    "name": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "person",
+                    "name"
+                  ],
+                  "additionalProperties": false
+                },
+                "target": {
+                  "type": "object",
+                  "properties": {
+                    "person": {
+                      "type": "string",
+                      "pattern": "^[0-9a-f]{16}$"
+                    },
+                    "name": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "person",
+                    "name"
+                  ],
+                  "additionalProperties": false
+                },
+                "helper": {
+                  "type": "object",
+                  "properties": {
+                    "person": {
+                      "type": "string",
+                      "pattern": "^[0-9a-f]{16}$"
+                    },
+                    "name": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "person",
+                    "name"
+                  ],
+                  "additionalProperties": false
+                },
+                "affected": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 9007199254740991
+                },
+                "thanks": {
+                  "type": "object",
+                  "properties": {
+                    "motif": {
+                      "type": "string",
+                      "enum": [
+                        "coffee",
+                        "cake",
+                        "rocket",
+                        "trophy",
+                        "flowers",
+                        "high-five",
+                        "lifebuoy",
+                        "star"
+                      ]
+                    },
+                    "text": {
+                      "type": "string",
+                      "maxLength": 140
+                    },
+                    "at": {
+                      "type": "integer",
+                      "minimum": -9007199254740991,
+                      "maximum": 9007199254740991
+                    }
+                  },
+                  "required": [
+                    "motif",
+                    "text",
+                    "at"
+                  ],
+                  "additionalProperties": false
+                },
+                "at": {
+                  "type": "integer",
+                  "minimum": -9007199254740991,
+                  "maximum": 9007199254740991
+                }
+              },
+              "required": [
+                "kind",
+                "channelId",
+                "room",
+                "requestId",
+                "by",
+                "text",
+                "asker",
+                "affected",
+                "at"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "v",
+            "type",
+            "event"
           ],
           "additionalProperties": false
         }

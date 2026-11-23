@@ -1,7 +1,9 @@
 <script lang="ts">
   import { countText, rowsWidth, splitRows, type Floor, type Room, type UserView } from "../model/building.ts";
   import type { ListenView } from "../state.svelte.ts";
+  import type { RoomNotice } from "../taskboard/state.svelte.ts";
   import SpaceButton from "./SpaceButton.svelte";
+  import Lobby from "./cafeteria/Lobby.svelte";
   import { t } from "../i18n/index.svelte.ts";
 
   let {
@@ -23,6 +25,10 @@
     listenOf,
     ontogglelisten,
     onlistenvolume,
+    taskboardOpen = null,
+    ontaskboard,
+    notices = {},
+    onnoticeexpire,
   }: {
     floor: Floor;
     readonly?: boolean;
@@ -50,7 +56,20 @@
     listenOf?: (room: Room) => ListenView;
     ontogglelisten?: (channelId: number) => void;
     onlistenvolume?: (channelId: number, db: number) => void;
+    /** the channel whose task board is open in the sidebar (#29) */
+    taskboardOpen?: number | null;
+    ontaskboard?: (channelId: number) => void;
+    /** the plaques on the rooms (#29), by channel */
+    notices?: Record<number, { current: RoomNotice; waiting: RoomNotice[] }>;
+    onnoticeexpire?: (channelId: number, key: number) => void;
   } = $props();
+  /** the task board and plaque props of a space (#29) */
+  const tasks = (channelId: number) => ({
+    taskboardOpen: taskboardOpen === channelId,
+    ontaskboard: ontaskboard ? () => ontaskboard(channelId) : undefined,
+    notice: notices[channelId],
+    onnoticeexpire: onnoticeexpire ? (key: number) => onnoticeexpire(channelId, key) : undefined,
+  });
   const toggleListen = (channelId: number) => (ontogglelisten ? () => ontogglelisten(channelId) : undefined);
   const listenVolume = (channelId: number) => (onlistenvolume ? (db: number) => onlistenvolume(channelId, db) : undefined);
   const tendRoom = (channelId: number) => (ontend ? () => ontend({ kind: "room", channelId }) : undefined);
@@ -97,7 +116,10 @@
 </script>
 
 <div class="floorplan" class:wide={width > 1} bind:this={plan} style:--corridor-end={`${corridorEnd}px`} {@attach wheel} {@attach trackEnd}>
-  {#if floor.open}
+  {#if floor.lobby}
+    <!-- the lobby (#30): the root channel, its people in the cafeteria -->
+    <Lobby {floor} {talking} {readonly} pending={pendingChannel === floor.channelId} {onjoin} {onself} />
+  {:else if floor.open}
     <SpaceButton
       space={floor.corridor}
       variant="open"
@@ -108,12 +130,13 @@
       {readonly}
       {onjoin} {onnudge} {onchat} {onparcel} {ondropfile} {onself}
       ontend={tendFloor}
+      {...tasks(floor.channelId)}
     />
   {:else}
     <div class="track" style:width={width > 1 ? `${width * 100}%` : undefined}>
       <div class="row top">
         {#each rows.top as room (room.channelId)}
-          <SpaceButton space={room} variant="room" row="top" title={room.name} pending={pendingChannel === room.channelId} {talking} {readonly} {onjoin} {onnudge} {onchat} {onparcel} {ondropfile} {onself} {boardOpen} {boardUnseen} {ontoggleboard} ontend={tendRoom(room.channelId)} onfurnish={furnishRoom(room.channelId)} listen={listenOf?.(room)} ontogglelisten={toggleListen(room.channelId)} onlistenvolume={listenVolume(room.channelId)} />
+          <SpaceButton space={room} variant="room" row="top" title={room.name} pending={pendingChannel === room.channelId} {talking} {readonly} {onjoin} {onnudge} {onchat} {onparcel} {ondropfile} {onself} {boardOpen} {boardUnseen} {ontoggleboard} ontend={tendRoom(room.channelId)} onfurnish={furnishRoom(room.channelId)} listen={listenOf?.(room)} ontogglelisten={toggleListen(room.channelId)} onlistenvolume={listenVolume(room.channelId)} {...tasks(room.channelId)} />
         {/each}
       </div>
       <SpaceButton
@@ -126,10 +149,11 @@
         {readonly}
         {onjoin} {onnudge} {onchat} {onparcel} {ondropfile} {onself}
         ontend={tendFloor}
+        {...tasks(floor.channelId)}
       />
       <div class="row bottom">
         {#each rows.bottom as room (room.channelId)}
-          <SpaceButton space={room} variant="room" row="bottom" title={room.name} pending={pendingChannel === room.channelId} {talking} {readonly} {onjoin} {onnudge} {onchat} {onparcel} {ondropfile} {onself} {boardOpen} {boardUnseen} {ontoggleboard} ontend={tendRoom(room.channelId)} onfurnish={furnishRoom(room.channelId)} listen={listenOf?.(room)} ontogglelisten={toggleListen(room.channelId)} onlistenvolume={listenVolume(room.channelId)} />
+          <SpaceButton space={room} variant="room" row="bottom" title={room.name} pending={pendingChannel === room.channelId} {talking} {readonly} {onjoin} {onnudge} {onchat} {onparcel} {ondropfile} {onself} {boardOpen} {boardUnseen} {ontoggleboard} ontend={tendRoom(room.channelId)} onfurnish={furnishRoom(room.channelId)} listen={listenOf?.(room)} ontogglelisten={toggleListen(room.channelId)} onlistenvolume={listenVolume(room.channelId)} {...tasks(room.channelId)} />
         {/each}
       </div>
     </div>

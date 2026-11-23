@@ -236,7 +236,7 @@ describe("Where is the own user?", () => {
   });
 
   it.each([
-    [0, { name: "Entrance", people: 1 }],
+    [0, { name: "Cafeteria", people: 1 }], // the root channel: the cafeteria in the lobby (#30)
     [1, { name: "Ground", people: 1 }],
     [2, { name: "Corridor", people: 1 }],
     [3, { name: "Room", people: 1 }],
@@ -268,9 +268,9 @@ describe("Where is the own user?", () => {
 });
 
 describe("Vacancy and live changes", () => {
-  it("no displayable floor → vacant", () => {
+  it("no displayable floor → vacant, unless one sits in the cafeteria (#30)", () => {
     const b = buildBuilding(fixture("vacant"));
-    expect(homeFloor(b)).toBeNull();
+    expect(homeFloor(b)?.lobby).toBe(true); // in the root channel: the lobby
     expect(b.self).toEqual({ kind: "entrance" });
     expect(homeFloor(buildBuilding(snapshot([ch(0, null, "R")])))).toBeNull();
   });

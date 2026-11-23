@@ -13,6 +13,10 @@
   import PaintBucket from "./PaintBucket.svelte";
   import Plant from "./Plant.svelte";
   import ListenDoor from "./listen/ListenDoor.svelte";
+  import RoomNotice from "./taskboard/RoomNotice.svelte";
+  import TaskBoardGraphic from "./taskboard/TaskBoardGraphic.svelte";
+  import { boardLabel as taskBoardLabel, boardLook, flagIsNew } from "../taskboard/model.ts";
+  import type { RoomNotice as RoomNoticeData } from "../taskboard/state.svelte.ts";
   import type { ListenView } from "../state.svelte.ts";
   import { t } from "../i18n/index.svelte.ts";
   import { SHORTCUT_KEYS } from "../shortcuts.ts";
@@ -40,6 +44,10 @@
     listen,
     ontogglelisten,
     onlistenvolume,
+    taskboardOpen = false,
+    ontaskboard,
+    notice,
+    onnoticeexpire,
   }: {
     space: Space | Room;
     variant: "room" | "corridor" | "open";
@@ -76,6 +84,12 @@
     listen?: ListenView;
     ontogglelisten?: () => void;
     onlistenvolume?: (db: number) => void;
+    /** the sidebar of this space's task board is open (#29) */
+    taskboardOpen?: boolean;
+    ontaskboard?: () => void;
+    /** the plaque on the outer wall (#29) */
+    notice?: { current: RoomNoticeData; waiting: RoomNoticeData[] };
+    onnoticeexpire?: (key: number) => void;
   } = $props();
 
   // the own avatar answers a single click (the room itself only a double click)
@@ -167,13 +181,28 @@
   // the description from Mumble behind the binders: in a room left of the board (or of the door plate), in the
   // corridor left of the plant, in an open floor top right
   const descriptionName = $derived(variant === "corridor" ? t().space.corridorName(space.name) : space.name);
-  const BOARD_TOGGLE_WIDTH = 40;
+  const BOARD_TOGGLE_WIDTH = 48;
   const BINDERS_WIDTH = 34;
-  const descriptionRight = $derived(variant === "room" ? `${14 + plateWidth + 6 + (boardToggle ? BOARD_TOGGLE_WIDTH + 2 : 0)}px` : undefined);
+  // the task board (#29): between the door plate and the board notes, for everyone who may enter
+  // the button is 52 px wide (with room for the flag), the board itself starts 50 px from its right edge; 62 leaves
+  // 16 px between the board and the cork board beside it
+  const TASKBOARD_WIDTH = 62;
+  const taskboard = $derived(space.taskboard && !readonly ? space.taskboard : null);
+  let now = $state(Date.now());
+  $effect(() => {
+    if (!taskboard || taskboard.open === 0) return;
+    const timer = setInterval(() => (now = Date.now()), 30_000); // the flag starts waving after a while
+    return () => clearInterval(timer);
+  });
+  const look = $derived(taskboard ? boardLook(taskboard, taskboard.waveMinutes, now) : "empty");
+  const taskboardText = $derived(taskboard ? taskBoardLabel(space.name, taskboard, now) : "");
+  const taskboardShift = $derived(taskboard ? TASKBOARD_WIDTH : 0);
+  const binders = $derived(!!space.description && !space.bindersOff);
+  const descriptionRight = $derived(variant === "room" ? `${14 + plateWidth + 6 + taskboardShift + (boardToggle ? BOARD_TOGGLE_WIDTH + 2 : 0)}px` : undefined);
   /** room width the door plate leaves for the door, the board and the binders */
   const VOLUME_TAG_WIDTH = 32;
   const plateReserve = $derived(
-    90 + doorShift + (boardToggle ? BOARD_TOGGLE_WIDTH : 0) + (space.description ? BINDERS_WIDTH : 0) + (listen?.open && listen.interactive ? VOLUME_TAG_WIDTH : 0),
+    90 + doorShift + taskboardShift + (boardToggle ? BOARD_TOGGLE_WIDTH : 0) + (binders ? BINDERS_WIDTH : 0) + (listen?.open && listen.interactive ? VOLUME_TAG_WIDTH : 0),
   );
 
   // narrow rooms (see the @container rule): engines without container queries (Ruumble Client, Chromium 102) get the
@@ -331,7 +360,7 @@
     aria-keyshortcuts={SHORTCUT_KEYS.toggleBoard.toUpperCase()}
     aria-expanded={boardOpen}
     aria-controls="board-panel"
-    style:right={variant === "room" ? `${14 + plateWidth + 6}px` : undefined}
+    style:right={variant === "room" ? `${14 + plateWidth + 6 + taskboardShift}px` : undefined}
     onclick={ontoggleboard}
   >
     <!-- remounted for every further unseen post, so the new note lands again -->
@@ -353,7 +382,27 @@
   <ListenDoor room={space.name} channelId={space.channelId} closed={disabled && !readonly} heard={space.listeners.length > 0} lower={row === "bottom"} {listen} ontoggle={ontogglelisten} onvolume={onlistenvolume} />
 {/if}
 {#if boardToggle}{@render notesToggle()}{/if}
-{#if space.description}
+{#if taskboard}
+  <button
+    type="button"
+    class="taskboard-spot taskboard-{variant}"
+    class:active={taskboardOpen}
+    aria-label={taskboardText}
+    title={taskboardText}
+    aria-expanded={taskboardOpen}
+    aria-controls="taskboard-panel"
+    data-taskboard={space.channelId}
+    style:right={variant === "room" ? `${14 + plateWidth + 6}px` : variant === "corridor" ? `calc(60px + ${binders ? BINDERS_WIDTH + 6 : 0}px + var(--corridor-end, 0px))` : undefined}
+    onclick={ontaskboard}
+    disabled={!ontaskboard}
+  >
+    <TaskBoardGraphic {look} open={taskboard.open} helping={taskboard.helping.length} fresh={flagIsNew(taskboard, now)} width={variant === "room" ? 44 : 40} />
+  </button>
+{/if}
+{#if notice && onnoticeexpire}
+  <RoomNotice notice={notice.current} waiting={notice.waiting.length} lower={variant === "room" && row === "bottom"} onexpire={onnoticeexpire} onopen={taskboard && ontaskboard ? ontaskboard : undefined} />
+{/if}
+{#if binders}
   <span class="description-spot description-{variant}" style:right={descriptionRight}>
     <DescriptionPopover channelId={space.channelId} name={descriptionName} description={space.description} size={variant === "room" ? 20 : 23} />
   </span>
@@ -441,16 +490,36 @@
     min-width: 44px; min-height: 44px; display: flex; align-items: center; justify-content: center; cursor: pointer;
     transition: transform var(--dur) var(--ease-out);
   }
-  .wrap-room .notes.toggle { top: auto; bottom: 2px; min-width: 40px; min-height: 40px; }
-  .wrap-room.lower .notes.toggle { bottom: auto; top: 2px; }
-  .wrap-room .notes.toggle :global(svg) { width: 34px; height: 24px; }
+  /* the cork board hangs on the wall (#29), centred on the task board's board: it reaches 2.5 px above and below it.
+     Upper row: the task board stands on the baseline 8 px from the wall, its board spans 22 to 44 px; lower row: the
+     task board hangs from 8 px (flag first), its board spans 24 to 46 px. The button has 4 px padding. */
+  .wrap-room .notes.toggle { top: auto; bottom: 15.5px; margin: 0; min-width: 40px; min-height: 40px; align-items: flex-end; }
+  .wrap-room.lower .notes.toggle { bottom: auto; top: 17.5px; align-items: flex-start; }
+  .wrap-room .notes.toggle :global(svg) { width: 40px; height: 27px; }
   .notes.toggle:hover { transform: translateY(-2px) rotate(-2deg) scale(1.06); }
   .notes.toggle:focus-visible { outline: 3px solid var(--color-sky); outline-offset: 0; }
 
+  /* the task board (#29): in a room between the door plate and the board notes, its wheels on the baseline of the people
+     count (8 px from the wall, like the plate); in the corridor left of the binders; top right in an open floor */
+  .taskboard-spot {
+    position: absolute; z-index: 1; display: flex; align-items: flex-end; justify-content: center; padding: 0; border: 0;
+    background: transparent; border-radius: var(--radius-md); cursor: pointer; transition: transform var(--dur) var(--ease-out);
+  }
+  .taskboard-spot:disabled { cursor: default; }
+  .taskboard-spot.taskboard-room { bottom: 8px; }
+  .lower .taskboard-spot.taskboard-room { bottom: auto; top: 8px; }
+  .taskboard-spot.taskboard-corridor { top: 50%; transform: translateY(-50%); }
+  .taskboard-spot.taskboard-open { top: 12px; right: 56px; }
+  .taskboard-spot:not(:disabled):hover, .taskboard-spot.active { transform: translateY(-2px) scale(1.05); }
+  .taskboard-spot.taskboard-corridor:not(:disabled):hover, .taskboard-spot.taskboard-corridor.active { transform: translateY(calc(-50% - 2px)) scale(1.05); }
+  .taskboard-spot:focus-visible { outline: 3px solid var(--color-sky); outline-offset: 0; }
+
   /* binders with the description: in the door strip, in the corridor left of the plant, top right in an open floor */
   .description-spot { position: absolute; display: flex; }
-  .description-spot.description-room { bottom: 2px; }
-  .lower .description-spot.description-room { bottom: auto; top: 2px; }
+  .description-spot.description-room { bottom: 4px; }
+  .lower .description-spot.description-room { bottom: auto; top: 4px; }
+  .description-room :global(.binders-toggle) { margin: 0; align-items: flex-end; }
+  .lower .description-room :global(.binders-toggle) { align-items: flex-start; }
   /* in the corridor the binders stand on the same floor as the plant: the same box, both at its bottom */
   .description-spot.description-corridor {
     top: 50%; right: calc(60px + var(--corridor-end, 0px)); transform: translateY(-50%); box-sizing: border-box; height: 44px; padding-bottom: 2px; align-items: flex-end;

@@ -43,7 +43,7 @@
   /** the occupied places of a floor: its rooms in Mumble's order, then the corridor (or the open floor) */
   const groupsOf = (f: Floor): { space: Space; name: string }[] =>
     [...f.rooms.map((r) => ({ space: r as Space, name: r.name })), { space: f.corridor, name: f.open ? f.name : t().common.corridor }].filter((g) => g.space.users.length > 0);
-  const entrance = $derived<Space>({ channelId: 0, name: t().common.entrance, users: building.entrance, isSelf: building.self?.kind === "entrance", locked: false, listeners: [], listening: [], recording: false, canTend: false, description: "" });
+  const entrance = $derived<Space>({ channelId: 0, name: t().cafeteria.name, users: building.entrance, isSelf: building.self?.kind === "entrance", locked: false, listeners: [], listening: [], recording: false, canTend: false, description: "" });
 </script>
 
 {#snippet people(space: Space, name: string)}
@@ -90,7 +90,7 @@
         <rect x="9" y="33" width="16" height="12" rx="1" class="panel" />
         <circle cx="24.5" cy="32" r="1.6" class="handle" />
       </svg>
-      {#if building.entrance.length}{@render people(entrance, t().common.entrance)}{/if}
+      {#if building.entrance.length}{@render people(entrance, t().cafeteria.name)}{/if}
     </div>
   </div>
   <!-- the building stands on a plinth; steps lead from the street up to the front door, a plant on either side -->

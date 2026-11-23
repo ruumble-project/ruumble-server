@@ -1,6 +1,8 @@
 <script lang="ts">
   import { SESSION_DRAG } from "../desk/admin.ts";
   import Ear from "@lucide/svelte/icons/ear";
+  import Footprints from "@lucide/svelte/icons/footprints";
+  import Hand from "@lucide/svelte/icons/hand";
   import HeadphoneOff from "@lucide/svelte/icons/headphone-off";
   import Tag from "@lucide/svelte/icons/tag";
   import MicOff from "@lucide/svelte/icons/mic-off";
@@ -66,6 +68,12 @@
     {#if !user.usesRuumble}
       <span class="plain" title={cap(p.withoutRuumble)}><Unplug size={10} strokeWidth={2.5} /></span>
     {/if}
+    {#if user.help}
+      <!-- task board (#29): a request waits for help, or helping right now -->
+      <span class="help {user.help}" title={cap(user.help === "asking" ? t().taskboard.markAsking : t().taskboard.markHelping)}>
+        {#if user.help === "asking"}<Hand size={11} strokeWidth={2.5} />{:else}<Footprints size={11} strokeWidth={2.5} />{/if}
+      </span>
+    {/if}
     {#if status}
       <span class="status-tag" title={status}><Tag size={12} strokeWidth={2.5} /></span>
     {/if}
@@ -114,6 +122,14 @@
     background: var(--color-alert); border: 2px solid var(--color-paper);
   }
   /* without Ruumble (no plugin connected, the rarer case): a small plug at the bottom left, quieter than the state badges */
+  /* task board (#29): bottom left, where only people without Ruumble have a mark (they cannot ask) */
+  .help {
+    position: absolute; left: -6px; bottom: -6px; width: 20px; height: 20px; border-radius: 50%; box-sizing: border-box;
+    border: 2px solid var(--color-paper); display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 1px 3px rgb(0 56 105 / 0.3);
+  }
+  .help.asking { background: var(--color-signal-ink); color: var(--color-signal-on); }
+  .help.helping { background: var(--color-sky); color: var(--color-white); }
   .plain {
     position: absolute; left: -5px; bottom: -5px; width: 18px; height: 18px; border-radius: 50%;
     background: var(--color-paper); border: 1px solid var(--color-blue-300); color: var(--color-link);

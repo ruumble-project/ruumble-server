@@ -78,6 +78,18 @@ Avatars only work with Mumble server 1.5.x. From 1.6, Mumble's Ice `getTexture` 
 - The tube mail button in the top bar (a file with an arrow) counts parcels waiting for an answer and shows a ring while own ones are on their way. Its panel lists **Incoming** and **Outgoing** with every recipient's state and progress; a parcel can be withdrawn.
 - The file stays in the sender's tab and goes straight through the service to each recipient who accepts, piece by piece; the service keeps nothing. The sender keeps the tab open until everyone has it (at most 8 hours). Up to 500 MB per file and 50 recipients; all transfers together share a bandwidth set in the building maintenance.
 
+### Task board and room equipment
+
+- **Equipment per room and corridor** ([ADR-0028](decisions/0028-room-equipment-and-task-board.md), #29): "Set up room" / "Set up floor" (Ruumble Client) has a tab **Equipment** with the board (always there), the binders (switchable, on by default) and the task board (off by default). Kept by the service, changed with Mumble's Write permission.
+- **Task board:** asking for help in one line from inside the room, with chips (until a time, quick call, have a look) and `@` for a particular person. Everyone who may enter sees it, says **+1** and takes it on (one helper). Asker and helper finish it, the asker may say it solved itself, everyone involved reopens it, and the asker thanks the helper with a card (8 drawn motifs, own line, dice).
+- **In the floor plan:** the board in the door strip with orange cards and a flag while something waits: red while a request is less than 2 hours old, then green, waving after a time set per room; marks at the avatars (asking, helping); a click opens its sidebar.
+- **Notices on the room:** every change fades in as a plaque on the room's outer wall with the wall lighting up, for everyone who may enter, and goes as a line to the Mumble log of the people in the room and of those involved elsewhere. Entering a room with open requests shows one for that person. An asker whose helper left an hour ago is asked whether it is done. Done requests are cleared after a time set per room.
+
+### Lobby and cafeteria
+
+- **The root channel is the lobby** ([ADR-0029](decisions/0029-cafeteria.md), #30), shown below the floors (they keep their numbers); everyone in it sits in its cafeteria: a fixed-size room at the top right with a counter and espresso machine, sofas over the corner, a round table and stools, one seat per person.
+- **Lit while someone is inside**, and seen from every floor: cones of light out of its north door and east window, and a chalkboard sign directly left of the tube mail button with the number of people; hovering names them, a click goes there. Inside, the sign leads back to the room one came from.
+
 ### Moving, mute and deafen
 
 - Double-click a room to move there, or Enter / Space on the focused room; a single click does nothing. Clicking a floor in the elevator only changes the view; "go to my floor" jumps back.

@@ -6,6 +6,19 @@ All notable changes to Ruumble. The service and the web UI share one version; th
 
 ## [Unreleased]
 
+### Added
+
+- **Task board for asking for help:** a room or corridor can get a task board (off by default). Whoever is in the room asks for help in one line, with optional chips (until a time, a quick call, have a look) and `@` for a particular person; everyone who may enter the room sees it, says "+1" or takes it on with one click; asker and helper mark it done, everyone involved can reopen it, and the asker can send a thank-you card with one of eight drawn motifs. The board stands in the door strip; open requests show as cards on it and raise a flag, red while one is less than 2 hours old and green after that (waving once one has waited long); avatars show who asks and who helps. Service: `bridge/src/taskboard/` with `taskboard.json`, REST under `/api/taskboard`, snapshot `taskboards`, event `taskboard`; done requests are cleared after a time set per room; an asker whose helper left is asked whether it is done (ADR-0028, #29)
+- **Notices on the room:** every change on a task board fades in as a plaque on the room's outer wall, with the wall lighting up in the event's colour, for everyone who may enter, and as a line in the Mumble log of the people in the room and of those involved. Entering a room with open requests shows one for that person (#29)
+- **Room equipment:** "Set up room" / "Set up floor" in Ruumble Client has a second tab "Equipment": the board (always there), the binders (can be switched off now, even with a description) and the task board with its settings. Kept by the service in `equipment.json`, changed with Mumble's Write permission, `PUT /api/equipment/:channelId`, snapshot `equipment` (#29)
+- **Room care** shows the requests on a room's task board and clears them (#29)
+- **Lobby with a cafeteria:** the root channel is shown as the lobby below the floors (the floors keep their numbers), and everyone in it sits in its cafeteria: a fixed-size room at the top right with a counter and espresso machine, two sofas over the corner (four and five cushions), a round table with five chairs and three stools, one seat per person (17, then standing), a parquet floor and a rug. It is lit while someone is inside; on every floor a cone of light rises out of its north door and one falls out of its east window, and a chalkboard sign directly left of the tube mail button shows how many are there and takes you there. Inside, the sign leads back to the room you came from. The elevator lists the lobby at the bottom instead of the people at the entrance (ADR-0029, #30)
+
+### Changed
+
+- **One baseline in the door strip:** the door plate, the task board and the binders now all stand 8 px from the wall, at the bottom of the people count (#29)
+- **The board is a cork board:** the two notes that open the board now hang on a cork board in a wooden frame on the wall, centred on the task board's board; the notes, their pins and the yellow note for unseen posts stay as they were. New reserved tokens `--color-cork`, `--color-cork-edge`, `--color-cork-pore` (#29)
+
 ## [0.41.1] - 2026-11-09
 
 Plugin 0.5.0 (unchanged).

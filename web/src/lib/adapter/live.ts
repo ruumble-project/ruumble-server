@@ -2,8 +2,8 @@
  * LiveAdapter: WebSocket to the Ruumble service (`/ws/ui`, ADR-0007).
  * Reconnects with increasing delay after a drop. Results are matched to commands by ID.
  */
-import { BoardError, BoardView, BridgeToUi, BuildingCare, CareDone, FloorCare, KeyCabinet, Maintenance, RoomCare, PROTOCOL_VERSION, PairError, PairRequested, Pinned, Post, StatusView, ChatMessage, Parcel, ParcelTicket, Uploaded, Versions, parse, type CommandBody, type CommandResult, type Parser } from "@ruumble/protocol";
-import type { AdapterEvents, BoardApi, BoardErrorCode, CareApi, KeysApi, MaintenanceApi, BoardResult, MumbleAdapter, PairApi, PairResult, StatusApi, ChatApi, TubeApi } from "./types.ts";
+import { BoardError, BoardView, BridgeToUi, BuildingCare, CareDone, FloorCare, KeyCabinet, Maintenance, RoomCare, PROTOCOL_VERSION, PairError, PairRequested, Pinned, Post, StatusView, ChatMessage, Parcel, ParcelTicket, Uploaded, Versions, Equipment, TaskBoardView, TaskRequest, parse, type CommandBody, type CommandResult, type Parser } from "@ruumble/protocol";
+import type { AdapterEvents, BoardApi, BoardErrorCode, CareApi, KeysApi, MaintenanceApi, BoardResult, MumbleAdapter, PairApi, PairResult, StatusApi, ChatApi, TubeApi, EquipmentApi, TaskBoardApi } from "./types.ts";
 
 /** REST of the board; the pairing cookie is sent automatically (same-origin) */
 async function call<T>(schema: Parser<T> | null, url: string, init: RequestInit = {}): Promise<BoardResult<T>> {
@@ -69,6 +69,18 @@ const liveStatus: StatusApi = {
 
 const liveChat: ChatApi = {
   send: (message) => call(ChatMessage, "/api/chat", { method: "POST", body: JSON.stringify(message) }),
+};
+
+const liveEquipment: EquipmentApi = {
+  save: (channelId, equipment) => call(Equipment, `/api/equipment/${channelId}`, { method: "PUT", body: JSON.stringify(equipment) }),
+};
+
+const liveTaskBoard: TaskBoardApi = {
+  load: (channelId) => call(TaskBoardView, `/api/taskboard/${channelId}`),
+  ask: (channelId, request) => call(TaskRequest, `/api/taskboard/${channelId}`, { method: "POST", body: JSON.stringify(request) }),
+  act: (id, action) => call(TaskRequest, `/api/taskboard/requests/${encodeURIComponent(id)}/${action}`, { method: "POST" }),
+  thank: (id, thanks) => call(TaskRequest, `/api/taskboard/requests/${encodeURIComponent(id)}/thanks`, { method: "PUT", body: JSON.stringify(thanks) }),
+  clear: (channelId) => call(CareDone, `/api/taskboard/${channelId}`, { method: "DELETE" }),
 };
 
 async function download(url: string): Promise<BoardResult<{ stream: ReadableStream<Uint8Array>; name: string }>> {
@@ -147,6 +159,8 @@ export class LiveAdapter implements MumbleAdapter {
   readonly maintenance: MaintenanceApi = liveMaintenance;
   readonly status: StatusApi = liveStatus;
   readonly chat: ChatApi = liveChat;
+  readonly equipment: EquipmentApi = liveEquipment;
+  readonly taskboard: TaskBoardApi = liveTaskBoard;
   /** parcels this tab holds (tube mail): told to the service on every connect */
   private heldIds: string[] = [];
   private listened: number[] = [];
@@ -265,6 +279,8 @@ export class LiveAdapter implements MumbleAdapter {
           return this.events.parcelPull(msg.id, msg.to, msg.offset);
         case "parcels-missing":
           return this.events.parcelsMissing(msg.ids);
+        case "taskboard":
+          return this.events.taskboard(msg.event);
         case "result": {
           const p = this.pending.get(msg.id);
           if (p) {

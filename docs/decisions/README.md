@@ -30,5 +30,7 @@ Format: short MADR. Status: **accepted** = decided by the project owner. **propo
 | [0025](0025-separate-repos.md) | Server and client in separate repositories | accepted |
 | [0026](0026-team-workflow.md) | Team workflow with tickets, branches and pull requests | accepted |
 | [0027](0027-listening-in.md) | Listening in on another room of the own floor | proposed |
+| [0028](0028-room-equipment-and-task-board.md) | Room equipment and the task board for asking for help | proposed |
+| [0029](0029-cafeteria.md) | The cafeteria in the lobby, lit and reachable from every floor | proposed |
 
 ADRs record a decision as it was made. Where the code has moved on since, the ADR has a short "Current state" note instead of a silent rewrite.

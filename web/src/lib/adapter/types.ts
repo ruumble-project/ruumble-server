@@ -2,7 +2,7 @@
  * Interface between web UI and Mumble (ADR-0007).
  * Implementations: MockAdapter (fixtures, simulated Mumble) and LiveAdapter (WebSocket and REST to the service).
  */
-import type { Attachment, BoardErrorCode as ServerBoardError, BoardView, BuildingCare, BuildingSettings, CareDone, FloorCare, KeyCabinet, Maintenance, RoomCare, CommandBody, CommandResult, NewPost, PairErrorCode as ServerPairError, Pinned, Post, PostUpdate, ReactionKind, Snapshot, StatusView, TalkingState, ChatMessage, ChatSend, Parcel, ParcelOffer, Uploaded, Versions } from "@ruumble/protocol";
+import type { Attachment, BoardErrorCode as ServerBoardError, BoardView, BuildingCare, BuildingSettings, CareDone, FloorCare, KeyCabinet, Maintenance, RoomCare, CommandBody, CommandResult, NewPost, PairErrorCode as ServerPairError, Pinned, Post, PostUpdate, ReactionKind, Snapshot, StatusView, TalkingState, ChatMessage, ChatSend, Parcel, ParcelOffer, Uploaded, Versions, CareDone as CareDoneT, Equipment, NewTaskRequest, NewThanks, TaskAction, TaskBoardView, TaskEvent, TaskRequest } from "@ruumble/protocol";
 
 export type BoardErrorCode = ServerBoardError | "offline";
 export type BoardResult<T> = { ok: true; value: T } | { ok: false; error: BoardErrorCode };
@@ -104,6 +104,21 @@ export interface TubeApi {
   downloadUrl(ticket: string): string;
 }
 
+/** Room equipment (#29): changing it needs Mumble's Write permission on the room or floor */
+export interface EquipmentApi {
+  save(channelId: number, equipment: Equipment): Promise<BoardResult<Equipment>>;
+}
+
+/** The task board of a room or corridor (#29): asking only from inside the room, the rest for everyone who may enter */
+export interface TaskBoardApi {
+  load(channelId: number): Promise<BoardResult<TaskBoardView>>;
+  ask(channelId: number, request: NewTaskRequest): Promise<BoardResult<TaskRequest>>;
+  act(id: string, action: TaskAction): Promise<BoardResult<TaskRequest>>;
+  thank(id: string, thanks: NewThanks): Promise<BoardResult<TaskRequest>>;
+  /** every request of the channel (room care) */
+  clear(channelId: number): Promise<BoardResult<CareDoneT>>;
+}
+
 export type PluginStatus = "connected" | "disconnected";
 
 /** Connection of the web UI to the service (LiveAdapter only) */
@@ -128,6 +143,8 @@ export interface AdapterEvents {
   parcelPull(id: string, to: string, offset: number): void;
   /** the service does not know these held parcels (it restarted): offer them again */
   parcelsMissing(ids: string[]): void;
+  /** something happened on a task board of a channel the own user may enter (#29) */
+  taskboard(event: TaskEvent): void;
   connection(state: ConnectionState): void;
 }
 
@@ -145,6 +162,8 @@ export interface MumbleAdapter {
   nudge(session: number): Promise<BoardResult<true>>;
   chat: ChatApi;
   tube: TubeApi;
+  equipment: EquipmentApi;
+  taskboard: TaskBoardApi;
   pairing: PairApi;
   /** versions of service and offered plugin (notice pages); null if unknown */
   versions(): Promise<Versions | null>;

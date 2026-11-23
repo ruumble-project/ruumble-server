@@ -15,6 +15,8 @@
   import PluginHelp from "./lib/ui/PluginHelp.svelte";
   import TopBar from "./lib/ui/TopBar.svelte";
   import BoardPanel from "./lib/ui/board/BoardPanel.svelte";
+  import TaskPanel from "./lib/ui/taskboard/TaskPanel.svelte";
+  import CafeteriaLight from "./lib/ui/cafeteria/CafeteriaLight.svelte";
   import CareDialog from "./lib/ui/CareDialog.svelte";
   import KeysDialog from "./lib/ui/KeysDialog.svelte";
   import MaintenanceDialog from "./lib/ui/MaintenanceDialog.svelte";
@@ -39,7 +41,7 @@
   const floor = $derived(app.floor);
   // few rooms: the open board gets more width (not when it floats over the floor plan)
   const fewRooms = $derived(
-    app.boardOpen && !app.boardFloating && !app.readonly && !!floor && floor.rooms.length > 0 && floor.rooms.length <= FEW_ROOMS,
+    (app.boardOpen || app.taskboard.channelId !== null) && !app.boardFloating && !app.readonly && !!floor && floor.rooms.length > 0 && floor.rooms.length <= FEW_ROOMS,
   );
 
   // listening in (#19): whatever breaks the rules (another floor, the own room, a closed room) ends at once, also
@@ -176,6 +178,10 @@
           listenOf={(room) => app.listenView(floor, room)}
           ontogglelisten={(id) => app.desk.listen?.toggle(id)}
           onlistenvolume={(id, db) => app.desk.listen?.setVolume(id, db)}
+          taskboardOpen={app.taskboard.channelId}
+          ontaskboard={(id) => app.toggleTaskBoard(id)}
+          notices={app.taskboard.notices}
+          onnoticeexpire={(id, key) => app.taskboard.expire(id, key)}
         />
       {:else}
         <div class="vacancy" role="status">
@@ -183,7 +189,11 @@
           <span>{t().screens.vacancyText}</span>
         </div>
       {/if}
-      {#if app.boardOpen && !app.readonly}<BoardPanel {app} />{/if}
+      <!-- the cafeteria in the lobby (#30): its light and its sign, on every floor -->
+      {#if !building.cafeteria.locked}<CafeteriaLight cafeteria={building.cafeteria} readonly={app.readonly} floorId={floor?.channelId ?? null} onjoin={() => void app.goVia(0)}
+        returnTo={app.returnChannel !== null ? { id: app.returnChannel, name: app.snapshot?.channels.find((c) => c.id === app.returnChannel)?.name ?? "" } : null}
+        onreturn={(id) => void app.goVia(id)} />{/if}
+      {#if app.taskboard.channelId !== null && !app.readonly}<TaskPanel {app} />{:else if app.boardOpen && !app.readonly}<BoardPanel {app} />{/if}
     </div>
     {#if app.care}<CareDialog {app} />{/if}
     {#if app.keysOpen}<KeysDialog {app} />{/if}
@@ -228,7 +238,7 @@
   }
 
   /* floor with 1–2 rooms: floor plan and board share the width */
-  .plan.few :global(.floorplan), .plan.few :global(.board) { flex: 1 1 0; width: auto; min-width: 340px; }
+  .plan.few :global(.floorplan), .plan.few :global(.board), .plan.few :global(#taskboard-panel) { flex: 1 1 0; width: auto; min-width: 340px; }
 
   /* floor plan: walls = 4 px dark blue as gap */
   .app { --plan-min-height: calc(var(--room-min-top) + var(--corridor-height) + var(--room-min-bottom) + 4 * var(--wall)); }

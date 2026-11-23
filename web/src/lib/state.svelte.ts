@@ -2,7 +2,7 @@
  * State of the web UI: holds the latest snapshot, derives the building and runs commands.
  * No optimistic switching: the own channel only changes with the next snapshot (ADR-0003).
  */
-import { BOARD_LIMITS, type Attachment, type BoardView, type BuildingCare, type BuildingSettings, type FloorCare, type KeyCabinet, type Maintenance, type RoomCare, type CommandResult, type PostKind, type Post, type ReactionKind, type Snapshot, type StatusView, type TalkingState, type Uploaded, type Versions } from "@ruumble/protocol";
+import { BOARD_LIMITS, type Attachment, type BoardView, type BuildingCare, type BuildingSettings, type FloorCare, type KeyCabinet, type Maintenance, type RoomCare, type CommandResult, type Equipment, type PostKind, type Post, type ReactionKind, type Snapshot, type StatusView, type TalkingState, type Uploaded, type Versions } from "@ruumble/protocol";
 import type { BoardErrorCode, BoardResult, ConnectionState, MumbleAdapter, PairErrorCode, PluginStatus } from "./adapter/types.ts";
 import { formatSize, newestPost, parseSeen, unseenPosts, type BoardFilter, type CopyTarget } from "./board/model.ts";
 import type { CareTarget } from "./care/model.ts";
@@ -10,7 +10,7 @@ import { moved, positionChanges } from "./care/rooms.ts";
 import { clientUpdate } from "./desk/update.ts";
 import { t } from "./i18n/index.svelte.ts";
 import type { BoardSide } from "./model/float.ts";
-import { avatarUrlOf, buildBuilding, homeFloor, type BuildOptions, type Building, type Floor, type Room } from "./model/building.ts";
+import { avatarUrlOf, buildBuilding, homeFloor, stops, type BuildOptions, type Building, type Floor, type Room } from "./model/building.ts";
 import { listenBlock, listeningToEnd, pausedListening } from "./model/listening.ts";
 import { pollUntil } from "./poll.ts";
 import { entrants, newPostAuthors } from "./notices/model.ts";
@@ -18,6 +18,8 @@ import { NoticeCenter } from "./notices/center.svelte.ts";
 import { ChatState } from "./chat/state.svelte.ts";
 import { DeskState } from "./desk/state.svelte.ts";
 import { TubeState } from "./tube/state.svelte.ts";
+import { TaskBoardState } from "./taskboard/state.svelte.ts";
+import { returnChannelOf } from "./model/cafeteria.ts";
 
 export type Notice = { text: string };
 
@@ -139,6 +141,8 @@ export class RuumbleState {
   status = $state<StatusView | null>(null);
   statusBusy = $state(false);
   statusError = $state<BoardErrorCode | null>(null);
+  /** where the own user came from into the cafeteria (#30): its sign there leads back; null outside the cafeteria */
+  returnChannel = $state<number | null>(null);
   /** the dialog for the notices of this browser (ADR-0023) */
   noticesOpen = $state(false);
   /** the board floats over the floor plan (remembered per browser); its side is chosen by the floor plan (model/float.ts) */
@@ -175,7 +179,7 @@ export class RuumbleState {
   floor: Floor | null = $derived.by(() => {
     const b = this.building;
     if (!b) return null;
-    return b.floors.find((f) => f.channelId === this.viewFloorId) ?? homeFloor(b);
+    return stops(b).find((f) => f.channelId === this.viewFloorId) ?? homeFloor(b);
   });
 
   /** largest attachment the service takes (building maintenance), known once a board was loaded */
@@ -195,6 +199,8 @@ export class RuumbleState {
   /** Ruumble Client (ADR-0024): Mumble's log, chat and dialogs when running inside the Ruumble Client */
   readonly desk = new DeskState();
   readonly notices: NoticeCenter;
+  /** the task boards (#29): the open sidebar, the plaques on the rooms, the thank-you card */
+  readonly taskboard: TaskBoardState;
 
   constructor(private readonly adapter: MumbleAdapter) {
     this.notices = new NoticeCenter({ speaking: () => (this.me ? this.talking[this.me.session] === true : false),
@@ -211,6 +217,10 @@ export class RuumbleState {
       const name = this.snapshot?.channels.find((c) => c.id === channel)?.name ?? "";
       this.setNotice({ text: t().listen.refused[reason](name) });
     };
+    this.taskboard = new TaskBoardState(adapter, {
+      notice: (text) => this.setNotice({ text }),
+      me: () => (this.me?.person ? { person: this.me.person, name: this.me.name } : null),
+    });
     this.tube = new TubeState(adapter, {
       notice: (text) => this.setNotice({ text }),
       download: startDownload,
@@ -255,6 +265,7 @@ export class RuumbleState {
       parcel: (parcel) => this.tube.receive(parcel),
       parcelPull: (id, to, offset) => void this.tube.pull(id, to, offset),
       parcelsMissing: (ids) => void this.tube.missing(ids),
+      taskboard: (event) => this.taskboard.receive(event),
     });
   }
 
@@ -290,6 +301,13 @@ export class RuumbleState {
 
   goHome(): void {
     this.viewFloorId = null;
+  }
+
+  /** the cafeteria's sign (#30): into the cafeteria, or back to where one came from; the view follows along, also when
+   * another floor was chosen in the elevator before */
+  async goVia(channelId: number): Promise<void> {
+    await this.join(channelId);
+    this.goHome();
   }
 
   /**
@@ -363,6 +381,7 @@ export class RuumbleState {
   toggleBoard(): void {
     this.boardOpen = !this.boardOpen;
     if (this.boardOpen) {
+      this.taskboard.close(); // one sidebar at a time
       const b = this.board;
       const seenAt = b && b.channelId === this.me?.channel ? this.boardSeen[String(b.channelId)] : undefined;
       this.boardRevealed = b && seenAt !== undefined ? unseenPosts(b.posts, seenAt).map((p) => p.id) : [];
@@ -373,6 +392,20 @@ export class RuumbleState {
 
   closeBoard(): void {
     this.boardOpen = false;
+  }
+
+  /** the sidebar of a task board (#29), in place of the board; a second click closes it */
+  toggleTaskBoard(channelId: number): void {
+    if (this.taskboard.channelId === channelId) return this.taskboard.close();
+    this.boardOpen = false; // one sidebar at a time
+    void this.taskboard.open(channelId);
+  }
+
+  /** room equipment (#29): Write permission on the room or floor */
+  async saveEquipment(channelId: number, equipment: Equipment): Promise<boolean> {
+    const r = await this.adapter.equipment.save(channelId, equipment);
+    if (!r.ok) this.setNotice({ text: t().roomEdit.equipmentFailed });
+    return r.ok;
   }
 
   setBoardFloating(on: boolean): void {
@@ -589,6 +622,13 @@ export class RuumbleState {
   }
 
   /** building care: forget the learned links of these projects */
+  /** every request of the room's task board (#29) */
+  clearTaskBoard(): Promise<boolean> {
+    const target = this.care;
+    if (target?.kind !== "room") return Promise.resolve(false);
+    return this.careAction(() => this.adapter.taskboard.clear(target.channelId), (v) => t().care.taskboardCleared(v.posts));
+  }
+
   forgetTickets(projects: string[]): Promise<boolean> {
     if (this.care?.kind !== "building" || !projects.length) return Promise.resolve(false);
     return this.careAction(() => this.adapter.care.forgetTickets(projects), () => t().care.ticketsForgotten(projects.length));
@@ -888,7 +928,9 @@ export class RuumbleState {
 
   private onSnapshot(s: Snapshot): void {
     for (const name of entrants(this.snapshot, s)) this.notices.notify("entered", name);
+    this.returnChannel = returnChannelOf(this.snapshot, s, this.returnChannel);
     this.snapshot = s;
+    this.taskboard.observe(s);
     this.chat.identify(s.users.find((u) => u.session === s.self?.session)?.person ?? null);
     this.tube.identify(s.users.find((u) => u.session === s.self?.session)?.person ?? null);
     // room changed: the sidebar always shows the board of the current room; closed, the toggle counts its unseen posts

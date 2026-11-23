@@ -7,7 +7,8 @@
  *   PUBLIC_URL                                   optional base URL for pairing links; unset: the address the plugin connected to
  *   PORT (64080), HOST (0.0.0.0)                 HTTP/WebSocket
  *   WEB_DIST                                     built web UI (web/dist)
- *   DATA_DIR (./data)                            device tokens, statuses and board (tokens.json, statuses.json, board.sqlite, board/)
+ *   DATA_DIR (./data)                            device tokens, statuses, board, equipment and task board (tokens.json, statuses.json,
+ *                                                board.sqlite, board/, equipment.json, taskboard.json)
  *   PLUGIN_BUNDLE, PLUGIN_BUNDLE_DIR             optional: .mumble_plugin for /download (file or directory)
  *   ADDRESS_CHECK (warn)                         off | warn | enforce (ADR-0004; behind hairpin NAT only warn works, P7)
  *   TRUST_PROXY (false)                          behind a reverse proxy: its address(es) or CIDR, comma-separated (then
@@ -54,6 +55,10 @@ import { Pairing } from "./pairing.ts";
 import { Poller } from "./poller.ts";
 import { StatusBook, statusRoutes } from "./status.ts";
 import { chatRoutes } from "./chat.ts";
+import { EquipmentBook, equipmentRoutes } from "./equipment.ts";
+import { TaskBook } from "./taskboard/book.ts";
+import { forgottenText } from "./taskboard/notify.ts";
+import { taskBoardRoutes } from "./taskboard/routes.ts";
 import { TubeMail, tubeRoutes } from "./tube.ts";
 
 const env = process.env;
@@ -125,6 +130,9 @@ if (config.trustProxy === true) {
 const pairing = new Pairing(resolve(dataDir, "tokens.json"));
 // statuses (B, ADR-0018): set, cleared or expired → everyone gets a new snapshot
 const statuses: StatusBook = new StatusBook(resolve(dataDir, "statuses.json"), { onChange: () => hub.rebroadcast() });
+// room equipment and the task board (#29): a change → everyone gets a new snapshot
+const equipment: EquipmentBook = new EquipmentBook(resolve(dataDir, "equipment.json"), () => hub.rebroadcast());
+const tasks: TaskBook = new TaskBook(resolve(dataDir, "taskboard.json"), { onChange: () => hub.rebroadcast() });
 let lastPoll = 0;
 let lastError: string | null = null;
 
@@ -156,6 +164,8 @@ const hub: Hub = new Hub({
   refresh: () => poller.poll(),
   avatarVersion: (id) => avatars.version(id),
   statusOf: (certHash) => statuses.current(certHash),
+  equipment: () => equipment.all(),
+  taskboards: () => equipment.withTaskBoard().map((channelId) => ({ channelId, summary: tasks.summary(channelId) })),
 });
 const poller: Poller = new Poller(source, {
   onChange: (state) => {
@@ -293,6 +303,10 @@ const tubeMail = new TubeMail({ hub, bytesPerSecond: () => (store.settings.tubeM
 hub.watchUis(tubeMail);
 await app.register(tubeRoutes, { mail: tubeMail, gate });
 
+// room equipment and the task board for asking for help (#29)
+await app.register(equipmentRoutes, { book: equipment, hub, gate });
+await app.register(taskBoardRoutes, { book: tasks, equipment, hub, gate });
+
 // building maintenance: settings that used to be fixed (ADR-0016)
 await app.register(maintenanceRoutes, { store, gate, log });
 
@@ -329,7 +343,18 @@ await app.register(careRoutes, {
   gate,
   onChanged: (channelId, viewer, change) => void notifyCare(hub, channelId, viewer, change),
   log,
+  tasksOf: (channelId) => tasks.count(channelId),
 });
+// task board (#29): done requests are cleared after the channel's time; an asker whose helper left is asked whether
+// it is done
+const taskTimer = setInterval(() => {
+  const cleared = tasks.prune((channelId) => equipment.get(channelId).clearDays);
+  if (cleared) log("Task board cleaned up", { removed: cleared });
+  for (const r of tasks.forgotten((person) => hub.personById(person) !== null)) {
+    const asker = hub.personById(r.asker.person);
+    if (asker && r.helper) asker.notify(forgottenText(r.helper.name, r.text, hub.channelName(r.channelId), asker.locale));
+  }
+}, 5 * 60_000);
 const cleanupTimer = setInterval(() => {
   const forgotten = statuses.prune(); // statuses: entries unused for 90 days (ADR-0018)
   if (forgotten) log("Statuses forgotten", { people: forgotten });
@@ -385,6 +410,7 @@ for (const signal of ["SIGINT", "SIGTERM"] as const) {
   process.on(signal, async () => {
     poller.stop();
     clearInterval(cleanupTimer);
+    clearInterval(taskTimer);
     statuses.close();
     store.close();
     await app.close();

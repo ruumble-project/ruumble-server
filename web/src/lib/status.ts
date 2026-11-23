@@ -40,6 +40,7 @@ export function personLabel(user: UserView, talking = false, now = Date.now()): 
     user.recording ? p.recording : null,
     user.listensIn.length ? p.listensIn(user.listensIn.join(", ")) : null,
     user.usesRuumble ? null : p.withoutRuumble,
+    user.help === "asking" ? t().taskboard.markAsking : user.help === "helping" ? t().taskboard.markHelping : null,
     user.status ? statusLabel(user.status, now) : null,
   ]
     .filter(Boolean)

@@ -12,8 +12,10 @@ import {
   type BridgeToUi,
   type CommandBody,
   type CommandResult,
+  type Equipment,
   type Locale,
   type Snapshot,
+  type TaskBoardSummary,
   type UiParcelsHeld,
   type UserStatus,
 } from "@ruumble/protocol";
@@ -45,6 +47,10 @@ export interface HubOptions {
   avatarVersion?: (userId: number | null) => string | null;
   /** current status of a person (B, ADR-0018), by certificate hash */
   statusOf?: (certHash: string) => UserStatus | null;
+  /** equipment of the channels that were set up (#29) */
+  equipment?: () => Record<string, Equipment>;
+  /** task boards: channel and summary; each viewer gets those of the channels they may enter (#29) */
+  taskboards?: () => { channelId: number; summary: TaskBoardSummary }[];
 }
 
 /** Who is behind a device token and where are they right now? (board, ADR-0011) */
@@ -201,6 +207,14 @@ export class Hub {
   boardChanged(channelId: number): void {
     for (const ui of this.uis) {
       if (this.whoIs(ui.certHash)?.channelId === channelId) ui.conn.send({ v, type: "board", channelId });
+    }
+  }
+
+  /** to the web UIs of everyone who may enter the channel, while their plugin is connected (task board, #29) */
+  toUisMayEnter(channelId: number, msg: BridgeToUi): void {
+    for (const ui of this.uis) {
+      const viewer = this.whoIs(ui.certHash);
+      if (viewer && this.mayEnter(viewer.session, channelId)) ui.conn.send(msg);
     }
   }
 
@@ -524,6 +538,13 @@ export class Hub {
       canListen: session ? (s.canListen.get(session) ?? {}) : {},
       care: session ? (s.care.get(session) ?? []) : [],
     };
+    const equipment = this.opts.equipment?.();
+    if (equipment && Object.keys(equipment).length) snapshot.equipment = equipment;
+    if (session && this.opts.taskboards) {
+      const boards: Record<string, TaskBoardSummary> = {};
+      for (const b of this.opts.taskboards()) if (this.mayEnter(session, b.channelId)) boards[String(b.channelId)] = b.summary;
+      if (Object.keys(boards).length) snapshot.taskboards = boards;
+    }
     ui.conn.send(snapshot);
   }
 

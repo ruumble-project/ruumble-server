@@ -12,7 +12,8 @@ import edgeCases from "@ruumble/protocol/fixtures/edge-cases.json";
 import sample from "@ruumble/protocol/fixtures/sample.json";
 import unpaired from "@ruumble/protocol/fixtures/unpaired.json";
 import vacant from "@ruumble/protocol/fixtures/vacant.json";
-import type { AdapterEvents, BoardApi, BoardErrorCode, BoardResult, CareApi, KeysApi, MaintenanceApi, MumbleAdapter, PairApi, PluginStatus, StatusApi, ChatApi, TubeApi } from "./types.ts";
+import type { AdapterEvents, BoardApi, BoardErrorCode, BoardResult, CareApi, KeysApi, MaintenanceApi, MumbleAdapter, PairApi, PluginStatus, StatusApi, ChatApi, TubeApi, EquipmentApi, TaskBoardApi } from "./types.ts";
+import { MockTasks } from "./mockTaskboard.ts";
 
 const MINUTE = 60_000;
 
@@ -270,6 +271,7 @@ export class MockAdapter implements MumbleAdapter {
           channelId: id, name: this.channelName(id), posts: posts.length, bytes: posts.reduce((n, p) => n + (p.attachment?.size ?? 0), 0),
           newest: times.at(-1) ?? null, oldest: times[0] ?? null, retentionDays: this.settings.retentionDays,
           olderThan: PRUNE_DAYS.map((days) => ({ days, posts: times.filter((t) => t < now - days * DAY).length })),
+          tasks: this.tasks.count(id),
         };
       }, this.isRoom(id)),
     clearRoom: async (id) =>
@@ -503,6 +505,41 @@ export class MockAdapter implements MumbleAdapter {
     this.state = clone(typeof fixture === "string" ? FIXTURES[fixture]! : fixture);
     if (!this.state.self) this.plugin = "disconnected";
     if (opts.listenersHidden) this.state = { ...this.state, listeners: {}, listenersHidden: true };
+    if (fixture === "sample") this.tasks.seed(Date.now());
+  }
+
+  /** room equipment and the task board (#29), with the same rules as the service */
+  private readonly tasks: MockTasks = new MockTasks({
+    state: () => this.state,
+    me: () => {
+      const me = this.me();
+      return me && this.plugin === "connected" ? { person: mockPersonId(me.name), name: me.name, channel: me.channel } : null;
+    },
+    personOf: (name) => mockPersonId(name),
+    emit: () => this.emit(),
+    event: (event) => this.events?.taskboard(event),
+  });
+  get equipment(): EquipmentApi {
+    return this.tasks.equipment;
+  }
+  get taskboard(): TaskBoardApi {
+    return this.tasks.taskboard;
+  }
+  /** someone else asks for help on a task board (debug panel, e2e) */
+  askForHelp(): void {
+    this.tasks.askAsOther();
+  }
+  /** someone goes to a channel, by names (e2e, debug panel): e.g. into the cafeteria */
+  moveUserTo(name: string, channelName: string): void {
+    const u = this.state.users.find((x) => x.name === name);
+    const c = this.state.channels.find((x) => x.name === channelName);
+    if (!u || !c) return;
+    u.channel = c.id;
+    this.emit();
+  }
+  /** someone else takes on the own user's newest open request (e2e) */
+  helpAs(name: string): void {
+    this.tasks.helpAs(name);
   }
 
   readonly pairing: PairApi = {
@@ -1034,6 +1071,7 @@ export class MockAdapter implements MumbleAdapter {
     if (me && this.plugin === "connected") me.ruumble = true;
     else if (me) delete me.ruumble;
     for (const u of state.users) if (u.ruumble) u.person = mockPersonId(u.name);
+    this.tasks.decorate(state);
     this.events?.snapshot(state);
   }
 }

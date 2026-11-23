@@ -18,6 +18,7 @@
   import Tag from "@lucide/svelte/icons/tag";
   import UserIcon from "@lucide/svelte/icons/user";
   import Users from "@lucide/svelte/icons/users";
+  import Coffee from "@lucide/svelte/icons/coffee";
   import AudioLines from "@lucide/svelte/icons/audio-lines";
   import LogOut from "@lucide/svelte/icons/log-out";
   import MapIcon from "@lucide/svelte/icons/map";
@@ -29,7 +30,7 @@
   import ListenVolume from "./listen/ListenVolume.svelte";
   import { listenedRooms } from "../model/listening.ts";
   import { locale, setLocale, t } from "../i18n/index.svelte.ts";
-  import { countText, initials, ownPlace, type Building, type Floor } from "../model/building.ts";
+  import { countText, initials, ownPlace, stops, type Building, type Floor } from "../model/building.ts";
   import type { RuumbleState } from "../state.svelte.ts";
   import { SHORTCUT_KEYS } from "../shortcuts.ts";
   import { setTheme, theme } from "../theme.svelte.ts";
@@ -56,13 +57,13 @@
   // Ruumble Client: right click on the floor sign, a floor or the building opens Mumble's menu for that channel
   const admin = getDeskAdmin();
 
-  const reversed = $derived([...building.floors].reverse());
+  const reversed = $derived([...stops(building)].reverse());
   const me = $derived(app.me);
-  const myFloor = $derived(building.floors.find((f) => f.isSelf) ?? null);
+  const myFloor = $derived(stops(building).find((f) => f.isSelf) ?? null);
   const myPlace = $derived.by(() => {
     const self = building.self;
     if (!self || !me) return "";
-    if (self.kind === "entrance") return t().common.entrance;
+    if (self.kind === "entrance") return t().cafeteria.name;
     if (self.kind === "hidden") return t().core.hiddenPlace;
     const name = app.snapshot?.channels.find((c) => c.id === me.channel)?.name ?? "";
     const place = self.kind === "corridor" ? t().common.corridor : name;
@@ -212,7 +213,7 @@
         title={t().core.chooseFloor} onclick={() => toggle("floors")}
         oncontextmenu={(e) => contextMenu(admin, e, floor?.channelId ?? null)}
       >
-        <span class="badge" aria-hidden="true">{#if floor}{floor.badge}{:else}<ArrowDownUp size={16} />{/if}</span>
+        <span class="badge" aria-hidden="true">{#if floor?.lobby}<Coffee size={16} />{:else if floor}{floor.badge}{:else}<ArrowDownUp size={16} />{/if}</span>
         <span class="plate-text">
           {#if floor}<span class="caption" aria-hidden="true">{floor.level}</span>{/if}
           <span class="plate-name">
@@ -222,7 +223,7 @@
         <span class="call" aria-hidden="true"><ChevronDown size={18} class="chevron" /></span>
       </button>
       {#if open === "floors"}
-        <!-- elevator panel: highest floor at the top, the entrance below the ground floor -->
+        <!-- elevator panel: highest floor at the top, the lobby with the cafeteria (the root channel, #30) at the bottom -->
         <nav id="elevator" class="elevator" class:bare={!app.desk.available} aria-label={t().core.elevatorLabel} {@attach focusFirst}>
           <div class="elevator-head">
             <span class="elevator-icon"><ArrowDownUp size={18} /></span>{t().core.elevator}
@@ -242,24 +243,13 @@
               onclick={() => choose(f)}
               oncontextmenu={(e) => contextMenu(admin, e, f.channelId)}
             >
-              <span class="fbadge">{f.badge}</span>
+              <span class="fbadge">{#if f.lobby}<Coffee size={14} />{:else}{f.badge}{/if}</span>
               <span class="ftext">
                 <span class="fname"><span class="name">{f.name}</span><span class="fpeople" aria-hidden="true"><Users size={13} />{f.population}</span></span>
               </span>
             </button>
           {/each}
           <!-- building care and maintenance are beside the building in the building overview (ADR-0019) -->
-          {#if building.entrance.length > 0}
-            <section class="entrance" aria-label={t().common.entrance}>
-              <div class="entrance-head">{t().common.entrance} · {countText(building.entrance.length)}</div>
-              <!-- svelte-ignore a11y_no_static_element_interactions -->
-              <div class="entrance-people" oncontextmenu={(e) => contextMenu(admin, e, null)}>
-                {#each building.entrance as user (user.session)}
-                  <Avatar {user} talking={app.talking[user.session] ?? false} showName={false} />
-                {/each}
-              </div>
-            </section>
-          {/if}
           <!-- Ruumble Client (ADR-0024): Mumble's functions in the elevator's footer, from entering another building on
                the left to leaving on the right; Ctrl+, and F10 also work as keys -->
           {#if app.desk.available}
@@ -606,11 +596,6 @@
   .name { font-size: 15px; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .fpeople { display: inline-flex; align-items: center; gap: 3px; flex-shrink: 0; font-size: 13px; font-weight: 700; color: var(--color-plate-muted); font-variant-numeric: tabular-nums; }
   .floor.active .fpeople { color: var(--color-blue-700); }
-  .entrance { display: flex; flex-direction: column; gap: 8px; margin-top: 4px; padding: 10px 6px 2px; border-top: 1px solid rgb(255 255 255 / 0.2); }
-  .entrance-head { display: flex; align-items: center; gap: 8px; min-height: 28px; font-size: 13px; font-weight: 700; color: var(--color-plate-muted); }
-  .key-icon { display: inline-flex; }
-  .entrance-people { display: flex; flex-wrap: wrap; gap: 4px; }
-  .entrance-people :global(.person) { width: 48px; }
   /* status bar at the bottom of the elevator, like the display in a lift */
   /* everyone online, right-aligned in the elevator's head */
   .overview-link {

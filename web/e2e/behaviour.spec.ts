@@ -135,7 +135,8 @@ test.describe("Edge cases", () => {
   });
 
   test("entrance, lock, listeners, status icons", async ({ page }) => {
-    await expect((await elevator(page)).getByRole("region", { name: "Entrance" }).getByRole("img")).toHaveCount(2);
+    // the root channel's people sit in the cafeteria, the lobby at the bottom of the elevator (#30)
+    await expect((await elevator(page)).getByRole("button", { name: "Lobby: Cafeteria" })).toContainText("2");
     await page.keyboard.press("Escape");
     await expect(page.getByTitle("Eva is listening in")).toBeVisible();
     await expect(page.getByRole("img", { name: "Nils, muted by the server" })).toBeVisible();
@@ -205,10 +206,10 @@ test("broken avatar image: initials instead of the image", async ({ page }) => {
   await expect(page.getByRole("img", { name: "Anna (you)" })).toContainText("An");
 });
 
-test("vacant building", async ({ page }) => {
+test("vacant building: no floor, but one sits in the cafeteria of the lobby (#30)", async ({ page }) => {
   await page.goto("/?fixture=vacant&talking=0");
-  await expect(page.getByRole("heading", { name: "Vacant" })).toBeVisible();
-  await expect(page.getByText("No floor of this building can be shown", { exact: false })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Cafeteria" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Cafeteria – you are here" })).toBeVisible();
 });
 
 test("without a paired plugin: notice instead of the building", async ({ page }) => {

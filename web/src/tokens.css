@@ -41,6 +41,36 @@
   /* Wrench (building maintenance, ADR-0016): ONLY the wrench, the symbol of the maintenance dialog.
      The lantern that opens it in the building overview (ADR-0019) uses navy, sky and blue-100. */
   --color-steel: #c9d6e3;
+  /* Board (ADR-0011, #29): ONLY the cork board in the room and its frame; the notes on it stay white */
+  --color-cork: #d8b384;
+  --color-cork-edge: #b98d5c;
+  --color-cork-pore: #c49a68;
+  /* Task board (#29): ONLY the task board, its flag and cards, the marks at the avatars and the plaques on the rooms.
+     signal: graphics and glow; signal-ink: text and buttons on paper (≥ 4.5:1, white text on it); the tints are the
+     backgrounds of its three lanes */
+  /* Cafeteria (#30): ONLY the cafeteria, its furniture, its light and its chalkboard sign */
+  --color-wood: #efe4d4;
+  --color-wood-line: #e0d0b9;
+  --color-lamp: #ffc85c;
+  --color-lamp-soft: #fff0cc;
+  --color-sofa: #7fa3c9;
+  --color-sofa-back: #5f86b0;
+  --color-rug: #eccfae;
+  --color-rug-edge: #c3906c;
+  --color-chalk: #2e3a33;
+  --color-chalk-frame: #8a6a48;
+  /* the task board's flag: red while a request is new, then green */
+  --color-flag-new: #d6332a;
+  --color-flag-old: #3f9a5f;
+  --color-signal: #e8741c;
+  --color-signal-ink: #a84a06;
+  --color-signal-on: #ffffff;
+  --color-signal-tint: #fdeedf;
+  --color-help-tint: #e3effa;
+  --color-done-tint: #e6f2ea;
+  --signal-glow: rgb(232 116 28 / 0.22);
+  --help-glow: rgb(90 166 231 / 0.25);
+  --done-glow: rgb(79 154 107 / 0.25);
 
   /* Direct chat (ADR-0021): ONLY the bubbles of the other person in a conversation (tint) and the line under their tab
      (line); six hues apart from the reserved ones, picked per person (chat/model.ts tintOf). Ink text on every tint. */
@@ -137,6 +167,30 @@
   --color-blue-300: #3a4350;
   --color-blue-100: #253447;   /* own room, hover: a quiet blue */
   --color-blue-50: #222a35;
+  --color-cork: #a88660;
+  --color-cork-edge: #7d6143;
+  --color-cork-pore: #96764f;
+  --color-wood: #2b2722;
+  --color-wood-line: #3a332b;
+  --color-lamp: #ffbf4d;
+  --color-lamp-soft: #4b3e26;
+  --color-sofa: #4f6d8e;
+  --color-sofa-back: #3d5672;
+  --color-rug: #4a3a2c;
+  --color-rug-edge: #75553f;
+  --color-chalk: #1f2622;
+  --color-chalk-frame: #7d6143;
+  --color-flag-new: #ef5a4f;
+  --color-flag-old: #55b277;
+  --color-signal: #f0924a;
+  --color-signal-ink: #f4a868;
+  --color-signal-on: #1d232b;
+  --color-signal-tint: #3a2a1e;
+  --color-help-tint: #22303f;
+  --color-done-tint: #20302a;
+  --signal-glow: rgb(240 146 74 / 0.22);
+  --help-glow: rgb(111 166 214 / 0.22);
+  --done-glow: rgb(79 154 107 / 0.25);
 
   --raster-dot: #2b323c;
   --listen-glow: rgb(90 166 231 / 0.2);

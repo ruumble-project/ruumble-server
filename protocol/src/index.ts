@@ -10,6 +10,8 @@ import { z } from "zod";
 
 export * from "./tasks.ts";
 export * from "./tickets.ts";
+export * from "./taskboard.ts";
+import { Equipment, TaskBoardSummary, TaskEvent } from "./taskboard.ts";
 
 export const PROTOCOL_VERSION = 1 as const;
 
@@ -194,6 +196,10 @@ export const Snapshot = z.object({
    * root channel (0) for the whole building. Missing: none.
    */
   care: z.array(channelId).optional(),
+  /** channel ID → equipment of rooms and corridors that were set up (#29); missing: EQUIPMENT_DEFAULTS */
+  equipment: z.record(channelKey, Equipment).optional(),
+  /** channel ID → task board, for channels with one the own user may enter (#29); missing: none */
+  taskboards: z.record(channelKey, TaskBoardSummary).optional(),
 });
 export type Snapshot = z.infer<typeof Snapshot>;
 
@@ -303,6 +309,8 @@ export const RoomCare = z.object({
   retentionDays: z.number().int().min(1),
   /** per choice of PRUNE_DAYS: how many posts are older */
   olderThan: z.array(z.object({ days: z.number().int(), posts: count })),
+  /** requests on the room's task board (#29), done ones included; missing: older service */
+  tasks: count.optional(),
 });
 export type RoomCare = z.infer<typeof RoomCare>;
 
@@ -628,6 +636,9 @@ export const UiParcelPull = z.object({ v, type: z.literal("parcel-pull"), id: pa
 /** WebSocket, answer to `parcels-held`: parcels the service does not know (it restarted); the tab offers them again */
 export const UiParcelsMissing = z.object({ v, type: z.literal("parcels-missing"), ids: z.array(parcelId) });
 
+/** WebSocket: something happened on a task board, to the web UIs of everyone who may enter the channel (#29) */
+export const UiTaskBoard = z.object({ v, type: z.literal("taskboard"), event: TaskEvent });
+
 export const UiTalking = z.object({ v, type: z.literal("talking"), session, state: TalkingState });
 export const UiResult = z.object({ v, type: z.literal("result"), id: commandId, result: CommandResult });
 export const UiStatus = z.object({
@@ -638,7 +649,7 @@ export const UiStatus = z.object({
   preview: z.boolean().optional(),
 });
 
-export const BridgeToUi = z.discriminatedUnion("type", [Snapshot, UiTalking, UiResult, UiStatus, UiBoard, UiNudge, UiChat, UiParcel, UiParcelPull, UiParcelsMissing]);
+export const BridgeToUi = z.discriminatedUnion("type", [Snapshot, UiTalking, UiResult, UiStatus, UiBoard, UiNudge, UiChat, UiParcel, UiParcelPull, UiParcelsMissing, UiTaskBoard]);
 export type BridgeToUi = z.infer<typeof BridgeToUi>;
 
 // ---------------------------------------------------------------- Helpers

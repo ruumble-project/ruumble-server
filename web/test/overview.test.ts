@@ -18,13 +18,13 @@ describe("Building overview: the directory (ADR-0019)", () => {
       ["floor", "2", "Support", false],
       ["floor", "1", "Development", true],
       ["floor", "G", "Lobby", false],
-      ["entrance", "", "Entrance", false],
+      ["entrance", "", "Cafeteria", false],
     ]);
     expect(summary(s)).toEqual({
       Support: [["Gregor", "Office 1", true], ["Hanna", "Office 3", true]],
       Development: [["Anna", "Let's talk", false], ["Ben", "Ben's office", true], ["Clara", "Let's talk", false], ["David", "Let's talk", false]],
       Lobby: [["Eva", "Lobby", true], ["Felix", "Lobby", true]], // a floor without rooms: the open floor
-      Entrance: [],
+      Cafeteria: [],
     });
     expect(groups[1]!.people.find((p) => p.user.name === "Clara")!.user.status?.text).toBe("Focus time, please write");
   });
@@ -34,7 +34,7 @@ describe("Building overview: the directory (ADR-0019)", () => {
     const all = summary(s);
     expect(all["ARCHIVE"]).toEqual([]); // Karl is below a room: ignored like a hidden channel
     expect(all["Elsewhere"]).toEqual([["Gregor", "area not shown", false], ["Hanna", "area not shown", false], ["Karl", "area not shown", false], ["Lena", "area not shown", false]]);
-    expect(all["Entrance"]).toEqual([["Ida", "Entrance", true], ["Jonas", "Entrance", true]]);
+    expect(all["Cafeteria"]).toEqual([["Ida", "Cafeteria", true], ["Jonas", "Cafeteria", true]]);
     expect(all["DEVELOPMENT"]).toContainEqual(["Mia", "Meeting (temporary)", true]);
     expect(all["Lobby"]).toEqual([["Ben", "Lobby", true], ["Eva", "Lobby", true], ["Felix", "Lobby", true]]);
     const denied = { ...s, canEnter: { ...s.canEnter, "1": false } };

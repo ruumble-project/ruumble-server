@@ -26,6 +26,17 @@
     });
   }
 
+  function clearTasks(): void {
+    const c = t().care;
+    ask("tasks", {
+      title: c.taskboardClear,
+      detail: c.taskboardCount(room.tasks ?? 0),
+      confirmLabel: c.deleteForever,
+      tone: "danger",
+      run: () => app.clearTaskBoard(),
+    });
+  }
+
   function clear(): void {
     const c = t().care;
     ask("clear", {
@@ -77,10 +88,16 @@
       <button type="button" class="btn danger wide" disabled={app.careBusy || room.posts === 0} onclick={clear}><Icon name="trash" />{t().care.clearButton}</button>
     </div>
     <p class="small">{t().care.zipHint}</p>
+    {#if room.tasks}
+      <!-- the task board (#29): its requests go with it, not with the board -->
+      <h3 class="tasks">{t().care.taskboardTitle} · {t().care.taskboardCount(room.tasks)}</h3>
+      <button type="button" class="btn danger wide" disabled={app.careBusy} onclick={clearTasks}><Icon name="trash" />{t().care.taskboardClear}</button>
+    {/if}
   </section>
 </div>
 
 <style>
+  h3.tasks { margin-top: 16px; }
   .stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); padding: 10px 0; background: var(--surface); border-radius: 4px; }
   .stat { padding: 0 16px; min-width: 0; }
   .stat + .stat { border-left: 1px solid var(--line); }

@@ -199,7 +199,7 @@ test("whoever listens in stands in the room as a guest, for everyone; the door s
   await expect(clara.getByTitle("Eva is listening in")).toBeVisible();
   await expect(clara.locator(".door.heard")).toHaveCount(1);
   await expect(page.locator(".wrap-room .door.heard")).toHaveCount(1); // no other door opens
-  await gotoFloor(page, /Lobby/);
+  await gotoFloor(page, "Ground floor: Lobby");
   await expect(page.locator('.person[data-session="3"] .ear')).toHaveAttribute("title", "Listening in on Clara's office");
 });
 

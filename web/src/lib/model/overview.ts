@@ -58,7 +58,7 @@ export function buildDirectory(snapshot: Snapshot, building: Building, options: 
   for (const f of [...building.floors].reverse()) {
     groups.set(`f${f.channelId}`, { kind: "floor", channelId: f.channelId, badge: f.badge, name: f.name, isSelf: f.isSelf, people: [] });
   }
-  groups.set("entrance", { kind: "entrance", channelId: 0, badge: "", name: t().common.entrance, isSelf: selfChannel === 0, people: [] });
+  groups.set("entrance", { kind: "entrance", channelId: 0, badge: "", name: t().cafeteria.name, isSelf: selfChannel === 0, people: [] });
   const elsewhere: DirectoryGroup = { kind: "elsewhere", channelId: null, badge: "", name: t().overview.elsewhere, isSelf: false, people: [] };
 
   for (const u of snapshot.users) {
@@ -67,7 +67,7 @@ export function buildDirectory(snapshot: Snapshot, building: Building, options: 
     const floor = floorId === null ? undefined : floors.get(floorId);
     const group = ch === 0 ? groups.get("entrance")! : floor ? groups.get(`f${floor.channelId}`)! : elsewhere;
     const place =
-      group.kind === "entrance" ? t().common.entrance
+      group.kind === "entrance" ? t().cafeteria.name
       : group.kind === "elsewhere" ? t().core.hiddenPlace
       : ch === floor!.channelId ? (floor!.open ? floor!.name : t().common.corridor)
       : (byId.get(ch)?.name ?? "");

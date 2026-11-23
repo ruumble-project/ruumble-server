@@ -75,7 +75,7 @@ The web UI is dark if your system uses a dark appearance, otherwise light, and f
 
 ### Board
 
-- The **two notes next to your room's name**, at its door on the corridor side, show and hide the board, as does the **B** key (not while you are typing). Boards exist only in rooms, not in the corridor or the entrance.
+- The **cork board with two notes next to your room's name**, at its door on the corridor side, shows and hides the board, as does the **B** key (not while you are typing). Boards exist only in rooms, not in the corridor or the entrance.
 - The board sits **beside the floor plan** and makes the rooms narrower. With **View** in its header (the sliders next to the arrow) it **floats** over the floor plan instead ("Floating" instead of "Integrated"): on the left or right, wherever your own room stays fully visible, and it changes sides when you move.
 - Also under **View**: **compact** posts, one line each with the avatar, the message and its reactions. Images, files and code become small placeholders; click one to open the post. Point at a post: the bar with its actions names the author and the time. The browser remembers both choices.
 - Everyone **who is currently in the room** can see and edit it. The author and Mumble admins can delete posts.
@@ -93,6 +93,22 @@ The web UI is dark if your system uses a dark appearance, otherwise light, and f
 - The **plant** in a room, at the end of the corridor and beside the building in the building overview is for building admins (Mumble's Write permission on the root channel): it opens room, floor or building care, e.g. to delete old posts, clear or export a board (room), see all rooms or move a board to a recreated room (floor), or check the storage and reset a wrong ticket link (building). For everyone else it is just a plant.
 - **My keys** in the menu behind your name badge lists your paired browsers ("keys"). Revoke one you no longer use or have lost; that browser then has to be paired again.
 - Admins also find a **lantern** on the other side of the building in the building overview: the building maintenance with settings such as how long posts are kept and the largest file, and everyone's keys.
+
+### Task board
+
+- Rooms and corridors can have a **task board**: a whiteboard on a stand in the door strip, between the room's name and the board notes. Someone with Mumble's Write permission switches it on in **Set up room** (or **Set up floor** for the corridor) under **Equipment**, in Ruumble Client. The same tab switches the binders with the room description off.
+- A **flag** means requests are waiting, and the orange cards on the board show how many. The flag is **red** while a request is less than 2 hours old and **green** after that; once one has waited longer than the room's time (30 minutes unless set otherwise) the flag waves. Click the board to open it beside the floor plan, in the place of the board.
+- **Ask:** whoever is in the room writes what they need in one line and clicks **Ask**. Optional: **until** a time, **quick call**, **have a look**. Type `@` and a name to ask a particular person; they get a line in their Mumble log wherever they are, and everyone else may still help.
+- **Help:** anyone who may enter the room clicks **I'll help** on a card; one helper per request. The helper gets **Go to …** and **Quiet word** to reach the asker. Others with the same problem click **+1**.
+- **Finish:** asker or helper click **Done**, the asker can also choose **Solved it**. Anyone involved (asker, helper, +1) can **Reopen** a done request. The asker can **Say thanks** with a card: one of eight pictures and a line of their own, or the dice for an idea.
+- Every change shows as a **plaque** on the room's outer wall, for everyone who may enter, and as a line in the Mumble log. Coming into a room with open requests shows one for you. Avatars show a small **hand** for someone who asks for help and **footprints** for someone helping.
+- Done requests disappear after the time set for the room (7 days unless set otherwise). Room care shows how many requests a board holds and can clear them.
+
+### Lobby and cafeteria
+
+- The **lobby** is Mumble's root channel, at the bottom of the elevator below the floors. Everyone in it sits in its **cafeteria** at the top right: on the sofas, at the round table or at the counter, one seat each.
+- As soon as someone is in the cafeteria, the **lights come on**. From every floor you see the light falling out of its door and window, and a **chalkboard sign** next to the tube mail button with the number of people there. Point at it to see who is there; click it to go there. Empty, the sign stays pale and still takes you there.
+- In the cafeteria, the same sign shows an arrow: a click takes you back to the room you came from.
 
 ## Questions and problems
 

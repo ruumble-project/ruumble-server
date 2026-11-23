@@ -86,7 +86,7 @@ test.describe("Descriptions from Mumble", () => {
     await page.getByRole("button", { name: "Description of Corridor Development" }).click();
     await expect(page.getByRole("dialog", { name: "Description of Corridor Development" })).toContainText("Floor of the development teams.");
     await page.keyboard.press("Escape");
-    await gotoFloor(page, /Lobby/);
+    await gotoFloor(page, "Ground floor: Lobby");
     await page.getByRole("button", { name: "Description of Lobby" }).click();
     await expect(page.getByRole("dialog", { name: "Description of Lobby" })).toContainText("Welcome to Acme HQ!");
   });

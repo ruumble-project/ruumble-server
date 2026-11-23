@@ -36,6 +36,8 @@ export interface CareRouteOptions {
   log?: (msg: string, extra?: Record<string, unknown>) => void;
   /** care actions per user and minute */
   actionsPerMinute?: number;
+  /** requests on a room's task board (#29) */
+  tasksOf?: (channelId: number) => number;
 }
 
 /** floors that are gone, from the rooms that are gone: grouped by their last known floor */
@@ -93,6 +95,7 @@ export async function careRoutes(app: FastifyInstance, o: CareRouteOptions): Pro
       newest: times.at(-1) ?? null, oldest: times[0] ?? null,
       retentionDays: o.store.retentionDays,
       olderThan: PRUNE_DAYS.map((days) => ({ days, posts: times.filter((c) => c < t - days * DAY).length })),
+      ...(o.tasksOf ? { tasks: o.tasksOf(id) } : {}),
     };
     return view;
   });

@@ -143,3 +143,30 @@ test.describe("inside Ruumble Client", () => {
     await expect(dialog).toBeVisible();
   });
 });
+
+test.describe("Room setup: equipment (#29)", () => {
+  test.beforeEach(async ({ page }) => {
+    await asDesk(page);
+    await page.goto("/?fixture=sample&talking=0");
+  });
+
+  test("the board is always there; the binders go off, the task board comes on with its settings", async ({ page }) => {
+    await page.getByRole("button", { name: "Room setup: Let's play" }).click();
+    const dialog = page.getByRole("dialog", { name: "Room setup" });
+    await dialog.getByRole("tab", { name: "Equipment" }).click();
+    await expect(dialog.getByText("Always there")).toBeVisible();
+    const binders = dialog.getByRole("switch", { name: "Binders" });
+    const taskboard = dialog.getByRole("switch", { name: "Task board" });
+    await expect(binders).toBeChecked();
+    await expect(taskboard).not.toBeChecked();
+    await expect(dialog.getByText("Clear done requests after")).toHaveCount(0);
+    await taskboard.check();
+    await dialog.getByLabel("The flag waves when a request has waited for").selectOption({ label: "1 hour" });
+    await expect(dialog.getByText("Whoever is in the room can ask.")).toBeVisible();
+    await dialog.getByRole("button", { name: "Save" }).click();
+    await expect(dialog).toHaveCount(0);
+    await expect(page.getByRole("button", { name: /^Open the task board of Let's play · / })).toBeVisible();
+    // nothing went to Mumble: the equipment is kept by the service
+    expect(await page.evaluate(() => (window as unknown as { deskCalls: unknown[] }).deskCalls)).toEqual([]);
+  });
+});

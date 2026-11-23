@@ -3,7 +3,7 @@
  * Pure functions without Svelte and without DOM. Every change to the snapshot yields a new building,
  * nothing is stored.
  */
-import type { Channel, Snapshot, User } from "@ruumble/protocol";
+import { EQUIPMENT_DEFAULTS, type Channel, type Snapshot, type TaskBoardSummary, type User } from "@ruumble/protocol";
 import { t } from "../i18n/index.svelte.ts";
 
 /** Rooms per row in view (6 on a floor); more scroll sideways (docs/internal/charter.md, E31). */
@@ -42,6 +42,13 @@ export interface UserView {
   status: { text: string; until: number | null } | null;
   /** names of the channels this person listens in on (#21): an ear on their avatar; empty: none */
   listensIn: string[];
+  /** on a task board the own user may see (#29): a request of theirs waits for help, or they are helping; missing: neither */
+  help?: "asking" | "helping";
+}
+
+/** the task board of a room or corridor (#29), when it has one and the own user may enter */
+export interface SpaceTaskBoard extends TaskBoardSummary {
+  waveMinutes: number;
 }
 
 /** An enterable area: room, corridor or open floor. */
@@ -62,6 +69,10 @@ export interface Space {
   canTend: boolean;
   /** description from Mumble (raw HTML, sanitised only when shown); empty: none */
   description: string;
+  /** the binders with the description are switched off in the room's equipment (#29) */
+  bindersOff?: boolean;
+  /** the task board (#29); missing: none, or the own user may not enter */
+  taskboard?: SpaceTaskBoard;
 }
 
 export interface Room extends Space {
@@ -88,6 +99,8 @@ export interface Floor {
   /** all users in the floor's visible subtree */
   population: number;
   isSelf: boolean;
+  /** the lobby (#30): the root channel, the level below the floors; its people sit in the cafeteria, it has no rooms */
+  lobby?: true;
 }
 
 export type SelfLocation =
@@ -99,7 +112,10 @@ export type SelfLocation =
 export interface Building {
   name: string;
   serverVersion: string;
+  /** the floors (children of the root channel), lowest first; the lobby is not among them */
   floors: Floor[];
+  /** the lobby (#30): the root channel, shown below the floors, with the cafeteria */
+  lobby: Floor;
   /** Users in the root channel */
   entrance: UserView[];
   /** all users on the server, including in hidden channels */
@@ -110,6 +126,17 @@ export interface Building {
   canTendBuilding: boolean;
   /** the Mumble server does not let Ruumble see who is listening in (Mumble 1.5): nobody sees listeners, said in the UI */
   listenersHidden: boolean;
+  /** the cafeteria in the lobby (#30): everyone in the root channel sits there */
+  cafeteria: Cafeteria;
+}
+
+/** the cafeteria (#30): the root channel's people, for its light and its sign on every floor */
+export interface Cafeteria {
+  users: UserView[];
+  /** the own user may not enter the root channel */
+  locked: boolean;
+  /** the own user is inside */
+  isSelf: boolean;
 }
 
 // ---------------------------------------------------------------- individual rules
@@ -303,7 +330,17 @@ export function buildBuilding(snapshot: Snapshot, options: BuildOptions = {}): B
     for (const s of sessions) listensIn.set(s, [...(listensIn.get(s) ?? []), name]);
   }
   for (const names of listensIn.values()) names.sort(collator.compare);
-  const userView = (u: User): UserView => userViewOf(u, selfSession, avatarUrl, listensIn.get(u.session));
+  // the marks of the task boards (#29): a request waits for help (asking wins), or helping
+  const help = new Map<string, "asking" | "helping">();
+  for (const summary of Object.values(snapshot.taskboards ?? {})) {
+    for (const p of summary.helping) if (!help.has(p)) help.set(p, "helping");
+    for (const p of summary.asking) help.set(p, "asking");
+  }
+  const userView = (u: User): UserView => {
+    const view = userViewOf(u, selfSession, avatarUrl, listensIn.get(u.session));
+    const mark = u.person ? help.get(u.person) : undefined;
+    return mark ? { ...view, help: mark } : view;
+  };
   const byName = (a: User, b: User) => collator.compare(a.name, b.name);
   const viewsIn = (id: number) => (usersIn.get(id) ?? []).slice().sort(byName).map(userView);
   const bySession = new Map(snapshot.users.map((u) => [u.session, u]));
@@ -317,6 +354,12 @@ export function buildBuilding(snapshot: Snapshot, options: BuildOptions = {}): B
 
   const selfUser = snapshot.users.find((u) => u.session === selfSession);
   const care = new Set(snapshot.care ?? []);
+  const equipmentOf = (id: number) => snapshot.equipment?.[String(id)] ?? EQUIPMENT_DEFAULTS;
+  const taskboardOf = (id: number) => {
+    const summary = snapshot.taskboards?.[String(id)];
+    const equipment = equipmentOf(id);
+    return summary && equipment.taskboard ? { taskboard: { ...summary, waveMinutes: equipment.waveMinutes } } : {};
+  };
   const space = (c: Channel): Space => ({
     channelId: c.id,
     name: c.name,
@@ -328,11 +371,28 @@ export function buildBuilding(snapshot: Snapshot, options: BuildOptions = {}): B
     recording: (usersIn.get(c.id) ?? []).some((u) => u.recording),
     canTend: care.has(c.id),
     description: c.description?.trim() ?? "",
+    ...(equipmentOf(c.id).binders ? {} : { bindersOff: true }),
+    ...taskboardOf(c.id),
   });
   const subtreePopulation = (id: number): number =>
     (usersIn.get(id)?.length ?? 0) + childrenOf(id).reduce((n, c) => n + subtreePopulation(c.id), 0);
   const subtreeIds = (id: number): number[] => [id, ...childrenOf(id).flatMap((c) => subtreeIds(c.id))];
 
+  // the lobby (#30): the root channel is the level below the floors, called the lobby; its people sit in the cafeteria.
+  // The floors keep their numbers.
+  const root = snapshot.channels.find((c) => c.id === 0) ?? { id: 0, parent: null, name: "", position: 0, links: [], temporary: false };
+  const lobby: Floor = {
+    channelId: 0,
+    name: t().cafeteria.name,
+    level: t().cafeteria.lobby,
+    badge: "",
+    corridor: space(root),
+    rooms: [],
+    open: true,
+    population: usersIn.get(0)?.length ?? 0,
+    isSelf: selfUser?.channel === 0,
+    lobby: true,
+  };
   const floors: Floor[] = childrenOf(0).map((f, index) => {
     const roomChannels = childrenOf(f.id);
     return {
@@ -367,11 +427,13 @@ export function buildBuilding(snapshot: Snapshot, options: BuildOptions = {}): B
     name: snapshot.server.name,
     serverVersion: snapshot.server.version,
     floors,
+    lobby,
     entrance: viewsIn(0),
     online: snapshot.users.length,
     self,
     canTendBuilding: care.has(0),
     listenersHidden: snapshot.listenersHidden === true,
+    cafeteria: { users: lobby.corridor.users, locked: lobby.corridor.locked, isSelf: lobby.isSelf },
   };
 }
 
@@ -382,7 +444,7 @@ export function buildBuilding(snapshot: Snapshot, options: BuildOptions = {}): B
 export function ownPlace(building: Building, snapshot: Snapshot): { name: string; people: number } | null {
   const self = building.self;
   if (!self) return null;
-  if (self.kind === "entrance") return { name: t().common.entrance, people: building.entrance.length };
+  if (self.kind === "entrance") return { name: t().cafeteria.name, people: building.entrance.length };
   const inChannel = snapshot.users.filter((u) => u.channel === self.channelId).length;
   if (self.kind === "hidden") return { name: t().core.hiddenPlace, people: inChannel };
   const floor = building.floors.find((f) => f.channelId === self.floorId);
@@ -397,8 +459,15 @@ export function spaceKind(building: Building | null, channelId: number): "floor"
   return building?.floors.some((f) => f.channelId === channelId) ? "floor" : "room";
 }
 
-/** Which floor is shown at start or on “Go to my floor”: your own, otherwise the first displayable one. */
+/** Which floor is shown at start or on “Go to my floor”: your own (the lobby when in the cafeteria), otherwise the first
+ * displayable one; null without floors (vacant), unless one is in the lobby. */
 export function homeFloor(building: Building): Floor | null {
+  if (building.lobby.isSelf) return building.lobby;
   const own = building.floors.find((f) => f.isSelf);
   return own ?? building.floors[0] ?? null;
+}
+
+/** every place the elevator stops at: the floors and the lobby below them (#30) */
+export function stops(building: Building): Floor[] {
+  return [building.lobby, ...building.floors];
 }
