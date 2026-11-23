@@ -740,7 +740,7 @@ export const de = {
   /** the free part of the lobby (#31): its clock, the bell on the desk and the two signs in front of it */
   lobby: {
     clock: (time: string, date: string) => `Uhr: ${time}, ${date}`,
-    bell: "Ruumble auf GitHub",
+    bell: "Die Ruumble-Webseite",
     bug: "BUG: einen Fehler melden (auf GitHub)",
     idea: "IDEA: eine Idee einreichen (auf GitHub)",
   },

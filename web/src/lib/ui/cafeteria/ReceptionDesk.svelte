@@ -1,6 +1,6 @@
 <script lang="ts">
   // the lobby's reception desk (#31), from above: a wide counter curved towards the visitors, an office chair behind it
-  // facing it, a bell on it that opens Ruumble's page on GitHub. In front of it, to the left and right, two chalkboard
+  // facing it, a bell on it that opens Ruumble's website. In front of it, to the left and right, two chalkboard
   // signs like the cafeteria's: BUG (muted dark orange) opens the bug report form, IDEA (moss green) the feature
   // request form.
   import { LOBBY_LINKS } from "../../model/lobby.ts";
@@ -21,7 +21,7 @@
   <rect x="97" y="11" width="26" height="24" rx="6" class="chair-seat" />
   <rect x="92" y="13" width="5" height="17" rx="2.5" class="chair-back" /><rect x="123" y="13" width="5" height="17" rx="2.5" class="chair-back" />
   <!-- the bell -->
-  <a href={LOBBY_LINKS.github} target="_blank" rel="noopener noreferrer" aria-label={t().lobby.bell}>
+  <a href={LOBBY_LINKS.website} target="_blank" rel="noopener noreferrer" aria-label={t().lobby.bell}>
     <title>{t().lobby.bell}</title>
     <circle cx="150" cy="56" r="12" class="hit" />
     <circle cx="150" cy="56" r="6" class="bell" /><circle cx="150" cy="56" r="1.6" class="bell-top" />

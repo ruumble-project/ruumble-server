@@ -6,6 +6,8 @@ All notable changes to Ruumble. The service and the web UI share one version; th
 
 ## [Unreleased]
 
+Plugin 0.5.0 (unchanged). For operators: the service keeps two new files in `DATA_DIR`, `equipment.json` and `taskboard.json`; include them in backups.
+
 ### Added
 
 - **Task board for asking for help:** a room or corridor can get a task board (off by default). Whoever is in the room asks for help in one line, with optional chips (until a time, a quick call, have a look) and `@` for a particular person; everyone who may enter the room sees it, says "+1" or takes it on with one click; asker and helper mark it done, everyone involved can reopen it, and the asker can send a thank-you card with one of eight drawn motifs. The board stands in the door strip; open requests show as cards on it and raise a flag, red while one is less than 2 hours old and green after that (waving once one has waited long); avatars show who asks and who helps. Service: `bridge/src/taskboard/` with `taskboard.json`, REST under `/api/taskboard`, snapshot `taskboards`, event `taskboard`; done requests are cleared after a time set per room; an asker whose helper left is asked whether it is done (ADR-0028, #29)
@@ -13,7 +15,7 @@ All notable changes to Ruumble. The service and the web UI share one version; th
 - **Room equipment:** "Set up room" / "Set up floor" in Ruumble Client has a second tab "Equipment": the board (always there), the binders (can be switched off now, even with a description) and the task board with its settings. Kept by the service in `equipment.json`, changed with Mumble's Write permission, `PUT /api/equipment/:channelId`, snapshot `equipment` (#29)
 - **Room care** shows the requests on a room's task board and clears them (#29)
 - **Lobby with a cafeteria:** the root channel is shown as the lobby below the floors (the floors keep their numbers), and everyone in it sits in its cafeteria: a fixed-size room at the top right with a counter and espresso machine, two sofas over the corner (four and five cushions), a round table with five chairs and three stools, one seat per person (17, then standing), a parquet floor and a rug. It is lit while someone is inside; on every floor a cone of light rises out of its north door and one falls out of its east window, and a chalkboard sign directly left of the tube mail button shows how many are there and takes you there. Inside, the sign leads back to the room you came from. The elevator lists the lobby at the bottom instead of the people at the entrance (ADR-0029, #30)
-- **Lobby furniture:** the free part of the lobby has a wall clock with the weekday and date, and a reception desk with an office chair and a bell (opens Ruumble on GitHub), with a "BUG" and an "IDEA" chalkboard sign in front of it (open GitHub's bug report and feature request forms). They stand centred between the west wall and the cafeteria and only where they fit; the desk goes first, then the clock. The entrance is a glass sliding door (#31)
+- **Lobby furniture:** the free part of the lobby has a wall clock with the weekday and date, and a reception desk with an office chair and a bell (opens Ruumble's website), with a "BUG" and an "IDEA" chalkboard sign in front of it (open GitHub's bug report and feature request forms). They stand centred between the west wall and the cafeteria and only where they fit; the desk goes first, then the clock. The entrance is a glass sliding door (#31)
 
 ### Changed
 

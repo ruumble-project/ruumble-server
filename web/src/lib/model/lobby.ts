@@ -4,9 +4,9 @@
  * centred between the west wall and the cafeteria. The desk goes first, then the clock.
  */
 
-/** Ruumble on GitHub: the bell on the desk, and the two forms of the signs in front of it */
+/** the bell on the desk: Ruumble's website; the signs in front of it: the two forms on GitHub */
 export const LOBBY_LINKS = {
-  github: "https://github.com/ruumble-project/ruumble-server",
+  website: "https://ruumble-project.github.io",
   bug: "https://github.com/ruumble-project/ruumble-server/issues/new?template=bug_report.yml",
   idea: "https://github.com/ruumble-project/ruumble-server/issues/new?template=feature_request.yml",
 } as const;

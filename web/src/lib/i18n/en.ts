@@ -689,7 +689,7 @@ export const en: Messages = {
   },
   lobby: {
     clock: (time: string, date: string) => `Clock: ${time}, ${date}`,
-    bell: "Ruumble on GitHub",
+    bell: "Ruumble's website",
     bug: "BUG: report a bug (on GitHub)",
     idea: "IDEA: suggest an idea (on GitHub)",
   },

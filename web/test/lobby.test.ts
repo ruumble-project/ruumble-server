@@ -23,7 +23,8 @@ describe("the free part of the lobby (#31)", () => {
     expect(lobbyLayout(0, 0, 780).free.width).toBe(0);
   });
 
-  it("the links go to Ruumble on GitHub and its two forms", () => {
+  it("the bell goes to the website, the signs to the two forms on GitHub", () => {
+    expect(LOBBY_LINKS.website).toBe("https://ruumble-project.github.io");
     expect(LOBBY_LINKS.bug).toMatch(/issues\/new\?template=bug_report\.yml$/);
     expect(LOBBY_LINKS.idea).toMatch(/issues\/new\?template=feature_request\.yml$/);
   });
