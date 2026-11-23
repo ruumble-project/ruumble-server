@@ -2,7 +2,7 @@
 import { describe, expect, it } from "vitest";
 import type { Snapshot } from "@ruumble/protocol";
 import sample from "@ruumble/protocol/fixtures/sample.json";
-import { buildBuilding, homeFloor, stops } from "../src/lib/model/building.ts";
+import { buildBuilding, homeFloor, isOldLobby, stops } from "../src/lib/model/building.ts";
 import { cafeRect, CAFE_VIEW, CAFE_WIDTH, fraction, glow, returnChannelOf, SEATS, seating } from "../src/lib/model/cafeteria.ts";
 
 const snapshot = (inRoot: string[] = [], self?: string): Snapshot => {
@@ -81,5 +81,28 @@ describe("the lobby and its cafeteria (#30)", () => {
     const gone = snapshot(["Anna"]);
     gone.channels = gone.channels.filter((c) => c.id !== 3);
     expect(returnChannelOf(inCafe, gone, 3)).toBeNull(); // the room is gone
+  });
+
+  it("the old empty lobby floor is replaced by the lobby; the floors keep their numbers", () => {
+    const snap = snapshot();
+    for (const u of snap.users) if (u.channel === 1) u.channel = 0; // Felix and Eva leave the old lobby for the root channel
+    const b = buildBuilding(snap);
+    expect(b.floors.map((f) => [f.channelId, f.level, f.name])).toEqual([[2, "1st floor", "Development"], [8, "2nd floor", "Support"]]);
+    expect(stops(b).map((f) => f.name)).toEqual(["Cafeteria", "Development", "Support"]);
+    expect(b.cafeteria.users.map((u) => u.name).sort()).toEqual(["Eva", "Felix"]);
+  });
+
+  it("someone in the old lobby: it stays, nobody is lost; a lobby with rooms or another name stays too", () => {
+    expect(buildBuilding(snapshot()).floors.map((f) => f.name)).toEqual(["Lobby", "Development", "Support"]);
+    const named = snapshot();
+    for (const u of named.users) if (u.channel === 1) u.channel = 0;
+    named.channels.find((c) => c.id === 1)!.name = "Open Space";
+    expect(buildBuilding(named).floors.map((f) => f.name)).toEqual(["Open Space", "Development", "Support"]);
+    const withRoom = snapshot();
+    for (const u of withRoom.users) if (u.channel === 1) u.channel = 0;
+    withRoom.channels.push({ id: 30, parent: 1, name: "Room", position: 0, links: [], temporary: false });
+    expect(buildBuilding(withRoom).floors.map((f) => f.name)).toEqual(["Lobby", "Development", "Support"]);
+    expect(isOldLobby({ open: true, population: 0, name: " Foyer " })).toBe(true);
+    expect(isOldLobby({ open: false, population: 0, name: "Lobby" })).toBe(false);
   });
 });

@@ -8,7 +8,7 @@
   import CrossSection from "./CrossSection.svelte";
   import Directory from "./Directory.svelte";
 
-  // Building overview (ADR-0019), from the elevator's status bar or with H: the cross-section of the building on the
+  // Building overview (ADR-0019), from the elevator's status bar or with M: the cross-section of the building on the
   // left, the directory board of the lobby on the right. Hovering a person on one side marks them on the other.
   // Building care and maintenance open on top of it; closing them returns here.
   let { app, building }: { app: RuumbleState; building: Building } = $props();

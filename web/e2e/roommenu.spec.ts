@@ -162,7 +162,7 @@ test.describe("Room setup: equipment (#29)", () => {
     await expect(dialog.getByText("Clear done requests after")).toHaveCount(0);
     await taskboard.check();
     await dialog.getByLabel("The flag waves when a request has waited for").selectOption({ label: "1 hour" });
-    await expect(dialog.getByText("Whoever is in the room can ask.")).toBeVisible();
+    await expect(dialog.getByText("Whoever is in the room can ask for help.")).toBeVisible();
     await dialog.getByRole("button", { name: "Save" }).click();
     await expect(dialog).toHaveCount(0);
     await expect(page.getByRole("button", { name: /^Open the task board of Let's play · / })).toBeVisible();

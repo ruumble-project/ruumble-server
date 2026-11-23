@@ -3,7 +3,7 @@
   // states, and what one can do: send them a direct message (ADR-0021) or a file (ADR-0022) and, for a deafened
   // person in the own room, nudge them (ADR-0020). Shown while the pointer is on the avatar or the card, in the top layer so neither the room nor
   // the scrolling floor plan clips it. The avatar sits inside the room's button, so the card is placed beside it
-  // rather than in it; the keyboard way is the directory board (H).
+  // rather than in it; the keyboard way is the directory board (M).
   import BellRing from "@lucide/svelte/icons/bell-ring";
   import Package from "@lucide/svelte/icons/package";
   import MessagesSquare from "@lucide/svelte/icons/messages-square";

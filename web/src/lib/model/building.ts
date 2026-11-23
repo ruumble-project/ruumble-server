@@ -130,6 +130,14 @@ export interface Building {
   cafeteria: Cafeteria;
 }
 
+/** names the old lobby floor goes by: the lobby (root channel) replaces it while nobody is in it */
+const OLD_LOBBY_NAME = /^(lobby|foyer|empfang|eingang|entrance|reception)$/i;
+
+/** an empty open floor named like a lobby */
+export function isOldLobby(floor: Pick<Floor, "open" | "population" | "name">): boolean {
+  return floor.open && floor.population === 0 && OLD_LOBBY_NAME.test(floor.name.trim());
+}
+
 /** the cafeteria (#30): the root channel's people, for its light and its sign on every floor */
 export interface Cafeteria {
   users: UserView[];
@@ -393,7 +401,7 @@ export function buildBuilding(snapshot: Snapshot, options: BuildOptions = {}): B
     isSelf: selfUser?.channel === 0,
     lobby: true,
   };
-  const floors: Floor[] = childrenOf(0).map((f, index) => {
+  const allFloors: Floor[] = childrenOf(0).map((f, index) => {
     const roomChannels = childrenOf(f.id);
     return {
       channelId: f.id,
@@ -412,6 +420,9 @@ export function buildBuilding(snapshot: Snapshot, options: BuildOptions = {}): B
       isSelf: selfUser !== undefined && subtreeIds(f.id).includes(selfUser.channel),
     };
   });
+  // the old lobby (#30): the lowest floor, an open floor named like a lobby, is replaced by the lobby with its cafeteria
+  // (the root channel) for as long as nobody is in it; whoever is in it is still shown, so nobody is lost
+  const floors = allFloors.filter((f, index) => !(index === 0 && isOldLobby(f)));
 
   let self: SelfLocation | null = null;
   if (selfUser) {

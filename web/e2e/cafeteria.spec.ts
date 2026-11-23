@@ -1,5 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
-import { gotoFloor } from "./topbar.ts";
+import { elevator, gotoFloor } from "./topbar.ts";
 
 // The cafeteria (#30) against the mock: the root channel ("Acme HQ") is the lobby, and everyone in it sits in the
 // cafeteria. Nobody is there at first; Anna is in "Let's talk" on Development.
@@ -61,5 +61,18 @@ test.describe("Cafeteria", () => {
     // a double click goes there
     await cafe.dblclick();
     await expect(page.getByRole("status", { name: /^You are here: Cafeteria/ })).toBeVisible();
+  });
+
+  test("the old empty lobby is replaced by the lobby: one stop in the elevator, back when someone is in it", async ({ page }) => {
+    const move = (names: string[], channel: string) =>
+      page.evaluate(([list, c]) => { for (const n of list!) (window as unknown as { ruumbleMock: { moveUserTo(n: string, c: string): void } }).ruumbleMock.moveUserTo(n, c!); }, [names, channel] as [string[], string]);
+    const stops = async () => (await elevator(page)).locator("button.floor");
+    await expect(await stops()).toHaveCount(4); // the lobby, the old lobby, two floors
+    await move(["Felix", "Eva"], "Acme HQ");
+    await expect(await stops()).toHaveCount(3);
+    await expect((await elevator(page)).getByRole("button", { name: /^Ground floor: Lobby/ })).toHaveCount(0);
+    await move(["Eva"], "Lobby");
+    await expect(await stops()).toHaveCount(4);
+    await expect((await elevator(page)).getByRole("button", { name: /^Ground floor: Lobby/ })).toHaveCount(1);
   });
 });

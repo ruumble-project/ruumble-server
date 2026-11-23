@@ -38,7 +38,7 @@
     class:leaving
     aria-hidden={onopen ? undefined : "true"}
     tabindex={onopen ? undefined : -1}
-    title={onopen ? t().taskboard.notice.open : undefined}
+    title={onopen ? t().taskboard.title : undefined}
     onclick={onopen}
     onpointerenter={() => (hovered = true)}
     onpointerleave={() => (hovered = false)}

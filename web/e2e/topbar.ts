@@ -17,7 +17,7 @@ export async function gotoFloor(page: Page, name: string | RegExp): Promise<void
 
 /** opens the building overview (H) and returns its cross-section, with the lantern and the plant beside it */
 export async function overviewSection(page: Page): Promise<Locator> {
-  await page.keyboard.press("h");
+  await page.keyboard.press("m");
   return page.getByRole("dialog", { name: "Building overview" }).getByRole("region", { name: "Cross-section" });
 }
 

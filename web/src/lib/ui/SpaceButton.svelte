@@ -356,7 +356,7 @@
     type="button"
     class="notes toggle"
     aria-label={boardLabel}
-    title={t().board.withKey(boardLabel, SHORTCUT_KEYS.toggleBoard)}
+    title={`${t().board.title} (${SHORTCUT_KEYS.toggleBoard.toUpperCase()})`}
     aria-keyshortcuts={SHORTCUT_KEYS.toggleBoard.toUpperCase()}
     aria-expanded={boardOpen}
     aria-controls="board-panel"
@@ -388,7 +388,7 @@
     class="taskboard-spot taskboard-{variant}"
     class:active={taskboardOpen}
     aria-label={taskboardText}
-    title={taskboardText}
+    title={space.isSelf ? `${t().taskboard.title} (${SHORTCUT_KEYS.taskboard.toUpperCase()})` : t().taskboard.title}
     aria-expanded={taskboardOpen}
     aria-controls="taskboard-panel"
     data-taskboard={space.channelId}

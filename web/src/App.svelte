@@ -110,6 +110,9 @@
     if (shortcut === "toggleBoard" && !app.readonly) {
       e.preventDefault();
       app.toggleBoard();
+    } else if (shortcut === "taskboard" && !app.readonly) {
+      e.preventDefault();
+      app.toggleOwnTaskBoard();
     } else if (shortcut === "status" && app.me) {
       e.preventDefault();
       void app.openStatus();

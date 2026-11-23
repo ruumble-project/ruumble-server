@@ -26,7 +26,7 @@ test.describe("Nudge", () => {
 
   test("from the directory board: the bell beside a deafened person in the own room", async ({ page }) => {
     await page.getByRole("button", { name: "Someone in my room deafens" }).click();
-    await page.keyboard.press("h");
+    await page.keyboard.press("m");
     const overview = page.getByRole("dialog", { name: "Building overview" });
     await expect(overview.getByRole("button", { name: /^Nudge/ })).toHaveCount(1);
     await overview.getByRole("button", { name: "Nudge Clara" }).click();

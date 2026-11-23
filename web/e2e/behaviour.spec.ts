@@ -53,12 +53,12 @@ test.describe("Sample building", () => {
     await page.keyboard.press(" ");
     await expect(page.getByRole("button", { name: "Let's play – you are here" })).toBeVisible();
 
-    await page.keyboard.press("h");
+    await page.keyboard.press("m");
     const dialog = page.getByRole("dialog", { name: "Building overview" });
     await dialog.getByRole("region", { name: "Cross-section" }).getByRole("button", { name: "Enter Ben's office" }).focus();
     await page.keyboard.press("Enter");
     await expect(page.getByRole("button", { name: "Ben's office – you are here" })).toBeVisible();
-    await page.keyboard.press("h");
+    await page.keyboard.press("m");
     await dialog.getByRole("button", { name: /^Go to Eva/ }).focus();
     await page.keyboard.press("Enter");
     await expect(page.getByRole("button", { name: /^You are here: Lobby/ })).toBeVisible();
@@ -348,7 +348,7 @@ test.describe("Building overview", () => {
   });
 
   test("H opens it; the search filters, Enter goes to the first match", async ({ page }) => {
-    await page.keyboard.press("h");
+    await page.keyboard.press("m");
     const dialog = page.getByRole("dialog", { name: "Building overview" });
     const search = dialog.getByRole("searchbox", { name: "Search the directory" });
     await expect(search).toBeFocused();
@@ -361,7 +361,7 @@ test.describe("Building overview", () => {
   });
 
   test("beside the building: the lantern opens the maintenance, the plants by the steps the building care (admins only)", async ({ page }) => {
-    await page.keyboard.press("h");
+    await page.keyboard.press("m");
     const section = page.getByRole("dialog", { name: "Building overview" }).getByRole("region", { name: "Cross-section" });
     await section.getByRole("button", { name: "Building maintenance" }).click();
     await expect(page.getByRole("dialog", { name: "Building maintenance" })).toBeVisible();
@@ -375,18 +375,18 @@ test.describe("Building overview", () => {
     await expect(page.getByRole("dialog", { name: "Building overview" })).toBeVisible();
     // without Write on the root channel they are only decoration
     await page.goto("/?fixture=edge-cases&talking=0");
-    await page.keyboard.press("h");
+    await page.keyboard.press("m");
     await expect(section.locator(".yard, .porch")).toHaveCount(3); // the lantern and the plants beside the steps
     await expect(section.getByRole("button", { name: /^Building (maintenance|care)$/ })).toHaveCount(0);
   });
 
   test("a room in the cross-section moves there, a floor badge shows that floor", async ({ page }) => {
-    await page.keyboard.press("h");
+    await page.keyboard.press("m");
     const dialog = page.getByRole("dialog", { name: "Building overview" });
     await dialog.getByRole("button", { name: "View the floor Support" }).first().click();
     await expect(dialog).toHaveCount(0);
     await expect(page.getByRole("heading", { name: "Support" })).toBeVisible();
-    await page.keyboard.press("h");
+    await page.keyboard.press("m");
     await dialog.getByRole("region", { name: "Cross-section" }).getByRole("button", { name: "Enter Ben's office" }).dblclick();
     await expect(page.getByRole("button", { name: /^You are here: Ben's office/ })).toBeVisible();
   });
@@ -405,7 +405,7 @@ test.describe("Tab title and shortcuts", () => {
   test("? lists the shortcuts, also from the user menu", async ({ page }) => {
     await page.keyboard.press("?");
     const dialog = page.getByRole("dialog", { name: "Keyboard shortcuts" });
-    const rows: [string, string][] = [["B", "Show and hide the board"], ["H", "Building overview"], ["S", "My status"], ["T", "Ruumble in a box: open and close"], ["?", "This list"], ["Esc", "Close a dialog or the conversations"]];
+    const rows: [string, string][] = [["B", "Show and hide the board"], ["H", "Show and hide the room's task board"], ["M", "Building overview"], ["S", "My status"], ["T", "Ruumble in a box: open and close"], ["?", "This list"], ["Esc", "Close a dialog or the conversations"]];
     for (const [key, what] of rows) {
       await expect(dialog.getByText(key, { exact: true })).toBeVisible();
       await expect(dialog.getByText(what, { exact: true })).toBeVisible();

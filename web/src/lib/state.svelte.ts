@@ -20,6 +20,7 @@ import { DeskState } from "./desk/state.svelte.ts";
 import { TubeState } from "./tube/state.svelte.ts";
 import { TaskBoardState } from "./taskboard/state.svelte.ts";
 import { returnChannelOf } from "./model/cafeteria.ts";
+import { equipmentOf } from "./taskboard/model.ts";
 
 export type Notice = { text: string };
 
@@ -134,7 +135,7 @@ export class RuumbleState {
   helpOpen = $state(false);
   /** Ruumble's edit dialog for this channel (room or floor, #15), opened from the room menu inside Ruumble Client */
   editChannelId = $state<number | null>(null);
-  /** building overview (ADR-0019): cross-section and directory, opened from the elevator's status bar or with H */
+  /** building overview (ADR-0019): cross-section and directory, opened from the elevator's status bar or with M */
   overviewOpen = $state(false);
   /** the own status (B, ADR-0018): dialog open, what the service reported (current and recent texts), saving, error */
   statusOpen = $state(false);
@@ -399,6 +400,21 @@ export class RuumbleState {
     if (this.taskboard.channelId === channelId) return this.taskboard.close();
     this.boardOpen = false; // one sidebar at a time
     void this.taskboard.open(channelId);
+  }
+
+  /** the channel of the own place when it has a task board (a room or a corridor), for the H key (#29); else null */
+  get ownTaskBoard(): number | null {
+    const ch = this.me?.channel;
+    const s = this.snapshot;
+    if (ch === undefined || !s || this.readonly) return null;
+    return equipmentOf(s, ch).taskboard && s.taskboards?.[String(ch)] ? ch : null;
+  }
+
+  /** the H key: the own room's task board in the sidebar, or a short note when the place has none */
+  toggleOwnTaskBoard(): void {
+    const ch = this.ownTaskBoard;
+    if (ch === null) return this.setNotice({ text: t().taskboard.noneHere });
+    this.toggleTaskBoard(ch);
   }
 
   /** room equipment (#29): Write permission on the room or floor */

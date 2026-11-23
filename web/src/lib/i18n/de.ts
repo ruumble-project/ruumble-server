@@ -479,6 +479,7 @@ export const de = {
     title: "Tastenkürzel",
     menu: "Tastenkürzel",
     toggleBoard: "Pinnwand ein- und ausblenden",
+    taskboard: "Aufgabentafel des Raums ein- und ausblenden",
     overview: "Gebäudeübersicht",
     status: "Mein Status",
     help: "Diese Übersicht",
@@ -582,7 +583,7 @@ export const de = {
     forgetLabel: (name: string) => `Verlauf mit ${name} in diesem Browser vergessen`,
     keep: "Bleibt 24 Stunden nach der letzten Nachricht in diesem Browser.",
     none: "Keine offenen Gespräche",
-    noneHint: "Fahr mit der Maus über eine Person im Haus oder öffne die Haustafel (H) und schreib ihr unter vier Augen.",
+    noneHint: "Fahr mit der Maus über eine Person im Haus oder öffne die Haustafel (M) und schreib ihr unter vier Augen.",
     first: (name: string) => `Noch keine Nachrichten mit ${name}.`,
     from: (name: string) => `Nachricht von ${name}`,
     reply: "Antworten",
@@ -732,9 +733,9 @@ export const de = {
     waveValue: (minutes: number) => (minutes < 60 ? `${minutes} Minuten` : plural(minutes / 60, "1 Stunde", `${minutes / 60} Stunden`)),
     clear: "Erledigtes abräumen nach",
     clearValue: (days: number) => plural(days, "1 Tag", `${days} Tagen`),
-    fixedAsk: "Bitten stellen kann, wer gerade im Raum ist.",
+    fixedAsk: "Um Hilfe bitten kann, wer gerade im Raum ist.",
     fixedSee: "Die Tafel sehen alle, die den Raum betreten dürfen.",
-    fixedNotice: "Neue Bitten und jede Änderung erscheinen am Raum und im Mumble-Protokoll.",
+    fixedNotice: "Neue Aufgaben und jede Änderung erscheinen am Raum und im Mumble-Protokoll.",
     equipmentFailed: "Die Ausstattung ließ sich nicht speichern.",
   },
   /** the free part of the lobby (#31): its clock, the bell on the desk and the two signs in front of it */
@@ -767,7 +768,7 @@ export const de = {
     askPlaceholder: "Wobei brauchst du Hilfe?",
     ask: "Bitten",
     asking: "Wird gesendet …",
-    onlyInRoom: (room: string) => `Bitten stellen kann, wer in ${room} ist. Helfen kannst du von überall.`,
+    onlyInRoom: (room: string) => `Um Hilfe bitten kann, wer in ${room} ist. Helfen kannst du von überall.`,
     mentionHint: "Mit @ bittest du eine bestimmte Person.",
     inRoom: "im Raum",
     until: "bis",
@@ -799,6 +800,7 @@ export const de = {
     /** the marks at the avatar */
     markAsking: "bittet um Hilfe",
     markHelping: "hilft gerade",
+    noneHere: "Dieser Ort hat keine Aufgabentafel.",
     unavailable: "Die Aufgabentafel ist gerade nicht erreichbar.",
     failed: "Das hat nicht geklappt. Ist die Bitte noch da?",
     /** the plaque on the room's outer wall */
@@ -814,7 +816,6 @@ export const de = {
       thanks: (asker: string, helper: string) => `${asker} sagt ${helper} danke`,
       entered: (n: number, ago: string) => `An der Aufgabentafel ${plural(n, "wartet 1 Bitte", `warten ${n} Bitten`)}, die älteste ${ago}`,
       more: (n: number) => `+${n}`,
-      open: "Aufgabentafel öffnen",
     },
     /** the thank-you card */
     thanks: {

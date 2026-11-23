@@ -107,7 +107,7 @@ test.describe("Board (AP11.2)", () => {
 
   test("keyboard: B shows and hides the board, not while typing (tooltip names the key)", async ({ page }) => {
     const toggle = page.getByRole("button", { name: "Show board" });
-    await expect(toggle).toHaveAttribute("title", "Show board (B)");
+    await expect(toggle).toHaveAttribute("title", "Board (B)");
     await expect(toggle).toHaveAttribute("aria-keyshortcuts", "B");
     await page.keyboard.press("b");
     const board = page.getByRole("complementary", { name: "Board" });

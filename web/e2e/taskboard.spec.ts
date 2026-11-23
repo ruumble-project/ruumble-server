@@ -51,7 +51,7 @@ test.describe("Task board", () => {
   test("another room's board: help from anywhere, asking only inside", async ({ page }) => {
     await board(page, "Ben's office").click();
     await expect(panel(page).getByRole("heading", { name: "Task board of Ben's office" })).toBeVisible();
-    await expect(panel(page)).toContainText("Whoever is in Ben's office can ask here. You can help from anywhere.");
+    await expect(panel(page)).toContainText("Whoever is in Ben's office can ask for help here. You can help from anywhere.");
     await expect(panel(page).getByRole("combobox")).toHaveCount(0);
     const card = panel(page).getByRole("article", { name: "Can someone look at my failing build?" });
     await expect(card).toContainText("Ben and David");
@@ -123,5 +123,28 @@ test.describe("Task board", () => {
     await expect(card).toContainText("\"You rock!\"");
     // the plaques of the room queue up behind the first one
     await expect(plaque(page, "3")).toContainText("+");
+  });
+
+  test("tooltips: only the name, the key behind it where it works (the own room's board)", async ({ page }) => {
+    await expect(board(page, "Let's talk")).toHaveAttribute("title", "Task board (H)");
+    await expect(board(page, "Ben's office")).toHaveAttribute("title", "Task board");
+    await expect(page.getByRole("button", { name: "Show board" })).toHaveAttribute("title", "Board (B)");
+  });
+
+  test("H shows and hides the own room's task board; M opens the building overview", async ({ page }) => {
+    await page.keyboard.press("h");
+    await expect(panel(page).getByRole("heading", { name: "Task board of Let's talk" })).toBeVisible();
+    await page.keyboard.press("h");
+    await expect(panel(page)).toHaveCount(0);
+    await page.keyboard.press("m");
+    await expect(page.getByRole("dialog", { name: "Building overview" })).toBeVisible();
+  });
+
+  test("H in a place without a task board says so", async ({ page }) => {
+    await page.evaluate(() => (window as unknown as { ruumbleMock: { command(b: unknown): Promise<string> } }).ruumbleMock.command({ cmd: "join", channel: 4 }));
+    await expect(page.getByRole("button", { name: /^You are here: Let's play/ })).toBeVisible();
+    await page.keyboard.press("h");
+    await expect(page.getByRole("alert").filter({ hasText: "This place has no task board." })).toBeVisible();
+    await expect(panel(page)).toHaveCount(0);
   });
 });

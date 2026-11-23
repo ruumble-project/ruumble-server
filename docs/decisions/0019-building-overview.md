@@ -20,7 +20,7 @@ The floor plan shows one floor at a time; the elevator lists every floor with it
 - **Showing who talks:** only the own plugin knows it, and only for people one hears (ADR-0005).
 
 ## Consequences
-- The elevator's status bar is a button now; its tooltip names the overview and H.
+- The elevator's status bar is a button now; its tooltip names the overview and its key. Current state: the key is **M** (map) since 0.42.1; **H** opens the task board of the own room (ADR-0028).
 - Later: filters (with a status, active, free rooms), knocking (idea C) from a person, the floor plants for building admins, a highlight for people who just arrived.
 
 ## Current state (code)

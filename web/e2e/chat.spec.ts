@@ -41,7 +41,7 @@ test.describe("A quiet word", () => {
   });
 
   test("from the directory board: invite someone elsewhere, who answers and comes over", async ({ page }) => {
-    await page.keyboard.press("h");
+    await page.keyboard.press("m");
     const overview = page.getByRole("dialog", { name: "Building overview" });
     await overview.getByRole("button", { name: "Message to Ben" }).click();
     await expect(overview).toHaveCount(0);
@@ -55,7 +55,7 @@ test.describe("A quiet word", () => {
   });
 
   test("P on a person of the directory board opens their conversation", async ({ page }) => {
-    await page.keyboard.press("h");
+    await page.keyboard.press("m");
     const overview = page.getByRole("dialog", { name: "Building overview" });
     await overview.getByRole("button", { name: /^Go to Ben/ }).focus();
     await page.keyboard.press("t");
@@ -83,7 +83,7 @@ test.describe("A quiet word", () => {
     await input(page, "Clara").fill("First");
     await page.keyboard.press("Enter");
     await panel(page).getByRole("heading", { name: "Ruumble in a box" }).click(); // out of the text field
-    await page.keyboard.press("h");
+    await page.keyboard.press("m");
     await page.getByRole("dialog", { name: "Building overview" }).getByRole("button", { name: "Message to Ben" }).click();
     await expect(panel(page).getByRole("tab", { name: "Ben" })).toHaveAttribute("aria-selected", "true");
 

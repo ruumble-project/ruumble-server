@@ -6,6 +6,13 @@ All notable changes to Ruumble. The service and the web UI share one version; th
 
 ## [Unreleased]
 
+### Changed
+
+- **One lobby:** the old empty lobby floor (an open lowest floor named lobby, foyer, reception, entrance, Empfang or Eingang) is replaced by the lobby with its cafeteria for as long as nobody is in it, so the elevator no longer offers two lobbies; the floors above keep their numbers. Someone in the old lobby brings it back (#30)
+- **Keys:** **H** now shows and hides the task board of the room you are in, and the building overview moved to **M** (map). The keyboard shortcut list shows both (#29)
+- **Tooltips:** the board and the task board in a room say just "Board (B)" and "Task board (H)" (the key only where it works, in your own room) instead of long descriptions; screen readers still hear the full state (#29)
+- **Wording:** the task board speaks of asking for help: "Whoever is in the room can ask for help" and "New tasks and every change show on the room and in the Mumble log" (#29)
+
 ### Fixed
 
 - **Cafeteria light with an open sidebar:** on the floors above the lobby, the cone of light now always stands right below the chalkboard sign, also when the board or the task board narrows the floor plan (#30)
