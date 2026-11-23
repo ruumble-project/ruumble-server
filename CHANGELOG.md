@@ -6,6 +6,10 @@ All notable changes to Ruumble. The service and the web UI share one version; th
 
 ## [Unreleased]
 
+### Fixed
+
+- **Cafeteria light with an open sidebar:** on the floors above the lobby, the cone of light now always stands right below the chalkboard sign, also when the board or the task board narrows the floor plan (#30)
+
 ## [0.42.0] - 2026-11-23
 
 Plugin 0.5.0 (unchanged). For operators: the service keeps two new files in `DATA_DIR`, `equipment.json` and `taskboard.json`; include them in backups.

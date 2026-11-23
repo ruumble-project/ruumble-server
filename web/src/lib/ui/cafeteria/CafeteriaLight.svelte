@@ -57,7 +57,9 @@
     const door = cafeLeft + (doorX - CAFE_VIEW.x) * unit;
     const sign = wanted ?? door + doorWidth + 6;
     geo = {
-      door,
+      // in the lobby the cone comes out of the drawn door; on the floors above there is no door to see, so it always
+      // stands right below the sign (also when an open sidebar narrows the floor plan)
+      door: floorId === 0 || wanted === null ? door : sign - 6 - doorWidth,
       doorWidth,
       window: fp.offsetTop + r.y + ((EAST_WINDOW.y - CAFE_VIEW.y) / CAFE_VIEW.height) * r.height,
       windowHeight: (EAST_WINDOW.height / CAFE_VIEW.height) * r.height,

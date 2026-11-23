@@ -10,3 +10,8 @@
 -->
 
 Changes marked ![server update](https://img.shields.io/badge/-server%20update-e67e22) reach you once the Ruumble server you use is updated.
+
+## Fixed
+
+- The light below the cafeteria's sign stays in place when the board is open. ![server update](https://img.shields.io/badge/-server%20update-e67e22)
+
