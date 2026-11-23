@@ -10,15 +10,3 @@
 -->
 
 Changes marked ![server update](https://img.shields.io/badge/-server%20update-e67e22) reach you once the Ruumble server you use is updated.
-
-## Better
-
-- There is only one lobby now: the old empty one is replaced by the lobby with the cafeteria, as long as nobody is in it. ![server update](https://img.shields.io/badge/-server%20update-e67e22)
-- **H** shows and hides the task board of the room you are in. The building overview is on **M** now (for "map"). ![server update](https://img.shields.io/badge/-server%20update-e67e22)
-- The board and the task board show short tooltips: "Board (B)" and "Task board (H)". ![server update](https://img.shields.io/badge/-server%20update-e67e22)
-- The task board says it plainly: whoever is in the room can ask for help. ![server update](https://img.shields.io/badge/-server%20update-e67e22)
-
-## Fixed
-
-- The light below the cafeteria's sign stays in place when the board is open. ![server update](https://img.shields.io/badge/-server%20update-e67e22)
-

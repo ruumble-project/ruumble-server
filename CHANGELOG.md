@@ -6,6 +6,8 @@ All notable changes to Ruumble. The service and the web UI share one version; th
 
 ## [Unreleased]
 
+## [0.42.1] - 2026-11-23
+
 ### Changed
 
 - **One lobby:** the old empty lobby floor (an open lowest floor named lobby, foyer, reception, entrance, Empfang or Eingang) is replaced by the lobby with its cafeteria for as long as nobody is in it, so the elevator no longer offers two lobbies; the floors above keep their numbers. Someone in the old lobby brings it back (#30)
@@ -574,6 +576,7 @@ Plugin 0.1.0 to 0.2.0.
 - Real Mumble avatars and presence (quiet, away, recording).
 - Docker image with the plugin bundle served under `/download`.
 
+[0.42.1]: https://github.com/ruumble-project/ruumble-server/releases/tag/v0.42.1
 [0.42.0]: https://github.com/ruumble-project/ruumble-server/releases/tag/v0.42.0
 [0.41.1]: https://github.com/ruumble-project/ruumble-server/releases/tag/v0.41.1
 [0.41.0]: https://github.com/ruumble-project/ruumble-server/releases/tag/v0.41.0
