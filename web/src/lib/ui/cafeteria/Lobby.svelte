@@ -1,10 +1,14 @@
 <script lang="ts">
-  // the lobby (#30): the root channel, the level below the floors. Its left part is free for now; at the top right is
+  // the lobby (#30): the root channel, the level below the floors. Its free part holds a clock and a reception desk with
+  // BUG and IDEA signs, each only where it fits (#31, model/lobby.ts); at the top right is
   // the cafeteria, where everyone in the root channel sits, one per seat (model/cafeteria.ts). A double click on the
   // cafeteria goes there, like on a room; a click on the own avatar sets the own status.
   import { onActivateKey } from "../activate.ts";
   import { countText, type Floor } from "../../model/building.ts";
   import { cafeRect, CAFE_VIEW, fraction, seating } from "../../model/cafeteria.ts";
+  import { lobbyLayout } from "../../model/lobby.ts";
+  import LobbyClock from "./LobbyClock.svelte";
+  import ReceptionDesk from "./ReceptionDesk.svelte";
   import { t } from "../../i18n/index.svelte.ts";
   import Avatar from "../Avatar.svelte";
   import Plant from "../Plant.svelte";
@@ -30,6 +34,7 @@
   let width = $state(0);
   let height = $state(0);
   const rect = $derived(cafeRect(width, height));
+  const layout = $derived(lobbyLayout(width, height, rect.width));
   /** one unit of the drawing in pixels; an avatar (44 px) fits a seat (33 units) or shrinks to it */
   const unit = $derived(rect.width / CAFE_VIEW.width);
   const avatarScale = $derived(Math.min(1, (33 * unit - 4) / 44));
@@ -56,13 +61,19 @@
 <div class="lobby" bind:clientWidth={width} bind:clientHeight={height} data-channel={space.channelId}>
   <div class="free">
     <span class="title">{t().cafeteria.lobby}</span>
-    <!-- the entrance at the bottom left, a plant on either side -->
+    <!-- the entrance at the bottom left: a glass sliding door in the south wall, a plant on either side -->
     <span class="entrance" aria-hidden="true">
       <span class="plant"><Plant size={26} subtle /></span>
-      <svg class="door" width="48" height="46" viewBox="0 0 48 46"><path d="M2 46 V2 A44 44 0 0 1 46 46" class="arc" /><line x1="2" y1="46" x2="2" y2="2" class="leaf" /></svg>
+      <svg class="door" width="100" height="10" viewBox="0 0 100 10"><rect x="2" y="1" width="52" height="3" class="glass" /><rect x="46" y="5" width="52" height="3" class="glass" /></svg>
       <span class="plant"><Plant size={26} subtle /></span>
     </span>
   </div>
+  {#if layout.clock}
+    <div class="item clock-spot" style:left="{layout.clock.x}px" style:top="{layout.clock.y - 42}px"><LobbyClock /></div>
+  {/if}
+  {#if layout.desk}
+    <div class="item" style:left="{layout.desk.x}px" style:top="{layout.desk.y}px"><ReceptionDesk /></div>
+  {/if}
   {#if rect.width > 0}
     <div
       class="cafe"
@@ -101,11 +112,12 @@
   .lobby { position: relative; flex: 1 1 auto; min-width: 0; min-height: 0; background: var(--color-paper); }
   .free { position: absolute; inset: 0; padding: 20px 22px; pointer-events: none; }
   .title { font-size: 20px; font-weight: 700; color: var(--color-ink); }
-  .entrance { position: absolute; left: 60px; bottom: 0; display: flex; align-items: flex-end; gap: 10px; }
+  .entrance { position: absolute; left: 40px; bottom: 0; display: flex; align-items: flex-end; gap: 14px; }
   .plant { display: flex; padding-bottom: 6px; }
-  .door { display: block; }
-  .arc { fill: none; stroke: var(--color-blue-300); stroke-width: 1.5; }
-  .leaf { stroke: var(--color-ink); stroke-width: 3; }
+  .door { display: block; margin-bottom: -4px; }
+  .glass { fill: var(--color-blue-300); stroke: var(--color-ink); stroke-width: 0.8; }
+  .item { position: absolute; z-index: 1; }
+  .clock-spot { transform: translateX(-50%); }
   .cafe { position: absolute; top: 0; cursor: pointer; outline-offset: -6px; }
   .cafe:focus-visible { outline: 3px solid var(--color-sky); }
   .cafe.mine, .cafe.locked, .cafe[aria-disabled="true"] { cursor: default; }

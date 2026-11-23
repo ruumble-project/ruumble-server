@@ -109,6 +109,7 @@ The web UI is dark if your system uses a dark appearance, otherwise light, and f
 - The **lobby** is Mumble's root channel, at the bottom of the elevator below the floors. Everyone in it sits in its **cafeteria** at the top right: on the sofas, at the round table or at the counter, one seat each.
 - As soon as someone is in the cafeteria, the **lights come on**. From every floor you see the light falling out of its door and window, and a **chalkboard sign** next to the tube mail button with the number of people there. Point at it to see who is there; click it to go there. Empty, the sign stays pale and still takes you there.
 - In the cafeteria, the same sign shows an arrow: a click takes you back to the room you came from.
+- The rest of the lobby has a **wall clock** with the weekday and date, and a **reception desk**: its bell opens Ruumble on GitHub, the **BUG** sign in front of it opens a bug report there, the **IDEA** sign a feature request. In a narrow window the desk, and then the clock, make way.
 
 ## Questions and problems
 

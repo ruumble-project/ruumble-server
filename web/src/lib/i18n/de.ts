@@ -737,6 +737,13 @@ export const de = {
     fixedNotice: "Neue Bitten und jede Änderung erscheinen am Raum und im Mumble-Protokoll.",
     equipmentFailed: "Die Ausstattung ließ sich nicht speichern.",
   },
+  /** the free part of the lobby (#31): its clock, the bell on the desk and the two signs in front of it */
+  lobby: {
+    clock: (time: string, date: string) => `Uhr: ${time}, ${date}`,
+    bell: "Ruumble auf GitHub",
+    bug: "BUG: einen Fehler melden (auf GitHub)",
+    idea: "IDEA: eine Idee einreichen (auf GitHub)",
+  },
   /** the cafeteria (#30): its sign beside every floor */
   cafeteria: {
     /** the root channel as the ground floor, and the cafeteria in it where its people sit */

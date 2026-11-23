@@ -25,6 +25,8 @@ Every change shows up as a plaque on the room's outer wall and in the Mumble log
 
 The lobby below the floors now has a cafeteria, and everyone who is in the lobby takes a seat there: on the sofas, at the round table or at the counter with the coffee machine. When someone is in there, the lights come on, and you see the glow from every floor. A chalkboard sign next to the tube mail button tells you how many are inside; hover it to see who, click it to go there. Inside, the same sign takes you back to the room you came from.
 
+The rest of the lobby has a wall clock with today's date and a reception desk. Ring the bell to visit Ruumble on GitHub, or use the **BUG** and **IDEA** signs in front of it to report a problem or suggest something.
+
 ### Room equipment
 
 **Set up room** has a new **Equipment** tab. The board is always there, the binders with the room description can now be switched off, and the task board can be switched on.

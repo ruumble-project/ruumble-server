@@ -687,6 +687,12 @@ export const en: Messages = {
     fixedNotice: "New requests and every change show on the room and in the Mumble log.",
     equipmentFailed: "The equipment could not be saved.",
   },
+  lobby: {
+    clock: (time: string, date: string) => `Clock: ${time}, ${date}`,
+    bell: "Ruumble on GitHub",
+    bug: "BUG: report a bug (on GitHub)",
+    idea: "IDEA: suggest an idea (on GitHub)",
+  },
   cafeteria: {
     lobby: "Lobby",
     name: "Cafeteria",

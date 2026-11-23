@@ -89,6 +89,7 @@ Avatars only work with Mumble server 1.5.x. From 1.6, Mumble's Ice `getTexture` 
 
 - **The root channel is the lobby** ([ADR-0029](decisions/0029-cafeteria.md), #30), shown below the floors (they keep their numbers); everyone in it sits in its cafeteria: a fixed-size room at the top right with a counter and espresso machine, sofas over the corner, a round table and stools, one seat per person.
 - **Lit while someone is inside**, and seen from every floor: cones of light out of its north door and east window, and a chalkboard sign directly left of the tube mail button with the number of people; hovering names them, a click goes there. Inside, the sign leads back to the room one came from.
+- **The free part of the lobby** (#31): a wall clock with weekday and date, and a reception desk with a bell (Ruumble on GitHub) and "BUG" and "IDEA" signs (GitHub's bug report and feature request forms), centred between the west wall and the cafeteria, each only where it fits (`model/lobby.ts`).
 
 ### Moving, mute and deafen
 
