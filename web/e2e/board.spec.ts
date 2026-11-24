@@ -179,9 +179,11 @@ test.describe("Board (AP11.2)", () => {
     await expect(board.getByRole("region", { name: /^Kept on top: / })).toHaveCount(0);
   });
 
-  test("other rooms show no notes, even when something is pinned there", async ({ page }) => {
-    await expect(page.locator('.wrap:has(.room[data-channel="7"]) .notes')).toHaveCount(0); // Clara, with posts
-    await expect(page.locator("svg.notes")).toHaveCount(1); // only the toggle in the user's own room
+  test("other rooms show the board only as a sign, even when something is pinned there", async ({ page }) => {
+    const other = page.locator('.wrap:has(.room[data-channel="7"])'); // Clara, with posts
+    await expect(other.locator(".notes.sign")).toHaveCount(1);
+    await expect(other.locator("button.notes")).toHaveCount(0); // not a toggle: the content is for those inside
+    await expect(page.locator("button.notes.toggle")).toHaveCount(1); // the toggle only in the user's own room
   });
 
   test("cards: code highlighted, long texts truncated, popup shows everything and saves changes", async ({ page }) => {
