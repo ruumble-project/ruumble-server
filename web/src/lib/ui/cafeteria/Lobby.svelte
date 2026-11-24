@@ -61,10 +61,13 @@
 <div class="lobby" bind:clientWidth={width} bind:clientHeight={height} data-channel={space.channelId}>
   <div class="free">
     <span class="title">{t().cafeteria.lobby}</span>
-    <!-- the entrance at the bottom left: a glass sliding door in the south wall, a plant on either side -->
+    <!-- the entrance at the bottom left: a double swing door in the south wall, a plant on either side -->
     <span class="entrance" aria-hidden="true">
       <span class="plant"><Plant size={26} subtle /></span>
-      <svg class="door" width="100" height="10" viewBox="0 0 100 10"><rect x="2" y="1" width="52" height="3" class="glass" /><rect x="46" y="5" width="52" height="3" class="glass" /></svg>
+      <svg class="door" width="100" height="50" viewBox="0 0 100 50">
+        <path d="M2 48 v-46 a46 46 0 0 1 46 46" class="arc" /><line x1="2" y1="48" x2="2" y2="2" class="leaf" />
+        <path d="M98 48 v-46 a46 46 0 0 0 -46 46" class="arc" /><line x1="98" y1="48" x2="98" y2="2" class="leaf" />
+      </svg>
       <span class="plant"><Plant size={26} subtle /></span>
     </span>
   </div>
@@ -115,7 +118,8 @@
   .entrance { position: absolute; left: 40px; bottom: 0; display: flex; align-items: flex-end; gap: 14px; }
   .plant { display: flex; padding-bottom: 6px; }
   .door { display: block; margin-bottom: -4px; }
-  .glass { fill: var(--color-blue-300); stroke: var(--color-ink); stroke-width: 0.8; }
+  .arc { fill: none; stroke: var(--color-blue-300); stroke-width: 1.5; }
+  .leaf { stroke: var(--color-ink); stroke-width: 2.5; }
   .item { position: absolute; z-index: 1; }
   .clock-spot { transform: translateX(-50%); }
   .cafe { position: absolute; top: 0; cursor: pointer; outline-offset: -6px; }

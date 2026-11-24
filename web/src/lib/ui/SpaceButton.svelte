@@ -152,8 +152,11 @@
 
 
   const room = $derived("grow" in space ? space : null);
-  // board graphic only in the user's own room, as the toggle for the sidebar
+  // board graphic in every room: in the user's own room it is the toggle for the sidebar, elsewhere only a sign
   const boardToggle = $derived(!!room && space.isSelf && !readonly && !!ontoggleboard);
+  const boardSign = $derived(!!room && !boardToggle);
+  /** the graphic takes its room's width wherever it stands (toggle or sign) */
+  const boardShown = $derived(boardToggle || boardSign);
   const boardFresh = $derived(!boardOpen && boardUnseen > 0);
   const boardLabel = $derived(boardOpen ? t().board.hide : boardFresh ? t().board.showUnseen(boardUnseen) : t().board.show);
   const disabled = $derived((space.locked && !space.isSelf) || readonly);
@@ -198,11 +201,11 @@
   const taskboardText = $derived(taskboard ? taskBoardLabel(space.name, taskboard, now) : "");
   const taskboardShift = $derived(taskboard ? TASKBOARD_WIDTH : 0);
   const binders = $derived(!!space.description && !space.bindersOff);
-  const descriptionRight = $derived(variant === "room" ? `${14 + plateWidth + 6 + taskboardShift + (boardToggle ? BOARD_TOGGLE_WIDTH + 2 : 0)}px` : undefined);
+  const descriptionRight = $derived(variant === "room" ? `${14 + plateWidth + 6 + taskboardShift + (boardShown ? BOARD_TOGGLE_WIDTH + 2 : 0)}px` : undefined);
   /** room width the door plate leaves for the door, the board and the binders */
   const VOLUME_TAG_WIDTH = 32;
   const plateReserve = $derived(
-    90 + doorShift + taskboardShift + (boardToggle ? BOARD_TOGGLE_WIDTH : 0) + (binders ? BINDERS_WIDTH : 0) + (listen?.open && listen.interactive ? VOLUME_TAG_WIDTH : 0),
+    90 + doorShift + taskboardShift + (boardShown ? BOARD_TOGGLE_WIDTH : 0) + (binders ? BINDERS_WIDTH : 0) + (listen?.open && listen.interactive ? VOLUME_TAG_WIDTH : 0),
   );
 
   // narrow rooms (see the @container rule): engines without container queries (Ruumble Client, Chromium 102) get the
@@ -367,6 +370,11 @@
     {#key boardFresh && boardUnseen}<BoardNotes fresh={boardFresh} />{/key}
   </button>
 {/snippet}
+{#snippet notesSign()}
+  <span class="notes toggle sign" role="img" aria-label={t().board.insideOnly} title={t().board.insideOnly} style:right="{14 + plateWidth + 6 + taskboardShift}px">
+    <BoardNotes />
+  </span>
+{/snippet}
 {#snippet plant()}
   {#if tendable}
     <button type="button" class="plant-spot plant-{variant} tend" aria-label={tendLabel} title={tendLabel} onclick={ontend}><Plant size={variant === "room" ? 30 : 26} /></button>
@@ -381,7 +389,7 @@
   <!-- the door at the corridor wall (outside the room's button: inside Ruumble Client it is a button of its own, #19) -->
   <ListenDoor room={space.name} channelId={space.channelId} closed={disabled && !readonly} heard={space.listeners.length > 0} lower={row === "bottom"} {listen} ontoggle={ontogglelisten} onvolume={onlistenvolume} />
 {/if}
-{#if boardToggle}{@render notesToggle()}{/if}
+{#if boardToggle}{@render notesToggle()}{:else if boardSign}{@render notesSign()}{/if}
 {#if taskboard}
   <button
     type="button"
@@ -494,9 +502,11 @@
      Upper row: the task board stands on the baseline 8 px from the wall, its board spans 22 to 44 px; lower row: the
      task board hangs from 8 px (flag first), its board spans 24 to 46 px. The button has 4 px padding. */
   .wrap-room .notes.toggle { top: auto; bottom: 15.5px; margin: 0; min-width: 40px; min-height: 40px; align-items: flex-end; }
-  .wrap-room.lower .notes.toggle { bottom: auto; top: 17.5px; align-items: flex-start; }
+  .wrap-room.lower .notes.toggle { bottom: auto; top: 9.5px; align-items: flex-start; }
   .wrap-room .notes.toggle :global(svg) { width: 40px; height: 27px; }
-  .notes.toggle:hover { transform: translateY(-2px) rotate(-2deg) scale(1.06); }
+  .notes.toggle.sign { cursor: default; opacity: 0.75; }
+  .notes.toggle.sign:hover { transform: none; }
+  .notes.toggle:not(.sign):hover { transform: translateY(-2px) rotate(-2deg) scale(1.06); }
   .notes.toggle:focus-visible { outline: 3px solid var(--color-sky); outline-offset: 0; }
 
   /* the task board (#29): in a room between the door plate and the board notes, its wheels on the baseline of the people
@@ -507,7 +517,7 @@
   }
   .taskboard-spot:disabled { cursor: default; }
   .taskboard-spot.taskboard-room { bottom: 8px; }
-  .lower .taskboard-spot.taskboard-room { bottom: auto; top: 8px; }
+  .lower .taskboard-spot.taskboard-room { bottom: auto; top: 0; }
   .taskboard-spot.taskboard-corridor { top: 50%; transform: translateY(-50%); }
   .taskboard-spot.taskboard-open { top: 12px; right: 56px; }
   .taskboard-spot:not(:disabled):hover, .taskboard-spot.active { transform: translateY(-2px) scale(1.05); }
@@ -517,9 +527,9 @@
   /* binders with the description: in the door strip, in the corridor left of the plant, top right in an open floor */
   .description-spot { position: absolute; display: flex; }
   .description-spot.description-room { bottom: 4px; }
-  .lower .description-spot.description-room { bottom: auto; top: 4px; }
+  /* lower row: the binders stand on the task board's baseline (its feet are 52 px from the wall; the drawing's body starts about as far from the wall as the room name) */
+  .lower .description-spot.description-room { bottom: auto; top: 16px; }
   .description-room :global(.binders-toggle) { margin: 0; align-items: flex-end; }
-  .lower .description-room :global(.binders-toggle) { align-items: flex-start; }
   /* in the corridor the binders stand on the same floor as the plant: the same box, both at its bottom */
   .description-spot.description-corridor {
     top: 50%; right: calc(60px + var(--corridor-end, 0px)); transform: translateY(-50%); box-sizing: border-box; height: 44px; padding-bottom: 2px; align-items: flex-end;

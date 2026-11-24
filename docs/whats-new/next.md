@@ -10,3 +10,10 @@
 -->
 
 Changes marked ![server update](https://img.shields.io/badge/-server%20update-e67e22) reach you once the Ruumble server you use is updated.
+
+## Better
+
+- The entrance of the lobby is now a double door, and the building overview shows it too.
+- In the building overview, people stand in the middle of their floor.
+- Every room shows its board on the wall. Only people inside can open it.
+- In the rooms south of the corridor, the binders, the board and the task board now line up like in the other rooms.

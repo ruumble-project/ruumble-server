@@ -6,6 +6,13 @@ All notable changes to Ruumble. The service and the web UI share one version; th
 
 ## [Unreleased]
 
+### Changed
+
+- **Entrance doors:** the lobby's entrance is a double swing door instead of a sliding door, and the building overview shows a double front door
+- **Building overview:** the people on each floor stand in the middle of the floor, not at its left edge
+- **Board:** the board graphic shows in every room, not only your own; elsewhere it is a sign and says the board is only open to people in the room
+- **Rooms south of the corridor:** the binders, the board and the task board sit closer to the wall and stand on the same line, like in the rooms north of it
+
 ## [0.42.1] - 2026-11-23
 
 ### Changed

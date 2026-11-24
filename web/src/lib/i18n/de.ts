@@ -192,6 +192,7 @@ export const de = {
     /** tooltip with the keyboard shortcut */
     withKey: (label: string, key: string) => `${label} (${key.toUpperCase()})`,
     hide: "Pinnwand ausblenden",
+    insideOnly: "Die Pinnwand ist nur für Personen in diesem Raum zugänglich",
     view: "Ansicht",
     viewPlacement: "Pinnwand",
     docked: "Integriert",

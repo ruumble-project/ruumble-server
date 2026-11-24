@@ -183,6 +183,7 @@ export const en: Messages = {
     newAbove: (n) => (n === 1 ? "1 new post" : `${n} new posts`),
     withKey: (label, key) => `${label} (${key.toUpperCase()})`,
     hide: "Hide board",
+    insideOnly: "The board is only open to people in this room",
     view: "View",
     viewPlacement: "Board",
     docked: "Integrated",

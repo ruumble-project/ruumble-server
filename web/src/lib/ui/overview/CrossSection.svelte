@@ -80,15 +80,16 @@
   <div class="storey ground" class:mine={building.self?.kind === "entrance"}>
     <div class="shaft"></div>
     <div class="floor">
-      <!-- the front door: canopy, frame, a door with two panels, fanlight and handle -->
+      <!-- the front door: canopy, frame, a double door with a panel per leaf, fanlight and two handles -->
       <svg class="front-door" width="34" height="48" viewBox="0 0 34 48" aria-hidden="true">
         <rect x="0" y="0" width="34" height="4" rx="1" class="canopy" />
         <rect x="3" y="4" width="28" height="44" class="frame" />
         <rect x="6" y="7" width="22" height="8" rx="4" class="fanlight" />
-        <rect x="6" y="17" width="22" height="31" class="leaf" />
-        <rect x="9" y="20" width="16" height="10" rx="1" class="panel" />
-        <rect x="9" y="33" width="16" height="12" rx="1" class="panel" />
-        <circle cx="24.5" cy="32" r="1.6" class="handle" />
+        <rect x="6" y="17" width="10.5" height="31" class="leaf" />
+        <rect x="17.5" y="17" width="10.5" height="31" class="leaf" />
+        <rect x="8" y="20" width="6.5" height="10" rx="1" class="panel" /><rect x="19.5" y="20" width="6.5" height="10" rx="1" class="panel" />
+        <rect x="8" y="33" width="6.5" height="12" rx="1" class="panel" /><rect x="19.5" y="33" width="6.5" height="12" rx="1" class="panel" />
+        <circle cx="15" cy="32" r="1.2" class="handle" /><circle cx="19" cy="32" r="1.2" class="handle" />
       </svg>
       {#if building.entrance.length}{@render people(entrance, t().cafeteria.name)}{/if}
     </div>
@@ -152,7 +153,7 @@
   .storey.mine .fbadge { box-shadow: 0 0 0 2px var(--color-accent); }
   /* a floor: the slab on top, the outer wall on the right; the people stand on the slab below */
   .floor {
-    display: flex; flex-wrap: wrap; align-items: flex-end; min-width: 0; min-height: 52px; padding: 8px 10px 6px;
+    position: relative; display: flex; flex-wrap: wrap; justify-content: center; align-items: flex-end; min-width: 0; min-height: 52px; padding: 8px 10px 6px;
     border-top: 3px solid var(--color-wall); border-right: 2px solid var(--color-wall); background: var(--color-paper);
   }
   /* a group: the people of one room, set apart from the next by a thin line */
@@ -172,7 +173,7 @@
   .ground-line { height: 3px; background: var(--color-wall); }
   /* the entrance storey: the door stands on the slab, at the left next to the shaft */
   .ground .floor { padding-bottom: 0; align-items: flex-end; gap: 6px; }
-  .front-door { display: block; flex: none; margin-right: 6px; }
+  .front-door { position: absolute; left: 10px; bottom: 0; display: block; }
   /* the door stands on the slab, the people in the middle of the storey like on every other floor */
   .ground .group { align-self: center; }
   .front-door .canopy { fill: var(--color-wall); }
