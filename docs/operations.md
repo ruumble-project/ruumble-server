@@ -75,7 +75,7 @@ In a folder next to Mumble's (e.g. `ruumble/` beside `mumble/`), save this as `d
 ```yaml
 services:
   ruumble:
-    image: ghcr.io/ruumble-project/ruumble:0.42.1
+    image: ghcr.io/ruumble-project/ruumble:0.42.2
     container_name: ruumble
     restart: unless-stopped
     environment:

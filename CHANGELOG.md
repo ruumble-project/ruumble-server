@@ -6,6 +6,8 @@ All notable changes to Ruumble. The service and the web UI share one version; th
 
 ## [Unreleased]
 
+## [0.42.2] - 2026-11-24
+
 ### Changed
 
 - **Entrance doors:** the lobby's entrance is a double swing door instead of a sliding door, and the building overview shows a double front door
@@ -583,6 +585,7 @@ Plugin 0.1.0 to 0.2.0.
 - Real Mumble avatars and presence (quiet, away, recording).
 - Docker image with the plugin bundle served under `/download`.
 
+[0.42.2]: https://github.com/ruumble-project/ruumble-server/releases/tag/v0.42.2
 [0.42.1]: https://github.com/ruumble-project/ruumble-server/releases/tag/v0.42.1
 [0.42.0]: https://github.com/ruumble-project/ruumble-server/releases/tag/v0.42.0
 [0.41.1]: https://github.com/ruumble-project/ruumble-server/releases/tag/v0.41.1

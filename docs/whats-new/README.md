@@ -6,6 +6,7 @@ In Ruumble, "What's new" in the user menu (the name badge at the top right) open
 **Coming next:** [what is new since the last release](next.md), growing until the next version is out.
 
 <!-- versions: tools/release.sh adds a line here for every release with a page -->
+- [0.42.2](0.42.2.md) · 24 November 2026
 - [0.42.1](0.42.1.md) · 23 November 2026
 - [0.42.0](0.42.0.md) · 23 November 2026 · Ask for help on the task board, Meet at the cafeteria, Room equipment
 - [0.41.1](0.41.1.md) · 9 November 2026 · The pinned post stands out
